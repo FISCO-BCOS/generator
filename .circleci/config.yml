@@ -1,0 +1,54 @@
+version: 2
+jobs:
+  build:  # required for runs that don't use workflows
+    working_directory: ~/generator
+    docker:
+      - image: circleci/python:2.7  # primary container for the build job
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: |
+            pip install -U pip --user
+            pip install configparser --user
+      # - run:
+      #     name: pylint
+      #     command: |
+      #       pip install pylint --user
+      #       touch ~/.pylintrc
+      #       pylint pys >> input 2>&1
+      #       score=`cat input |grep "Your code has been" | awk '{print $7}' | awk -F/ '{print $1}'`
+      #       if [[ "${score}" < "9.5" ]]
+      #       then
+      #           echo "Now socre is ${score}, lower than 9.5"
+      #           return 1
+      #       fi
+      #       echo "pylint pass, your score is ${score}"
+      #     environment:
+      #       PATH: /home/circleci/.local/bin:/usr/bin:/bin:/bin/grep:/usr/bin/grep:$PATH
+      - run:
+          name: Demo test
+          command: |
+            ./generator --demo
+            cd ./meta
+            ./fisco-bcos --version
+            cd ..
+      - run:
+          name: Chain test
+          command: |
+            cd ./data/
+            rm -rf ./monitor
+            bash start_all.sh
+            sleep 2
+            ps aux| grep fisco-bcos |grep -v grep
+            result=`ps aux| grep fisco-bcos |grep -v grep`
+            if [ -z "$result" ]
+            then
+              echo "start failed"
+              return 1
+            fi
+            echo "start succeed"
+            # cd ./monitor
+            # bash monitor.sh -o ../ -r asherli
+            # cd ../
+            ./stop_all.sh

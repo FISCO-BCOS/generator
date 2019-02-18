@@ -1,0 +1,6 @@
+# python exchange #
+*.pyc
+meta/*
+data/*
+log/all.log
+test*/*
