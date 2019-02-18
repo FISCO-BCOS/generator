@@ -77,8 +77,9 @@ def demo_build():
                                               node_ip,
                                               p2p_listen_port[my_node_index]))
     CONSOLER.info("download lastest fisco bcos now")
-    os.system(
-        'bash {}/scripts/download_bin.sh -o {}/'.format(path.get_path(), meta_path))
+    os.system('curl -LO https://raw.githubusercontent.com/'
+              'FISCO-BCOS/FISCO-BCOS/release-2.0.1/tools/ci/download_bin.sh')
+    os.system('bash ./download_bin.sh -o {}/'.format(meta_path))
     CONSOLER.info("download fisco bcos successful")
     CONSOLER.info(
         '========== demo --build in start ========================'
