@@ -11,9 +11,6 @@ matrix:
           env: 
             - CACHE_NAME=ubuntu16
             - ZIP_SUFFIX=ubuntu-xenial
-        - os: osx
-          osx_image: xcode10
-          env: CACHE_NAME=osx
 install: |
   bash ./scripts/install.sh
 script: |
