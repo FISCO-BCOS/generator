@@ -1,6 +1,6 @@
 version: 2
 jobs:
-  build:  # required for runs that don't use workflows
+  default_test:  # required for runs that don't use workflows
     working_directory: ~/generator
     docker:
       - image: circleci/python:2.7  # primary container for the build job
@@ -53,3 +53,47 @@ jobs:
             # bash monitor.sh -o ../ -r asherli
             # cd ../
             ./stop_all.sh
+  CentOS:  # required for runs that don't use workflows
+    working_directory: ~/generator
+    docker:
+      - image: centos:7
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: |
+            yum -y --enablerepo=extras install epel-release
+            yum -y install python-pip
+            pip install configparser --user
+            yum -y install openssl
+            yum -y install nc
+      - run:
+          name: Demo test
+          command: |
+            ./generator --demo
+            cd ./meta
+            ./fisco-bcos --version
+            cd ..
+      - run:
+          name: Chain test
+          command: |
+            cd ./data/
+            rm -rf ./monitor
+            bash start_all.sh
+            sleep 2
+            ps aux| grep fisco-bcos |grep -v grep
+            result=`ps aux| grep fisco-bcos |grep -v grep`
+            if [ -z "$result" ]
+            then
+              echo "start failed"
+              return 1
+            fi
+            echo "start succeed"
+            ./stop_all.sh
+
+workflows:
+  version: 2
+  build:
+    jobs:
+      - default_test
+      - CentOS

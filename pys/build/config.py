@@ -299,8 +299,8 @@ def get_nodeid_str(get_path):
         [string] -- [nodeid]
     """
 
-    # openssl x509  -text -in ./node.crt | sed -n '15,20p'
-    # |  sed 's/://g' | tr "\n" " " | sed 's/ //g' | cut -c 3-130
+    # openssl x509  -text -in ./node.crt |  sed -n '15,20p' |  sed 's/://g' |
+    #  tr "\n" " " | sed 's/ //g' | sed 's/pub//g' | cut -c 3-130
     LOGGER.info("get_nodeid start! get path is %s", get_path)
     if not os.path.isfile(get_path):
         LOGGER.error(' node cert doesn\'t existed! Need %s', get_path)
@@ -308,8 +308,10 @@ def get_nodeid_str(get_path):
     try:
         (status, result) = utils.getstatusoutput('openssl x509  -text -in {}'
                                                  ' | sed -n "15,20p" |  sed '
-                                                 '"s/://g" | tr "\n" " " |'
-                                                 ' sed "s/ //g" | cut -c 3-130'.format(get_path))
+                                                 '"s/://g" | sed "s/pub//g" |'
+                                                 ' tr "\n" " " | sed "s/ //g"'
+                                                 ' | cut -c 3-130'.format(get_path))
+
         if status != 0:
             LOGGER.error(
                 ' create nodeid failed! status is %d, output is %s, dir is %s.',
