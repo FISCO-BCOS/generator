@@ -94,16 +94,16 @@ get_platform()
 install_ubuntu_deps()
 {
     sudo apt-get install python-pip
-    pip install -U pip --user
-    pip install configparser --user
+    # pip install -U pip --user
+    # pip install configparser --user
 }
 
 # install centos package
 install_centos_deps()
 {
     sudo yum install python-pip
-    pip install -U pip --user
-    pip install configparser --user
+    # pip install -U pip --user
+    # pip install configparser --user
 }
 
 install_all_deps()
@@ -112,8 +112,12 @@ install_all_deps()
     platform=`echo $?`
     if [ ${platform} -eq ${Ubuntu_Platform} ];then
         install_ubuntu_deps
+        pip install -U pip --user
+        pip install configparser --user
     elif [ ${platform} -eq ${Centos_Platform} ];then
         install_centos_deps
+        pip install -U pip --user
+        pip install configparser --user
     elif [ ${platform} -eq ${Centos_Platform} ];then
         install_macos_deps
     else
