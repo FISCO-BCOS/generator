@@ -9,8 +9,9 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            pip install -U pip --user
-            pip install configparser --user
+            bash ./scripts/install.sh
+            # pip install -U pip --user
+            # pip install configparser --user
       # - run:
       #     name: pylint
       #     command: |
