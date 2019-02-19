@@ -1,0 +1,139 @@
+# "Copyright [2019] <fisco generator>"
+# @ function : one-click install shell script(appliable for centos, ubuntu)
+# @ Require  : yum ,apt and python are ready
+#              and execute this shell script later
+# @ author   : asherli
+# @ file     : install.sh
+# @ date     : 2019
+
+#!/bin/bash
+SHELL_FOLDER=$(cd $(dirname $0);pwd)
+project_dir="${SHELL_FOLDER}/.."
+use_cores=1
+test_mode=0
+Ubuntu_Platform=0
+Centos_Platform=1
+Macos_Platform=2
+
+# check sudo permission
+function sudo_permission_check() 
+{
+    sudo echo -n " "
+
+    if [ $? -ne 0 ]; then
+        alarm "no sudo permission, please add youself in the sudoers"; exit 1;
+    fi
+}
+
+clear_cache()
+{ 
+    cd ${project_dir}
+    execute_cmd "rm -rf deps/src/*stamp"
+}
+
+LOG_ERROR()
+{
+    content=${1}
+    echo -e "\033[31m"${content}"\033[0m"
+}
+
+LOG_INFO()
+{
+    content=${1}
+    echo -e "\033[32m"${content}"\033[0m"
+}
+
+execute_cmd()
+{
+    command="${1}"
+    #LOG_INFO "RUN: ${command}"
+    eval ${command}
+    ret=$?
+    if [ $ret -ne 0 ];then
+        LOG_ERROR "FAILED execution of command: ${command}"
+        # clear_cache
+        exit 1
+    else
+        LOG_INFO "SUCCESS execution of command: ${command}"
+    fi
+}
+
+# get platform: now support debain/ubuntu, fedora/centos, oracle
+get_platform()
+{
+    uname -v > /dev/null 2>&1 || { echo >&2 "ERROR - Require 'uname' to identify the platform."; exit 1; }
+    case $(uname -s) in
+    Darwin)
+        LOG_ERROR "Not Support mac OS Yet!"
+        exit 1;;
+    FreeBSD)
+        LOG_ERROR "Not Support FreeBSD Yet!"
+        exit 1;;
+    Linux)
+        if [ -f "/etc/arch-release" ];then
+            LOG_ERROR "Not Support arch-linux Yet!"
+        elif [ -f "/etc/os-release" ];then
+            DISTRO_NAME=$(. /etc/os-release; echo $NAME)
+            case $DISTRO_NAME in
+            Debian*|Ubuntu)
+                LOG_INFO "Debian*|Ubuntu Platform"
+                return ${Ubuntu_Platform};; #ubuntu type
+            Fedora|CentOS*)
+                LOG_INFO "Fedora|CentOS* Platform"
+                return ${Centos_Platform};; #centos type
+            Oracle*)
+                LOG_INFO "Oracle Platform"
+                return ${Centos_Platform};; #oracle type
+            esac
+        else
+            LOG_ERROR "Unsupported Platform"
+        fi
+    esac
+}
+#install ubuntu package
+install_ubuntu_deps()
+{
+    sudo apt-get install python-pip
+    pip install -U pip --user
+    pip install configparser --user
+}
+
+# install centos package
+install_centos_deps()
+{
+    sudo yum install python-pip
+    pip install -U pip --user
+    pip install configparser --user
+}
+
+install_all_deps()
+{
+    get_platform
+    platform=`echo $?`
+    if [ ${platform} -eq ${Ubuntu_Platform} ];then
+        install_ubuntu_deps
+    elif [ ${platform} -eq ${Centos_Platform} ];then
+        install_centos_deps
+    elif [ ${platform} -eq ${Centos_Platform} ];then
+        install_macos_deps
+    else
+        LOG_ERROR "Unsupported Platform"
+        exit 1
+    fi
+}
+
+install_all()
+{
+	install_all_deps
+    sudo_permission_check
+
+    py_version=$($python_env -V 2>&1 | awk {'print $2'} | awk -F. {' print $1"."$2"."$3 '})
+    py_pip=pip -V 2>&1 | awk {'print $2'} | awk -F. {' print $1"."$2"."$3 '}
+
+    # params check
+    if [ -z "${py_version}" ];then
+        alarm " not invalid python path, path is ${python_env}."; exit 1;
+    fi
+}
+
+install_all
