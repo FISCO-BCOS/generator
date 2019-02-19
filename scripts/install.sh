@@ -21,7 +21,7 @@ function sudo_permission_check()
     sudo echo -n " "
 
     if [ $? -ne 0 ]; then
-        alarm "no sudo permission, please add youself in the sudoers"; exit 1;
+        echo "no sudo permission, please add youself in the sudoers"; exit 1;
     fi
 }
 
@@ -93,16 +93,14 @@ get_platform()
 #install ubuntu package
 install_ubuntu_deps()
 {
-    sudo apt-get install python-pip
-    pip install -U pip --user
+    apt-get install python-pip
     pip install configparser --user
 }
 
 # install centos package
 install_centos_deps()
 {
-    sudo yum install python-pip
-    pip install -U pip --user
+    yum install python-pip
     pip install configparser --user
 }
 
