@@ -91,6 +91,7 @@ def demo_build():
     console_print("copy startall and stopall. only in demo")
     shutil.copy('{}/tpl/start_all.sh'.format(path.get_path()), data_path)
     shutil.copy('{}/tpl/stop_all.sh'.format(path.get_path()), data_path)
+
     console_print(
         'copy node.key to node_dir, it\'s a demo, u should do it by yourself')
     for idx, node_ip_key in enumerate(p2p_ip):
@@ -103,23 +104,12 @@ def demo_build():
                                                         data_path,
                                                         node_ip_key,
                                                         p2p_listen_port[idx]))
-        console_print("it\'s a useless operation, but i have to do it")
-        console_print(
-            "set group_config group_config.1=conf/group.1.genesis in config.ini")
-        console_print("before change fisco bcos, this is useful")
-        group_cfg = configparser.ConfigParser()
-        with open('{}/node_{}_{}/config.ini'.format(data_path,
-                                                    node_ip_key,
-                                                    p2p_listen_port[idx]), 'r') as config_file:
-            group_cfg.readfp(config_file)
-        group_cfg.set("group", "group_config.1",
-                      "conf/group.1.genesis")
-        with open(('{}/node_{}_{}/config.ini'.format(data_path,
+        ca.generator_sdk_ca('{}/node_{}_{}/'.format(data_path,
                                                      node_ip_key,
-                                                     p2p_listen_port[idx])),
-                  'w') as config_file:
-            group_cfg.write(config_file)
-
+                                                     p2p_listen_port[idx]),
+                             '{}/agency_fisco'.format(demo_path),
+                             'sdk')
+        
     CONSOLER.info(
         '========== demo --expand in start ==================='
         '=============================================')
