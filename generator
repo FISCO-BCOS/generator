@@ -77,8 +77,9 @@ def usage():
                                                            'agency_dir',
                                                            'node_name'),
                              help='generate node cert')
-    # tools_group.add_argument('--sdkca', nargs=2, metavar=('sdk_dir',
-    #                                                       'agency_dir'), help='generate sdk cert')
+    tools_group.add_argument('--sdkca', nargs=2, metavar=('sdk_dir',
+                                                           'agency_dir'),
+                             help='generate sdk cert')
     tools_group.add_argument('--gm', action='store_true',
                              help='follow gm operation.')
     tools_group.add_argument('--demo', action='store_true',
@@ -128,11 +129,17 @@ def usage():
         CONSOLER.info(' agency cert end.')
     elif args.nodeca:
         CONSOLER.info(' node cert begin.')
-        agency_dir = args.nodeca[0]
-        node_dir = args.nodeca[1]
+        node_dir = args.nodeca[0]
+        agency_dir = args.nodeca[1]
         node_name = args.nodeca[2]
-        ca.generator_node_ca(agency_dir, node_dir, node_name)
+        ca.generator_node_ca(node_dir, agency_dir, node_name)
         CONSOLER.info(' node cert end.')
+    elif args.sdkca:
+        CONSOLER.info(' sdk cert begin.')
+        sdk_dir = args.sdkca[0]
+        agency_dir = args.sdkca[1]
+        ca.generator_sdk_ca(sdk_dir, agency_dir, 'sdk')
+        CONSOLER.info(' sdk cert end.')
     elif args.certbuild:
         cert_dir = args.certbuild[0]
         CONSOLER.info(' generate cert to %s by mchain.ini.', cert_dir)
