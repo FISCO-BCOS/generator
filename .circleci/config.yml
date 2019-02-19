@@ -1,6 +1,6 @@
 version: 2
 jobs:
-  default_test:  # required for runs that don't use workflows
+  build:  # required for runs that don't use workflows
     working_directory: ~/generator
     docker:
       - image: circleci/python:2.7  # primary container for the build job
