@@ -21,7 +21,7 @@ function sudo_permission_check()
     sudo echo -n " "
 
     if [ $? -ne 0 ]; then
-        alarm "no sudo permission, please add youself in the sudoers"; exit 1;
+        echo "no sudo permission, please add youself in the sudoers"; exit 1;
     fi
 }
 
@@ -93,17 +93,15 @@ get_platform()
 #install ubuntu package
 install_ubuntu_deps()
 {
-    sudo apt-get install python-pip
-    # pip install -U pip --user
-    # pip install configparser --user
+    apt-get install python-pip
+    pip install configparser --user
 }
 
 # install centos package
 install_centos_deps()
 {
-    sudo yum install python-pip
-    # pip install -U pip --user
-    # pip install configparser --user
+    yum install python-pip
+    pip install configparser --user
 }
 
 install_all_deps()
@@ -112,12 +110,8 @@ install_all_deps()
     platform=`echo $?`
     if [ ${platform} -eq ${Ubuntu_Platform} ];then
         install_ubuntu_deps
-        pip install -U pip --user
-        pip install configparser --user
     elif [ ${platform} -eq ${Centos_Platform} ];then
         install_centos_deps
-        pip install -U pip --user
-        pip install configparser --user
     elif [ ${platform} -eq ${Centos_Platform} ];then
         install_macos_deps
     else

@@ -1,6 +1,6 @@
 version: 2
 jobs:
-  default_test:  # required for runs that don't use workflows
+  build:  # required for runs that don't use workflows
     working_directory: ~/generator
     docker:
       - image: circleci/python:2.7  # primary container for the build job
@@ -62,40 +62,11 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            bash ./scripts/install.sh
-      - run:
-          name: Demo test
-          command: |
-            ./generator --demo
-            cd ./meta
-            ./fisco-bcos --version
-            cd ..
-      - run:
-          name: Chain test
-          command: |
-            cd ./data/
-            rm -rf ./monitor
-            bash start_all.sh
-            sleep 2
-            ps aux| grep fisco-bcos |grep -v grep
-            result=`ps aux| grep fisco-bcos |grep -v grep`
-            if [ -z "$result" ]
-            then
-              echo "start failed"
-              return 1
-            fi
-            echo "start succeed"
-            ./stop_all.sh
-  Ubuntu:  # required for runs that don't use workflows
-    working_directory: ~/generator
-    docker:
-      - image: ubuntu:16.04
-    steps:
-      - checkout
-      - run:
-          name: Install dependencies
-          command: |
-            bash ./scripts/install.sh
+            yum -y --enablerepo=extras install epel-release
+            yum -y install python-pip
+            pip install configparser --user
+            yum -y install openssl
+            yum -y install nc
       - run:
           name: Demo test
           command: |
@@ -126,4 +97,3 @@ workflows:
     jobs:
       - default_test
       - CentOS
-      - Ubuntu
