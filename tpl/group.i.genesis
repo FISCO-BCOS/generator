@@ -17,7 +17,7 @@ index=${index}
     type=LevelDB
 [state]
     ;support mpt/storage
-    type=mpt
+    type=storage
 
 ;tx gas limit
 [tx]
