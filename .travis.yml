@@ -2,16 +2,7 @@ language: python
 python: 
   - "2.7"
   - "3.6" 
-matrix:
-    fast_finish: true
-    include:
-        - os: linux
-          dist: xenial
-          sudo: required
-          env: 
-            - CACHE_NAME=ubuntu16
-            - ZIP_SUFFIX=ubuntu-xenial
 install: |
-  bash ./scripts/install.sh
+  pip install configparser
 script: |
   ./generator --demo
