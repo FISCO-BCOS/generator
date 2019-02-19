@@ -95,5 +95,5 @@ workflows:
   version: 2
   build:
     jobs:
-      - default_test
+      - build
       - CentOS
