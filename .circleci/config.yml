@@ -10,6 +10,7 @@ jobs:
           name: Install dependencies
           command: |
             bash ./scripts/install.sh
+            sudo apt-get -y install curl
             # pip install -U pip --user
             # pip install configparser --user
       # - run:
@@ -49,6 +50,17 @@ jobs:
               return 1
             fi
             echo "start succeed"
+            curl -X POST --data '{"jsonrpc":"2.0","method":"sendRawTransaction","params":[1, "0xf8ef9f65f0d06e39dc3c08e32ac10a5070858962bc6c0f5760baca823f2d5582d03f85174876e7ff8609184e729fff82020394d6f1a71052366dbae2f7ab2d5d5845e77965cf0d80b86448f85bce000000000000000000000000000000000000000000000000000000000000001bf5bd8a9e7ba8b936ea704292ff4aaa5797bf671fdc8526dcd159f23c1f5a05f44e9fa862834dc7cb4541558f2b4961dc39eaaf0af7f7395028658d0e01b86a371ca00b2b3fabd8598fefdda4efdb54f626367fc68e1735a8047f0f1c4f840255ca1ea0512500bc29f4cfe18ee1c88683006d73e56c934100b8abf4d2334560e1d2f75e"],"id":83}' http://127.0.0.1:8545 > code.txt
+            cat ./code.txt
+            echo "transaction get code is $(cat ./code.txt)"
+            tx_result=`cat ./code.txt | grep result | grep -v grep`
+            echo $tx_result
+            if [ -z "$tx_result" ]
+            then
+              echo "transaction failed"
+              return 1
+            fi
+            echo "send transaction succeed"
             # cd ./monitor
             # bash monitor.sh -o ../ -r asherli
             # cd ../
@@ -67,6 +79,7 @@ jobs:
             pip install configparser --user
             yum -y install openssl
             yum -y install nc
+            yum -y install curl
       - run:
           name: Demo test
           command: |
@@ -89,6 +102,17 @@ jobs:
               return 1
             fi
             echo "start succeed"
+            curl -X POST --data '{"jsonrpc":"2.0","method":"sendRawTransaction","params":[1, "0xf8ef9f65f0d06e39dc3c08e32ac10a5070858962bc6c0f5760baca823f2d5582d03f85174876e7ff8609184e729fff82020394d6f1a71052366dbae2f7ab2d5d5845e77965cf0d80b86448f85bce000000000000000000000000000000000000000000000000000000000000001bf5bd8a9e7ba8b936ea704292ff4aaa5797bf671fdc8526dcd159f23c1f5a05f44e9fa862834dc7cb4541558f2b4961dc39eaaf0af7f7395028658d0e01b86a371ca00b2b3fabd8598fefdda4efdb54f626367fc68e1735a8047f0f1c4f840255ca1ea0512500bc29f4cfe18ee1c88683006d73e56c934100b8abf4d2334560e1d2f75e"],"id":83}' http://127.0.0.1:8545 > code.txt
+            cat ./code.txt
+            echo "transaction get code is "
+            tx_result=`cat ./code.txt | grep result | grep -v grep`
+            echo $tx_result
+            if [ -z "$tx_result" ]
+            then
+              echo "transaction failed"
+              return 1
+            fi
+            echo "send transaction succeed"
             ./stop_all.sh
 
 workflows:
