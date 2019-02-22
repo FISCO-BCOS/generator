@@ -60,7 +60,7 @@ def usage():
 
     pkg_group.add_argument('--build', nargs=1, metavar=('data_dir'),
                            help=' build chain packages with the specified configuration file')
-    pkg_group.add_argument('--expand', nargs=2, metavar=('conf_dir, data_dir'),
+    pkg_group.add_argument('--expand', nargs=2, metavar=('conf_dir', 'data_dir'),
                            help='expand node packages on exist chain')
     pkg_group.add_argument('--create', nargs=1, metavar=('data_dir'),
                            help='create group genesis.')
