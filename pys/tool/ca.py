@@ -174,6 +174,8 @@ def generator_sdk_ca(_dir, agent, sdk):
                                                      .format(
                                                          agent, sdk_dir, sdk))
             os.chdir('{}'.format(path.get_path()))
+            os.system('cat {}/{}/agency.crt >> {}/{}/node.crt'.format(
+                _dir, sdk, _dir, sdk))
             os.remove('{}/{}/agency.crt'.format(_dir, sdk))
             os.remove('{}/{}/node.ca'.format(_dir, sdk))
             os.remove('{}/{}/node.json'.format(_dir, sdk))
