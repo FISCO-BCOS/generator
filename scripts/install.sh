@@ -64,8 +64,8 @@ get_platform()
     uname -v > /dev/null 2>&1 || { echo >&2 "ERROR - Require 'uname' to identify the platform."; exit 1; }
     case $(uname -s) in
     Darwin)
-        LOG_ERROR "Not Support mac OS Yet!"
-        exit 1;;
+        LOG_INFO "Darwin*|MAC OS !"
+        return ${Macos_Platform};; #ubuntu type
     FreeBSD)
         LOG_ERROR "Not Support FreeBSD Yet!"
         exit 1;;
@@ -90,6 +90,11 @@ get_platform()
         fi
     esac
 }
+install_macos_deps()
+{
+    sudo easy_install pip
+    pip install configparser --user
+}
 #install ubuntu package
 install_ubuntu_deps()
 {
@@ -112,7 +117,7 @@ install_all_deps()
         install_ubuntu_deps
     elif [ ${platform} -eq ${Centos_Platform} ];then
         install_centos_deps
-    elif [ ${platform} -eq ${Centos_Platform} ];then
+    elif [ ${platform} -eq ${Macos_Platform} ];then
         install_macos_deps
     else
         LOG_ERROR "Unsupported Platform"
