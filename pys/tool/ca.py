@@ -130,6 +130,15 @@ def generator_node_ca(_dir, agent, node):
             LOGGER.info(' Generate %s cert successful! dir is %s/%s.',
                         node, node_dir, node)
             os.chdir('{}'.format(path.get_path()))
+            os.system('cat {}/{}/agency.crt >> {}/{}/node.crt'.format(
+                _dir, node, _dir, node))
+            os.remove('{}/{}/agency.crt'.format(_dir, node))
+            os.remove('{}/{}/node.ca'.format(_dir, node))
+            os.remove('{}/{}/node.json'.format(_dir, node))
+            os.remove('{}/{}/node.private'.format(_dir, node))
+            os.remove('{}/{}/node.serial'.format(_dir, node))
+            os.remove('{}/{}/node.param'.format(_dir, node))
+            os.remove('{}/{}/node.pubkey'.format(_dir, node))
         else:
             console_error(
                 '  Generate node cert failed! Please check your network,'
