@@ -64,8 +64,8 @@ get_platform()
     uname -v > /dev/null 2>&1 || { echo >&2 "ERROR - Require 'uname' to identify the platform."; exit 1; }
     case $(uname -s) in
     Darwin)
-        LOG_ERROR "Not Support mac OS Yet!"
-        exit 1;;
+        LOG_INFO "Darwin*|MAC OS !"
+        return ${Macos_Platform};; #ubuntu type
     FreeBSD)
         LOG_ERROR "Not Support FreeBSD Yet!"
         exit 1;;
@@ -99,6 +99,10 @@ install_all_deps()
         sudo apt-get install python-pip
     elif [ ${platform} -eq ${Centos_Platform} ];then
         sudo yum install python-pip
+    elif [ ${platform} -eq ${Centos_Platform} ];then
+        install_centos_deps
+    elif [ ${platform} -eq ${Macos_Platform} ];then
+        sudo easy_install pip
     else
         LOG_ERROR "Unsupported Platform"
         exit 1
@@ -108,7 +112,7 @@ install_all_deps()
 install_all()
 {
     sudo_permission_check
-	install_all_deps
+	  install_all_deps
     pip install configparser --user
     py_version=$($python_env -V 2>&1 | awk {'print $2'} | awk -F. {' print $1"."$2"."$3 '})
     py_pip=pip -V 2>&1 | awk {'print $2'} | awk -F. {' print $1"."$2"."$3 '}

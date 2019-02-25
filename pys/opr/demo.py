@@ -76,11 +76,12 @@ def demo_build():
                                               meta_path,
                                               node_ip,
                                               p2p_listen_port[my_node_index]))
-    CONSOLER.info("download lastest fisco bcos now")
-    os.system('curl -LO https://raw.githubusercontent.com/'
-              'FISCO-BCOS/FISCO-BCOS/release-2.0.1/tools/ci/download_bin.sh')
-    os.system('bash ./download_bin.sh -o {}/'.format(meta_path))
-    CONSOLER.info("download fisco bcos successful")
+    console_print("mac can't download lastest fisco bcos now")
+    # os.system('curl -LO https://raw.githubusercontent.com/'
+    #           'FISCO-BCOS/FISCO-BCOS/release-2.0.1/tools/ci/download_bin.sh')
+    os.system('touch {}/fisco-bcos'.format(meta_path))
+    console_print("u should get a mac fisco bcos by yourself")
+    console_print("then replace it in node_dir")
     CONSOLER.info(
         '========== demo --build in start ========================'
         '========================================')
