@@ -59,11 +59,11 @@ def demo_build():
                       demo_path, node_ip, p2p_listen_port[my_node_index])
         ca.generator_node_ca(demo_path, '{}/agency_fisco'.format(demo_path),
                              'node_{}_{}'.format(node_ip, p2p_listen_port[my_node_index]))
-        os.system('cat {}/agency_fisco/agency.crt >>'
-                  ' {}/node_{}_{}/node.crt'.format(demo_path,
-                                                   demo_path,
-                                                   node_ip,
-                                                   p2p_listen_port[my_node_index]))
+        # os.system('cat {}/agency_fisco/agency.crt >>'
+        #           ' {}/node_{}_{}/node.crt'.format(demo_path,
+        #                                            demo_path,
+        #                                            node_ip,
+        #                                            p2p_listen_port[my_node_index]))
         # os.system('cat {}/ca.crt'
         #           ' >> {}/node_{}_{}/node.crt'.format(demo_path,
         #                                               demo_path,
@@ -122,11 +122,11 @@ def demo_build():
                       demo_path, node_ip, expand_p2p_listen_port[my_node_index])
         ca.generator_node_ca(demo_path, '{}/agency_fisco'.format(demo_path),
                              'node_{}_{}'.format(node_ip, expand_p2p_listen_port[my_node_index]))
-        os.system('cat {}/agency_fisco/agency.crt >>'
-                  ' {}/node_{}_{}/node.crt'.format(demo_path,
-                                                   demo_path,
-                                                   node_ip,
-                                                   expand_p2p_listen_port[my_node_index]))
+        # os.system('cat {}/agency_fisco/agency.crt >>'
+        #           ' {}/node_{}_{}/node.crt'.format(demo_path,
+        #                                            demo_path,
+        #                                            node_ip,
+        #                                            expand_p2p_listen_port[my_node_index]))
         # os.system('cat {}/ca.crt >>'
         #           ' {}/node_{}_{}/node.crt'.format(demo_path,
         #                                            demo_path,

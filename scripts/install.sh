@@ -90,30 +90,15 @@ get_platform()
         fi
     esac
 }
-#install ubuntu package
-install_ubuntu_deps()
-{
-    apt-get install python-pip
-    pip install configparser --user
-}
-
-# install centos package
-install_centos_deps()
-{
-    yum install python-pip
-    pip install configparser --user
-}
 
 install_all_deps()
 {
     get_platform
     platform=`echo $?`
     if [ ${platform} -eq ${Ubuntu_Platform} ];then
-        install_ubuntu_deps
+        sudo apt-get install python-pip
     elif [ ${platform} -eq ${Centos_Platform} ];then
-        install_centos_deps
-    elif [ ${platform} -eq ${Centos_Platform} ];then
-        install_macos_deps
+        sudo yum install python-pip
     else
         LOG_ERROR "Unsupported Platform"
         exit 1
@@ -122,9 +107,9 @@ install_all_deps()
 
 install_all()
 {
-	install_all_deps
     sudo_permission_check
-
+	install_all_deps
+    pip install configparser --user
     py_version=$($python_env -V 2>&1 | awk {'print $2'} | awk -F. {' print $1"."$2"."$3 '})
     py_pip=pip -V 2>&1 | awk {'print $2'} | awk -F. {' print $1"."$2"."$3 '}
 
