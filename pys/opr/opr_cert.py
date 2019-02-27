@@ -67,11 +67,11 @@ def gen_build_cert(_dir):
         else:
             ca.generator_node_ca(data_path, '{}/'.format(meta_path),
                                  'node_{}_{}'.format(node_ip, p2p_listen_port[my_node_index]))
-            os.system('cat {}/agency.crt >>'
-                      ' {}/node_{}_{}/node.crt'.format(meta_path,
-                                                       data_path,
-                                                       node_ip,
-                                                       p2p_listen_port[my_node_index]))
+            # os.system('cat {}/agency.crt >>'
+            #           ' {}/node_{}_{}/node.crt'.format(meta_path,
+            #                                            data_path,
+            #                                            node_ip,
+            #                                            p2p_listen_port[my_node_index]))
             utils.file_must_not_exists('{}/cert_{}_{}.crt'.format(meta_path,
                                                                   node_ip,
                                                                   p2p_listen_port[my_node_index]))
@@ -133,11 +133,11 @@ def gen_expand_cert(_dir):
         else:
             ca.generator_node_ca(data_path, '{}/'.format(meta_path),
                                  'node_{}_{}'.format(node_ip, p2p_listen_port[my_node_index]))
-            os.system('cat {}/agency.crt >>'
-                      ' {}/node_{}_{}/node.crt'.format(meta_path,
-                                                       data_path,
-                                                       node_ip,
-                                                       p2p_listen_port[my_node_index]))
+            # os.system('cat {}/agency.crt >>'
+            #           ' {}/node_{}_{}/node.crt'.format(meta_path,
+            #                                            data_path,
+            #                                            node_ip,
+            #                                            p2p_listen_port[my_node_index]))
             utils.file_must_not_exists('{}/cert_{}_{}.crt'.format(meta_path,
                                                                   node_ip,
                                                                   p2p_listen_port[my_node_index]))
