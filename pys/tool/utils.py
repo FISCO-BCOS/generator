@@ -60,7 +60,7 @@ def valid_port(port):
         [bool] -- [true or false]
     """
 
-    if isinstance(port, int) and (port > 0) and (port <= 65535):
+    if isinstance(port, int) and (port > 1023) and (port <= 65535):
         return True
     return False
 
