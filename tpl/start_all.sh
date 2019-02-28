@@ -7,4 +7,4 @@ do
         echo "start ${directory}" && bash ${SHELL_FOLDER}/${directory}/start.sh
     fi  
 done 
-sleep 2 
+sleep 2
