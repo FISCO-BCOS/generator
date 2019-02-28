@@ -160,6 +160,13 @@ jobs:
             # cd ../
             ./stop_all.sh
             cd ..
+      - run:
+          name: Generate Cert Test
+          command: |
+            ./generator --generate_chain_certificate ./certTest
+            ./generator --generate_agency_certificate ./certTest  ./certTest  fisco
+            ./generator --generate_node_certificate ./certTest  ./certTest/fisco  node0
+            ./generator --generate_sdk_certificate ./certTest  ./certTest/fisco
   CentOS:  # required for runs that don't use workflows
     working_directory: ~/generator
     docker:
