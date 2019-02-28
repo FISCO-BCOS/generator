@@ -110,7 +110,6 @@ jobs:
       - run:
           name: Expand Test
           command: | 
-            cp ./meta/fisco-bcos ./data
             ./generator --expand ./data ./expand
             ./generator --deploykey ./myexpandcert ./expand
             cd ./expand

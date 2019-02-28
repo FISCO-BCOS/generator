@@ -42,9 +42,9 @@ channelPort=`cat ${SHELL_FOLDER}/config.ini | grep channel_listen_port | awk '{p
 rpcport=`cat ${SHELL_FOLDER}/config.ini | grep jsonrpc_listen_port | awk '{print $3}' | tr -cd "[0-9]"`
 p2pport=`cat ${SHELL_FOLDER}/config.ini | grep -w listen_port | awk '{print $3}' | tr -cd "[0-9]"`
 ulimit -c unlimited 2>/dev/null
-weth_pid=`ps aux|grep "${fisco_bcos}"|grep -v grep|awk '{print $2}'`
-if [ ! -z $weth_pid ];then
-    echo " ${node} is running, pid is $weth_pid."
+node_pid=`ps aux|grep "${fisco_bcos}"|grep -v grep|awk '{print $2}'`
+if [ ! -z $node_pid ];then
+    echo " ${node} is running, pid is $node_pid."
 else 
     # port check
     check_port_use $channelPort 
@@ -68,9 +68,12 @@ else
     else
         echo " start ${node} ..."
         nohup  ${fisco_bcos} -c config.ini&
+        node_pid=`ps aux|grep "${fisco_bcos}"|grep -v grep|awk '{print $2}'`
+        if [ ! -z ${node_pid} ];then
+            echo " ${node} start successfully"
+        else
+            echo " ${node} start failed"
+            cat ${node}/nohup.out
+        fi
     fi
 fi
-
-
-
-

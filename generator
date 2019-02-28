@@ -59,11 +59,11 @@ def usage():
         ' Build, Expand, Export, List Chain Package Options ')
 
     pkg_group.add_argument('--build', nargs=1, metavar=('data_dir'),
-                           help=' build chain packages with the specified configuration file')
+                           help=' build chain packages with mchain.ini')
     pkg_group.add_argument('--expand', nargs=2, metavar=('conf_dir', 'data_dir'),
-                           help='expand node packages on exist chain')
+                           help='expand node packages with mexpand.ini')
     pkg_group.add_argument('--create', nargs=1, metavar=('data_dir'),
-                           help='create group genesis.')
+                           help='create group genesis with mgroup.ini.')
 
     tools_group = parser.add_argument_group(
         ' Other Tools Options ')
@@ -99,70 +99,70 @@ def usage():
         CONSOLER.info('======= BUILD_GM ============= ON =======')
         config.set_gm()
     elif args.build:
-        CONSOLER.info(' build operation begin.')
+        CONSOLER.info(' Build operation begin.')
         build.build(args.build[0])
-        CONSOLER.info(' build operation end.')
+        CONSOLER.info(' Build operation end.')
     # elif args.build:
     #     opr_build.build(args.build[0], args.build[1])
     #     CONSOLER.info(' build operation end.')
     elif args.expand:
-        CONSOLER.info(' expand operation begin.')
+        CONSOLER.info(' Expand operation begin.')
         expand_node.expand(args.expand[0], args.expand[1])
-        CONSOLER.info(' expand operation end.')
+        CONSOLER.info(' Expand operation end.')
     elif args.create:
-        CONSOLER.info(' expand operation begin.')
+        CONSOLER.info(' Expand operation begin.')
         create_group.create_group(args.create[0])
-        CONSOLER.info(' expand operation end.')
+        CONSOLER.info(' Expand operation end.')
     elif args.demo:
         demo.demo_build()
     elif args.chainca:
-        CONSOLER.info(' chain cert begin.')
+        CONSOLER.info(' Chain cert begin.')
         chain_dir = args.chainca[0]
         ca.generate_root_ca(chain_dir)
-        CONSOLER.info(' chain cert end.')
+        CONSOLER.info(' Chain cert end.')
     elif args.agencyca:
-        CONSOLER.info(' agency cert begin.')
+        CONSOLER.info(' Agency cert begin.')
         agency_dir = args.agencyca[0]
         chain_dir = args.agencyca[1]
         agency_name = args.agencyca[2]
         ca.generator_agent_ca(agency_dir, chain_dir, agency_name)
-        CONSOLER.info(' agency cert end.')
+        CONSOLER.info(' Agency cert end.')
     elif args.nodeca:
-        CONSOLER.info(' node cert begin.')
+        CONSOLER.info(' Node cert begin.')
         node_dir = args.nodeca[0]
         agency_dir = args.nodeca[1]
         node_name = args.nodeca[2]
         ca.generator_node_ca(node_dir, agency_dir, node_name)
-        CONSOLER.info(' node cert end.')
+        CONSOLER.info(' Node cert end.')
     elif args.sdkca:
-        CONSOLER.info(' sdk cert begin.')
+        CONSOLER.info(' SDK cert begin.')
         sdk_dir = args.sdkca[0]
         agency_dir = args.sdkca[1]
         ca.generator_sdk_ca(sdk_dir, agency_dir, 'sdk')
-        CONSOLER.info(' sdk cert end.')
+        CONSOLER.info(' SDK cert end.')
     elif args.certbuild:
         cert_dir = args.certbuild[0]
-        CONSOLER.info(' generate cert to %s by mchain.ini.', cert_dir)
+        CONSOLER.info(' Generate cert to %s by mchain.ini.', cert_dir)
         opr_cert.gen_build_cert(cert_dir)
         # ca.generator_node_ca(agency_dir, node_dir, node_name)
-        CONSOLER.info(' generate cert by mchain.ini end.')
+        CONSOLER.info(' Generate cert by mchain.ini end.')
     elif args.certexpand:
         cert_dir = args.certexpand[0]
-        CONSOLER.info(' generate cert to %s by mchain.ini.', cert_dir)
+        CONSOLER.info(' Generate cert to %s by mchain.ini.', cert_dir)
         opr_cert.gen_expand_cert(cert_dir)
-        CONSOLER.info(' generate cert by mchain.ini end.')
+        CONSOLER.info(' Generate cert by mchain.ini end.')
     elif args.deploykey:
         get_path = args.deploykey[0]
         send_path = args.deploykey[1]
-        CONSOLER.info(' get cert from %s to %s', get_path, send_path)
+        CONSOLER.info(' Get cert from %s to %s', get_path, send_path)
         opr_cert.deploy_key(get_path, send_path)
-        CONSOLER.info(' deploy cert end.')
+        CONSOLER.info(' Deploy cert end.')
     elif args.combine:
         get_path = args.combine[0]
         send_path = args.combine[1]
-        CONSOLER.info(' combine config.ini from %s to %s', get_path, send_path)
+        CONSOLER.info(' Combine config.ini from %s to %s', get_path, send_path)
         config.concatenate_cfg(get_path, send_path)
-        CONSOLER.info(' combine config.ini end.')
+        CONSOLER.info(' Combine config.ini end.')
     # elif args.sdkca:
     #     CONSOLER.info(' sdk cert begin.')
     #     sdk_dir = args.sdkca[0]
@@ -171,7 +171,7 @@ def usage():
     #     CONSOLER.info(' sdk cert end.')
     else:
         console_error(
-            ' invalid operation,  \"generator -h\" can be used to show detailed usage. ')
+            ' Invalid operation,  \"generator -h\" can be used to show detailed usage. ')
         os.system('./generator -h')
     return 0
 
@@ -183,7 +183,7 @@ def main():
     try:
         init()
     except Exception as e:
-        console_error(' generator init fault , %s \033[0m' % e)
+        console_error(' Generator init fault , %s \033[0m' % e)
     else:
         usage()
 
