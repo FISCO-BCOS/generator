@@ -67,7 +67,7 @@ else
         echo "$fisco_bcos not existed!"
     else
         echo " start ${node} ..."
-        nohup  ${fisco_bcos} -c config.ini&
+        nohup  ${fisco_bcos} -c config.ini >/dev/null  2>&1  &
         node_pid=`ps aux|grep "${fisco_bcos}"|grep -v grep|awk '{print $2}'`
         if [ ! -z ${node_pid} ];then
             echo " ${node} start successfully"
