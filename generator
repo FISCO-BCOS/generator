@@ -67,7 +67,7 @@ def usage():
 
     tools_group = parser.add_argument_group(
         ' Other Tools Options ')
-    tools_group.add_argument('-b', '--generate_chain_certificate', nargs=1, metavar=('chain_dir'),
+    tools_group.add_argument('--generate_chain_certificate', nargs=1, metavar=('chain_dir'),
                              help='generate root cert')
     tools_group.add_argument('--generate_agency_certificate', nargs=3, metavar=('agency_dir',
                                                              'chain_dir',
