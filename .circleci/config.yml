@@ -76,13 +76,13 @@ jobs:
           name: Deploy Key Test
           command: |
             bash <(curl -s https://raw.githubusercontent.com/FISCO-BCOS/FISCO-BCOS/release-2.0.1/tools/ci/download_bin.sh) -o ./meta
-            ./generator --certbuild ./mybuildcert
-            ./generator --certexpand ./myexpandcert
+            ./generator --generate_all_certificates ./mybuildcert
+            ./generator --expand_all_certificates ./myexpandcert
       - run:
           name: Build Test
           command: |   
-            ./generator --build ./data
-            ./generator --deploykey ./mybuildcert ./data
+            ./generator --build_install_package ./data
+            ./generator --deploy_private_key ./mybuildcert ./data
             cd ./data
             ./start_all.sh
             ps aux| grep fisco-bcos |grep -v grep
@@ -105,14 +105,12 @@ jobs:
             fi
             echo "send transaction succeed"
             ./stop_all.sh
-            sleep 2
             cd ..
       - run:
           name: Expand Test
           command: | 
-            cp ./meta/fisco-bcos ./data
-            ./generator --expand ./data ./expand
-            ./generator --deploykey ./myexpandcert ./expand
+            ./generator --build_expand_package ./data ./expand
+            ./generator --deploy_private_key ./myexpandcert ./expand
             cd ./expand
             ./start_all.sh
             ps aux| grep fisco-bcos |grep -v grep
@@ -124,12 +122,11 @@ jobs:
             fi
             echo "start expand nodes succeed"
             ./stop_all.sh
-            sleep 2
             cd ..
       - run:
           name: Create Group Test
           command: | 
-            ./generator --create ./data
+            ./generator --create_group_config ./data
             cd ./data
             cat group.2.genesis
             cp group.2.ini group.2.genesis ./node_127.0.0.1_30300/conf/
@@ -163,6 +160,13 @@ jobs:
             # cd ../
             ./stop_all.sh
             cd ..
+      - run:
+          name: Generate Cert Test
+          command: |
+            ./generator --generate_chain_certificate ./certTest
+            ./generator --generate_agency_certificate ./certTest  ./certTest  fisco
+            ./generator --generate_node_certificate ./certTest  ./certTest/fisco  node0
+            ./generator --generate_sdk_certificate ./certTest  ./certTest/fisco
   CentOS:  # required for runs that don't use workflows
     working_directory: ~/generator
     docker:
@@ -191,7 +195,6 @@ jobs:
             cd ./data/
             rm -rf ./monitor
             bash start_all.sh
-            sleep 2
             ps aux| grep fisco-bcos |grep -v grep
             result=`ps aux| grep fisco-bcos |grep -v grep`
             if [ -z "$result" ]
