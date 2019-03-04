@@ -143,7 +143,7 @@ def demo_build():
     CONSOLER.info(
         '========== demo --expand start ==================='
         '===============================================')
-    expand_node.expand(data_path, expand_path)
+    expand_node.expand(expand_path)
     CONSOLER.info(
         '========== demo --expand end ===================='
         '================================================')

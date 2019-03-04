@@ -60,7 +60,7 @@ def usage():
 
     pkg_group.add_argument('-b', '--build_install_package', nargs=1, metavar=('data_dir'),
                            help=' build chain packages with mchain.ini')
-    pkg_group.add_argument('-e', '--build_expand_package', nargs=2, metavar=('conf_dir', 'data_dir'),
+    pkg_group.add_argument('-e', '--build_expand_package', nargs=1, metavar=('data_dir'),
                            help='expand node packages with mexpand.ini')
     pkg_group.add_argument('-c', '--create_group_config', nargs=1, metavar=('data_dir'),
                            help='create group genesis with mgroup.ini.')
@@ -107,7 +107,7 @@ def usage():
     #     CONSOLER.info(' build operation end.')
     elif args.build_expand_package:
         CONSOLER.info(' Expand operation begin.')
-        expand_node.expand(args.build_expand_package[0], args.build_expand_package[1])
+        expand_node.expand(args.build_expand_package[0])
         CONSOLER.info(' Expand operation end.')
     elif args.create_group_config:
         CONSOLER.info(' Expand operation begin.')

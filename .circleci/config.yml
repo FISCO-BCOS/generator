@@ -66,6 +66,17 @@ jobs:
             # cd ../
             ./stop_all.sh
             cd ..
+            cd ./expand
+            ./start_all.sh
+            ps aux| grep fisco-bcos |grep -v grep
+            result=`ps aux| grep fisco-bcos |grep -v grep`
+            if [ -z "$result" ]
+            then
+              echo "start expand failed"
+              return 1
+            fi
+            ./stop_all.sh
+            cd ..
       - run:
           name: Clear Cache
           command: |
@@ -109,7 +120,7 @@ jobs:
       - run:
           name: Expand Test
           command: | 
-            ./generator --build_expand_package ./data ./expand
+            ./generator --build_expand_package ./expand
             ./generator --deploy_private_key ./myexpandcert ./expand
             cd ./expand
             ./start_all.sh
@@ -215,6 +226,18 @@ jobs:
             fi
             echo "send transaction succeed"
             ./stop_all.sh
+            cd ..
+            cd ./expand
+            ./start_all.sh
+            ps aux| grep fisco-bcos |grep -v grep
+            result=`ps aux| grep fisco-bcos |grep -v grep`
+            if [ -z "$result" ]
+            then
+              echo "start expand failed"
+              return 1
+            fi
+            ./stop_all.sh
+            cd ..
 
 workflows:
   version: 2
