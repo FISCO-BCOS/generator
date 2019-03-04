@@ -90,6 +90,9 @@ def build_group_genesis(data_dir='{}/data'.format(path.get_path())):
                     '{}/conf/group.{}.ini'.format(node_dir, group_id))
         shutil.copy('{}/group.{}.genesis'.format(package_dir, group_id),
                     '{}/conf/group.{}.genesis'.format(node_dir, group_id))
+    shutil.copy('{}/group.{}.genesis'.format(package_dir, group_id),
+                '{}/meta/group.{}.genesis'.format(path.get_path(), group_id))
+                
     LOGGER.info('build_group_genesis start')
 
 
@@ -145,5 +148,7 @@ def create_group_genesis(data_dir='{}/data'.format(path.get_path())):
         group_cfg.set("group", "index", group_id)
     with open('{}/group.{}.genesis'.format(package_dir, group_id), 'w') as config_file:
         group_cfg.write(config_file)
+    shutil.copy('{}/group.{}.genesis'.format(package_dir, group_id),
+                '{}/meta/group.{}.genesis'.format(path.get_path(), group_id))
 
     LOGGER.info('create_group_genesis end')

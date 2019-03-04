@@ -26,6 +26,7 @@ class MexpandConf(object):
     jsonrpc_listen_port = []
     rpc_ip = []
     p2p_ip = []
+    members = []
 
     def __init__(self):
         self.name = 'FISCO Generator'
@@ -75,6 +76,14 @@ class MexpandConf(object):
             [string] -- [channel_port]
         """
         return self.channel_listen_port
+
+    def get_members(self):
+        """[get channel port]
+
+        Returns:
+            [string] -- [channel_port]
+        """
+        return self.members
 
 
 def parser(mexpand):
@@ -157,6 +166,12 @@ def parser(mexpand):
         else:
             LOGGER.warning(' node%s not existed, break!', idx)
             break
+    if config_parser.has_section('members'):
+        for member in config_parser.items('members'):
+            MexpandConf.members.append(member[1])
+    else:
+        LOGGER.error(' section members not existed!')
+        raise MCError(' section members not existed!')
 
     LOGGER.info('group_id is %s', MexpandConf.group_id)
     LOGGER.info('p2p_ip is %s', MexpandConf.p2p_ip)
@@ -165,5 +180,6 @@ def parser(mexpand):
     LOGGER.info('jsonrpc_listen_port is %s', MexpandConf.jsonrpc_listen_port)
     LOGGER.info('channel_listen_port is %s', MexpandConf.channel_listen_port)
     LOGGER.info('channel_listen_port is %s', MexpandConf.channel_listen_port)
+    LOGGER.info('members is %s', MexpandConf.members)
 
     LOGGER.info('mchain.ini end, result is %s', MexpandConf())

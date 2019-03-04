@@ -6,7 +6,7 @@ from pys.build import config
 from pys import path
 
 
-def expand(cfg_path, data_path):
+def expand(data_path, cfg_path='{}/meta'.format(path.get_path())):
     """[--expand]
 
     Keyword Arguments:
@@ -15,6 +15,6 @@ def expand(cfg_path, data_path):
     """
     utils.file_must_exists('{}/meta/fisco-bcos'.format(path.get_path()))
     utils.file_must_exists('{}/meta/ca.crt'.format(path.get_path()))
-    utils.file_must_exists('{}/config.ini'.format(cfg_path))
+    # utils.file_must_exists('{}/config.ini'.format(cfg_path))
     utils.dir_must_not_exists(data_path)
     config.expand_config_ini(cfg_path, data_path)
