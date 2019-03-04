@@ -354,6 +354,7 @@ def expand_config_ini(conf_path, data_path='{}/data'.format(path.get_path())):
     rpc_ip = mexpand.MexpandConf.rpc_ip
     jsonrpc_listen_port = mexpand.MexpandConf.jsonrpc_listen_port
     channel_listen_port = mexpand.MexpandConf.channel_listen_port
+    members = mexpand.MexpandConf.members
     group_id = mexpand.MexpandConf.group_id
     gm_opr = get_status()
     conf_dir = conf_path
@@ -368,13 +369,11 @@ def expand_config_ini(conf_path, data_path='{}/data'.format(path.get_path())):
     if not os.path.exists(conf_dir):
         LOGGER.error(' conf path not existed! path is %s', conf_dir)
         raise MCError(' conf path not existed! path is %s' % conf_dir)
-    if not (os.path.isfile('{}/config.ini'.format(conf_dir))
-            and os.path.isfile('{}/group.{}.genesis'.format(conf_dir, group_id))
-            and os.path.isfile('{}/group.{}.ini'.format(conf_dir, group_id))):
-        LOGGER.error(' file not complete ! need config.ini, group.%s.genesis and group.%s.ini',
+    if not os.path.isfile('{}/group.{}.genesis'.format(conf_dir, group_id)):
+        LOGGER.error(' file not complete ! need group.%s.genesis',
                      group_id, group_id)
-        raise MCError(' file not complete ! need config.ini, group.%s.genesis and group.%s.ini' % (
-            group_id, group_id))
+        raise MCError(' file not complete ! need group.%s.genesis' % (
+            group_id))
 
     if os.path.exists(package_dir):
         LOGGER.error(
@@ -382,6 +381,24 @@ def expand_config_ini(conf_path, data_path='{}/data'.format(path.get_path())):
         raise MCError(
             ' data path existed! path is %s' % package_dir)
     os.mkdir(package_dir)
+    default_cfg = configparser.ConfigParser()
+    shutil.copy('{}/tpl/config.ini'.format(path.get_path()),
+                            '{}/.config.ini'.format(conf_dir))
+    try:
+        with codecs.open('{}/.config.ini'.format(conf_dir),
+                            'r', encoding='utf-8') as config_file:
+            default_cfg.readfp(config_file)
+    except Exception as expand_exp:
+        LOGGER.error(
+            ' open config.ini file failed, exception is %s', expand_exp)
+        raise MCError(
+            ' open config.ini file failed, exception is %s' % expand_exp)
+    for id, member in enumerate(members):
+        default_cfg.set("p2p", "node.{}".format(id),
+                        '{}'.format(member))
+    with open('{}/.config.ini'.format(conf_dir), 'w') as config_file:
+        default_cfg.write(config_file)
+
     # init config.ini & node package
     my_node_index = 0
     for node_ip in p2p_ip:
@@ -402,11 +419,11 @@ def expand_config_ini(conf_path, data_path='{}/data'.format(path.get_path())):
         os.mkdir('{}/conf'.format(node_dir))
         try:
             # get node cert
-            shutil.copy('{}/config.ini'.format(conf_dir),
+            shutil.copy('{}/.config.ini'.format(conf_dir),
                         '{}/config.ini'.format(node_dir))
             shutil.copy('{}/group.{}.genesis'.format(conf_dir, group_id),
                         '{}/conf/group.{}.genesis'.format(node_dir, group_id))
-            shutil.copy('{}/group.{}.ini'.format(conf_dir, group_id),
+            shutil.copy('{}/tpl/group.i.ini'.format(path.get_path()),
                         '{}/conf/group.{}.ini'.format(node_dir, group_id))
             if gm_opr:
                 get_node_cert('{}/gmcert_{}_{}.crt'.format(meta_dir, node_ip,
