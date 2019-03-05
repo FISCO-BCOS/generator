@@ -66,14 +66,20 @@ else
     if [ ! -f "$fisco_bcos" ]; then
         echo "$fisco_bcos not existed!"
     else
+        chmod u+x ${fisco_bcos}
+        version=`${fisco_bcos} -v | grep FISCO-BCOS | awk '{print $4}'`
+        if [[ ${version:0:1} -ne "2" ]];then
+            echo "fisco bcos not support, now version is:"
+            ${fisco_bcos} -v
+        fi    
         echo " start ${node} ..."
-        nohup  ${fisco_bcos} -c config.ini >/dev/null  2>&1  &
+        nohup  ${fisco_bcos} -c config.ini&
         node_pid=`ps aux|grep "${fisco_bcos}"|grep -v grep|awk '{print $2}'`
         if [ ! -z ${node_pid} ];then
             echo " ${node} start successfully"
         else
             echo " ${node} start failed"
-            cat ${node}/nohup.out
+            cat nohup.out
         fi
     fi
 fi
