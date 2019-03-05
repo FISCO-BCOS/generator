@@ -68,6 +68,8 @@ else
     else
         chmod u+x ${fisco_bcos}
         version=`${fisco_bcos} -v | grep Version | awk '{print $4}'`
+        echo ${version}
+        echo ${version:0:1}
         if [[ ${version:0:1} -ne "2" ]];then
             echo "fisco bcos not support, now version is:"
             ${fisco_bcos} -v
