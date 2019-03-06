@@ -173,7 +173,7 @@ def build_config_ini(_data_dir):
                      channel_listen_port[my_node_index])
         node_cfg.set("rpc", "jsonrpc_listen_port",
                      jsonrpc_listen_port[my_node_index])
-        node_cfg.set("p2p", "listen_ip", p2p_ip[my_node_index])
+        # node_cfg.set("p2p", "listen_ip", p2p_ip[my_node_index])
         node_cfg.set("p2p", "listen_port", p2p_listen_port[my_node_index])
         with open('{}/config.ini'.format(node_dir), 'w') as config_file:
             node_cfg.write(config_file)
@@ -463,7 +463,7 @@ def expand_config_ini(conf_path, data_path='{}/data'.format(path.get_path())):
                      channel_listen_port[my_node_index])
         node_cfg.set("rpc", "jsonrpc_listen_port",
                      jsonrpc_listen_port[my_node_index])
-        node_cfg.set("p2p", "listen_ip", p2p_ip[my_node_index])
+        # node_cfg.set("p2p", "listen_ip", p2p_ip[my_node_index])
         node_cfg.set("p2p", "listen_port", p2p_listen_port[my_node_index])
         with open('{}/config.ini'.format(node_dir), 'w') as config_file:
             node_cfg.write(config_file)
