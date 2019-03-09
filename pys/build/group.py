@@ -78,7 +78,7 @@ def build_group_genesis(data_dir='{}/data'.format(path.get_path())):
                 'create group genesis failed exception is %s', group_exp)
             raise MCError(
                 'create group genesis failed exception is %s' % group_exp)
-        group_cfg.set("group", "index", group_id)
+        group_cfg.set("group", "id", group_id)
     with open('{}/group.{}.genesis'.format(package_dir, group_id), 'w') as config_file:
         group_cfg.write(config_file)
 
@@ -145,7 +145,7 @@ def create_group_genesis(data_dir='{}/data'.format(path.get_path())):
                 'create group genesis failed! exception is %s', group_exp)
             raise MCError(
                 'create group genesis failed! exception is %s' % group_exp)
-        group_cfg.set("group", "index", group_id)
+        group_cfg.set("group", "id", group_id)
     with open('{}/group.{}.genesis'.format(package_dir, group_id), 'w') as config_file:
         group_cfg.write(config_file)
     shutil.copy('{}/group.{}.genesis'.format(package_dir, group_id),
