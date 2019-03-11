@@ -140,14 +140,6 @@ def parser(mchain):
             ' open node_installation.ini file failed, exception is %s', ini_exp)
         raise MCError(
             ' open node_installation.ini file failed, exception is %s' % ini_exp)
-
-    # name = config_parser.get('chain', 'name')
-    # if not utils.valid_string(name):
-    #     LOGGER.error(
-    #         ' invalid node_installation.ini format, name empty, agent_name is %s', name)
-    #     raise MCError(
-    #         ' invalid node_installation.ini format, name empty, agent_name is %s' % name)
-    # MchainConf.name = name
     for idx in range(0, 128):
         node_index = ('node{}'.format(idx))
         if config_parser.has_section('group'):
