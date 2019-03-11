@@ -12,6 +12,24 @@ class Path(object):
     '''
     dir = ''
 
+    def get_name(self):
+        """[get some name]
+
+        maybe it will usedful not now
+
+        Returns:
+            [string] -- [name]
+        """
+
+    def get_pylint(self):
+        """[get some name]
+
+        maybe it will usedful not now
+
+        Returns:
+            [string] -- [name]
+        """
+
 
 def set_path(_dir):
     """[set path]

@@ -28,7 +28,6 @@ from pys.tool import utils
 from pys import path
 from pys.log import LOGGER, CONSOLER
 from pys.error.exp import MCError
-from pys.conf import mexpand
 from pys.conf import mconf
 
 
@@ -53,7 +52,7 @@ class Status(object):
 
 
         Returns:
-            [string] -- [group_id]
+            [string] -- [gm]
         """
         return self.gm_option
 
@@ -103,21 +102,52 @@ def build_config_ini(_data_dir):
     channel_listen_port = mconf.MchainConf.channel_listen_port
     p2p_ip = mconf.MchainConf.p2p_ip
     rpc_ip = mconf.MchainConf.rpc_ip
-
+    peers = mconf.MchainConf.peers
     meta_dir = '{}/meta'.format(path.get_path())
+    conf_dir = meta_dir
     package_dir = _data_dir
     gm_opr = get_status()
+    group_id = mconf.MchainConf.group_id
+
+    utils.file_must_exists('{}/group.{}.genesis'.format(meta_dir, group_id))
 
     if os.path.exists(package_dir):
         LOGGER.error(' ./data existed, maybe u had created it!')
         raise MCError(' ./data existed, maybe u had created it!')
     os.mkdir(package_dir)
 
+    default_cfg = configparser.ConfigParser()
+    shutil.copy('{}/tpl/config.ini'.format(path.get_path()),
+                '{}/.config.ini'.format(conf_dir))
+    try:
+        with codecs.open('{}/.config.ini'.format(conf_dir),
+                         'r', encoding='utf-8') as config_file:
+            default_cfg.readfp(config_file)
+    except Exception as build_exp:
+        LOGGER.error(
+            ' open config.ini file failed, exception is %s', build_exp)
+        raise MCError(
+            ' open config.ini file failed, exception is %s' % build_exp)
+    if not peers:
+        LOGGER.warning('section peers not existed!')
+        CONSOLER.warn('section peers not existed!')
+    else:
+        for node_id, peer in enumerate(peers):
+            default_cfg.set("p2p", "node.{}".format(node_id),
+                            '{}'.format(peer))
+        with open('{}/.config.ini'.format(conf_dir), 'w') as config_file:
+            default_cfg.write(config_file)
+
     # init config.ini & node package
-    my_node_index = 0
-    for node_ip in p2p_ip:
+    for my_node_index, node_ip in enumerate(p2p_ip):
         LOGGER.info("p2p_ip -> %s", node_ip)
-        LOGGER.info(" need %s config.ini", len(p2p_ip))
+        try:
+            utils.file_must_exists('{}/cert_{}_{}.crt'.format(conf_dir,
+                                                              node_ip,
+                                                              p2p_listen_port[my_node_index]))
+        except Exception as build_exp:
+            LOGGER.error('%s', build_exp)
+            raise MCError('%s' % build_exp)
         CONSOLER.info(' Generate %s/node_%s_%s ',
                       package_dir, node_ip, p2p_listen_port[my_node_index])
         node_dir = '{}/node_{}_{}'.format(package_dir,
@@ -144,8 +174,12 @@ def build_config_ini(_data_dir):
                 shutil.copyfile('{}/gmca.crt'.format(meta_dir),
                                 '{}/conf/gmca.crt'.format(node_dir))
             else:
-                shutil.copy('{}/tpl/config.ini'.format(path.get_path()),
+                shutil.copy('{}/.config.ini'.format(conf_dir),
                             '{}/config.ini'.format(node_dir))
+                shutil.copy('{}/group.{}.genesis'.format(conf_dir, group_id),
+                            '{}/conf/group.{}.genesis'.format(node_dir, group_id))
+                shutil.copy('{}/tpl/group.i.ini'.format(path.get_path()),
+                            '{}/conf/group.{}.ini'.format(node_dir, group_id))
                 get_node_cert('{}/cert_{}_{}.crt'.format(meta_dir, node_ip,
                                                          p2p_listen_port[my_node_index]),
                               '{}/conf/node.crt'.format(node_dir))
@@ -177,7 +211,6 @@ def build_config_ini(_data_dir):
         node_cfg.set("p2p", "listen_port", p2p_listen_port[my_node_index])
         with open('{}/config.ini'.format(node_dir), 'w') as config_file:
             node_cfg.write(config_file)
-        my_node_index = my_node_index + 1
     config_file.close()
     # set p2p ip in config.ini
     for my_node_index, ip_item in enumerate(p2p_ip):
@@ -199,9 +232,10 @@ def build_config_ini(_data_dir):
                          '{}:{}'.format(set_item, p2p_listen_port[ip_idx]))
         with open('{}/config.ini'.format(node_dir), 'w') as config_file:
             node_cfg.write(config_file)
-    os.system('cp {}/node_{}_{}/config.ini'
-              ' {}/config.ini'.format(package_dir,
-                                      p2p_ip[0], p2p_listen_port[0], package_dir))
+    shutil.copy('{}/node_{}_{}/config.ini'.format(package_dir,
+                                                  p2p_ip[0],
+                                                  p2p_listen_port[0]),
+                '{}/config.ini'.format(package_dir))
     shutil.copy('{}/tpl/start_all.sh'.format(path.get_path()), package_dir)
     shutil.copy('{}/tpl/stop_all.sh'.format(path.get_path()), package_dir)
     shutil.copytree('{}/scripts/monitor'.format((path.get_path())),
@@ -328,179 +362,6 @@ def get_nodeid_str(get_path):
     return result
 
 
-def expand_config_ini(conf_path, data_path='{}/data'.format(path.get_path())):
-    """[--expand]
-
-    Arguments:
-        conf_path {[PATH]} -- [conf path]
-
-    Keyword Arguments:
-        data_path {[PATH]} -- [pkg path] (default: {'{}/data'.format(path.get_path())})
-
-    Raises:
-        MCError -- [description]
-        MCError -- [description]
-        MCError -- [description]
-        MCError -- [description]
-        MCError -- [description]
-        MCError -- [description]
-        MCError -- [description]
-    """
-
-    LOGGER.info("expand_config_ini start!")
-
-    p2p_listen_port = mexpand.MexpandConf.p2p_listen_port
-    p2p_ip = mexpand.MexpandConf.p2p_ip
-    rpc_ip = mexpand.MexpandConf.rpc_ip
-    jsonrpc_listen_port = mexpand.MexpandConf.jsonrpc_listen_port
-    channel_listen_port = mexpand.MexpandConf.channel_listen_port
-    members = mexpand.MexpandConf.members
-    group_id = mexpand.MexpandConf.group_id
-    gm_opr = get_status()
-    conf_dir = conf_path
-
-    meta_dir = path.get_path() + '/meta'
-    package_dir = data_path
-
-    # node_id
-    if not os.path.exists(meta_dir):
-        LOGGER.error(' meta path not existed! path is %s', meta_dir)
-        raise MCError(' meta path not existed! path is %s' % meta_dir)
-    if not os.path.exists(conf_dir):
-        LOGGER.error(' conf path not existed! path is %s', conf_dir)
-        raise MCError(' conf path not existed! path is %s' % conf_dir)
-    if not os.path.isfile('{}/group.{}.genesis'.format(conf_dir, group_id)):
-        LOGGER.error(' file not complete ! need group.%s.genesis',
-                     group_id, group_id)
-        raise MCError(' file not complete ! need group.%s.genesis' % (
-            group_id))
-
-    if os.path.exists(package_dir):
-        LOGGER.error(
-            ' data path existed! path is %s', package_dir)
-        raise MCError(
-            ' data path existed! path is %s' % package_dir)
-    os.mkdir(package_dir)
-    default_cfg = configparser.ConfigParser()
-    shutil.copy('{}/tpl/config.ini'.format(path.get_path()),
-                            '{}/.config.ini'.format(conf_dir))
-    try:
-        with codecs.open('{}/.config.ini'.format(conf_dir),
-                            'r', encoding='utf-8') as config_file:
-            default_cfg.readfp(config_file)
-    except Exception as expand_exp:
-        LOGGER.error(
-            ' open config.ini file failed, exception is %s', expand_exp)
-        raise MCError(
-            ' open config.ini file failed, exception is %s' % expand_exp)
-    for id, member in enumerate(members):
-        default_cfg.set("p2p", "node.{}".format(id),
-                        '{}'.format(member))
-    with open('{}/.config.ini'.format(conf_dir), 'w') as config_file:
-        default_cfg.write(config_file)
-
-    # init config.ini & node package
-    my_node_index = 0
-    for node_ip in p2p_ip:
-        LOGGER.info("p2p_ip -> %s", node_ip)
-        LOGGER.info(" need %s config.ini", len(p2p_ip))
-        CONSOLER.info(' Generate %s/node_%s_%s ',
-                      package_dir, node_ip, p2p_listen_port[my_node_index])
-        node_dir = '{}/node_{}_{}'.format(package_dir,
-                                          node_ip, p2p_listen_port[my_node_index])
-        os.mkdir(node_dir)
-        shutil.copy('{}/tpl/start.sh'.format(path.get_path()),
-                    '{}/start.sh'.format(node_dir))
-        shutil.copy('{}/tpl/stop.sh'.format(path.get_path()),
-                    '{}/stop.sh'.format(node_dir))
-        shutil.copy('{}/fisco-bcos'.format(meta_dir),
-                    '{}/fisco-bcos'.format(node_dir))
-
-        os.mkdir('{}/conf'.format(node_dir))
-        try:
-            # get node cert
-            shutil.copy('{}/.config.ini'.format(conf_dir),
-                        '{}/config.ini'.format(node_dir))
-            shutil.copy('{}/group.{}.genesis'.format(conf_dir, group_id),
-                        '{}/conf/group.{}.genesis'.format(node_dir, group_id))
-            shutil.copy('{}/tpl/group.i.ini'.format(path.get_path()),
-                        '{}/conf/group.{}.ini'.format(node_dir, group_id))
-            if gm_opr:
-                get_node_cert('{}/gmcert_{}_{}.crt'.format(meta_dir, node_ip,
-                                                           p2p_listen_port[my_node_index]),
-                              '{}/conf/gmnode.crt'.format(node_dir))
-                get_nodeid('{}/conf/gmnode.crt'.format(node_dir),
-                           '{}/conf/gmnode.nodeid'.format(node_dir))
-                os.system(
-                    'cp {}/gmca.crt {}/conf/gmca.crt'.format(meta_dir, node_dir))
-
-            else:
-                get_node_cert('{}/cert_{}_{}.crt'.format(meta_dir, node_ip,
-                                                         p2p_listen_port[my_node_index]),
-                              '{}/conf/node.crt'.format(node_dir))
-                get_nodeid('{}/conf/node.crt'.format(node_dir),
-                           '{}/conf/node.nodeid'.format(node_dir))
-                os.system(
-                    'cp {}/ca.crt {}/conf/ca.crt'.format(meta_dir, node_dir))
-
-        except Exception as expand_exp:
-            LOGGER.error(' get node.crt failed ! exception is %s', expand_exp)
-            utils.delete_data(package_dir)
-            raise MCError(' get node.crt failed! exception is %s' % expand_exp)
-        node_cfg = configparser.ConfigParser()
-        try:
-            with codecs.open('{}/config.ini'.format(node_dir),
-                             'r', encoding='utf-8') as config_file:
-                node_cfg.readfp(config_file)
-        except Exception as expand_exp:
-            LOGGER.error(
-                ' open config.ini file failed, exception is %s', expand_exp)
-            utils.delete_data(package_dir)
-            raise MCError(
-                ' open config.ini file failed, exception is %s' % expand_exp)
-        node_cfg.set("rpc", "listen_ip", rpc_ip[my_node_index])
-        node_cfg.set("rpc", "channel_listen_port",
-                     channel_listen_port[my_node_index])
-        node_cfg.set("rpc", "jsonrpc_listen_port",
-                     jsonrpc_listen_port[my_node_index])
-        # node_cfg.set("p2p", "listen_ip", p2p_ip[my_node_index])
-        node_cfg.set("p2p", "listen_port", p2p_listen_port[my_node_index])
-        with open('{}/config.ini'.format(node_dir), 'w') as config_file:
-            node_cfg.write(config_file)
-        my_node_index = my_node_index + 1
-    start_index = len(node_cfg.items('p2p')) - 2
-    LOGGER.info("start index is %s!", start_index)
-    config_file.close()
-    # set p2p ip in config.ini
-    for my_node_index, ip_item in enumerate(p2p_ip):
-        node_cfg = configparser.ConfigParser()
-        node_dir = '{}/node_{}_{}'.format(package_dir,
-                                          ip_item, p2p_listen_port[my_node_index])
-        try:
-            with codecs.open('{}/config.ini'.format(node_dir),
-                             'r', encoding='utf-8') as config_file:
-                node_cfg.readfp(config_file)
-        except Exception as expand_exp:
-            LOGGER.error(
-                ' open config.ini file failed, exception is %s', expand_exp)
-            utils.delete_data(package_dir)
-            raise MCError(
-                ' open config.ini file failed, exception is %s' % expand_exp)
-        for ip_idx, set_item in enumerate(p2p_ip):
-            node_cfg.set("p2p", "node.{}".format(ip_idx + start_index),
-                         '{}:{}'.format(set_item, p2p_listen_port[ip_idx]))
-        with open('{}/config.ini'.format(node_dir), 'w') as config_file:
-            node_cfg.write(config_file)
-    os.system('cp {}/node_{}_{}/config.ini'
-              ' {}/config.ini'.format(package_dir,
-                                      p2p_ip[0], p2p_listen_port[0], package_dir))
-    shutil.copy('{}/tpl/start_all.sh'.format(path.get_path()), package_dir)
-    shutil.copy('{}/tpl/stop_all.sh'.format(path.get_path()), package_dir)
-    shutil.copytree('{}/scripts/monitor'.format((path.get_path())),
-                    '{}/monitor'.format(package_dir))
-    LOGGER.info("expand_config_ini end!")
-
-
 def concatenate_cfg(cfg_file, cfg_file_get):
     """[combine two config.ini]
 
@@ -525,11 +386,11 @@ def concatenate_cfg(cfg_file, cfg_file_get):
     try:
         with codecs.open(meta, 'r', encoding='utf-8') as config_file:
             p2p_cfg.readfp(config_file)
-    except Exception as expand_exp:
+    except Exception as build_exp:
         LOGGER.error(
-            ' open config.ini file failed, exception is %s', expand_exp)
+            ' open config.ini file failed, exception is %s', build_exp)
         raise MCError(
-            ' open config.ini file failed, exception is %s' % expand_exp)
+            ' open config.ini file failed, exception is %s' % build_exp)
     p2p_get = p2p_cfg.items('p2p')
     p2p_get.pop(0)
     p2p_get.pop(0)
@@ -540,11 +401,11 @@ def concatenate_cfg(cfg_file, cfg_file_get):
     try:
         with codecs.open(data, 'r', encoding='utf-8') as config_file:
             p2p_cfg.readfp(config_file)
-    except Exception as expand_exp:
+    except Exception as build_exp:
         LOGGER.error(
-            ' open config.ini file failed, exception is %s', expand_exp)
+            ' open config.ini file failed, exception is %s', build_exp)
         raise MCError(
-            ' open config.ini file failed, exception is %s' % expand_exp)
+            ' open config.ini file failed, exception is %s' % build_exp)
     p2p_send = p2p_cfg.items('p2p')
     p2p_send.pop(0)
     p2p_send.pop(0)
