@@ -1,6 +1,6 @@
 # coding:utf-8
 """[mconf.py]
-Paser mchain.ini
+Paser node_installation.ini
 
 Raises:
     MCError -- [config format msg]
@@ -18,7 +18,7 @@ from pys.error.exp import MCError
 
 
 class MchainConf(object):
-    """mchain.ini configuration
+    """node_installation.ini configuration
     """
 
     name = 'FISCO Generator'
@@ -28,6 +28,7 @@ class MchainConf(object):
     jsonrpc_listen_port = []
     rpc_ip = []
     p2p_ip = []
+    peers = []
     # fisco_path = ''
 
     def __init__(self):
@@ -102,23 +103,32 @@ class MchainConf(object):
 
         return self.channel_listen_port
 
+    def get_peers(self):
+        """[get channel port]
+
+        Returns:
+            [string] -- [channel_port]
+        """
+        return self.peers
+
 
 def parser(mchain):
-    """resolve mchain.ini
+    """resolve node_installation.ini
 
     Arguments:
-        mchain {string} -- path of mchain.ini
+        mchain {string} -- path of node_installation.ini
 
     Raises:
         MCError -- exception description
     """
 
-    LOGGER.info('mchain.ini is %s', mchain)
+    LOGGER.info('node_installation.ini is %s', mchain)
     # resolve configuration
     if not utils.valid_string(mchain):
-        LOGGER.error(' mchain.ini not invalid path, mchain.ini is %s', mchain)
+        LOGGER.error(
+            ' node_installation.ini not invalid path, node_installation.ini is %s', mchain)
         raise MCError(
-            ' mchain.ini not invalid path, mchain.ini is %s' % mchain)
+            ' node_installation.ini not invalid path, node_installation.ini is %s' % mchain)
 
     # read and parser config file
     config_parser = configparser.ConfigParser()
@@ -127,16 +137,16 @@ def parser(mchain):
             config_parser.readfp(file_mchain)
     except Exception as ini_exp:
         LOGGER.error(
-            ' open mchain.ini file failed, exception is %s', ini_exp)
+            ' open node_installation.ini file failed, exception is %s', ini_exp)
         raise MCError(
-            ' open mchain.ini file failed, exception is %s' % ini_exp)
+            ' open node_installation.ini file failed, exception is %s' % ini_exp)
 
     # name = config_parser.get('chain', 'name')
     # if not utils.valid_string(name):
     #     LOGGER.error(
-    #         ' invalid mchain.ini format, name empty, agent_name is %s', name)
+    #         ' invalid node_installation.ini format, name empty, agent_name is %s', name)
     #     raise MCError(
-    #         ' invalid mchain.ini format, name empty, agent_name is %s' % name)
+    #         ' invalid node_installation.ini format, name empty, agent_name is %s' % name)
     # MchainConf.name = name
     for idx in range(0, 128):
         node_index = ('node{}'.format(idx))
@@ -144,19 +154,19 @@ def parser(mchain):
             MchainConf.group_id = config_parser.get('group', 'group_id')
         else:
             LOGGER.error(
-                ' invalid mchain.ini format, group id is %s', MchainConf.group_id)
+                ' invalid node_installation.ini format, group id is %s', MchainConf.group_id)
             raise MCError(
-                ' invalid mchain.ini format, group id is %s' % MchainConf.group_id)
+                ' invalid node_installation.ini format, group id is %s' % MchainConf.group_id)
 
         if config_parser.has_section(node_index):
             p2p_ip = config_parser.get(node_index, 'p2p_ip')
             rpc_ip = config_parser.get(node_index, 'rpc_ip')
             if not utils.valid_ip(rpc_ip):
                 LOGGER.error(
-                    ' invalid mchain.ini format, rpc_ip is %s, jsonrpc_port is %s',
+                    ' invalid node_installation.ini format, rpc_ip is %s, jsonrpc_port is %s',
                     p2p_ip, rpc_ip)
                 raise MCError(
-                    ' invalid mchain.ini format, p2p_ip is %s, rpc_ip is %s'
+                    ' invalid node_installation.ini format, p2p_ip is %s, rpc_ip is %s'
                     % (p2p_ip, rpc_ip))
             p2p_listen_port = config_parser.get(node_index, 'p2p_listen_port')
             jsonrpc_listen_port = config_parser.get(
@@ -182,6 +192,11 @@ def parser(mchain):
         else:
             LOGGER.warning(' node%s not existed, break!', idx)
             break
+    if config_parser.has_section('peers'):
+        for peer in config_parser.items('peers'):
+            MchainConf.peers.append(peer[1])
+    else:
+        LOGGER.warning(' section peers not existed!')
 
     LOGGER.info('group_id is %s', MchainConf.group_id)
     LOGGER.info('p2p_ip is %s', MchainConf.p2p_ip)
@@ -189,5 +204,6 @@ def parser(mchain):
     LOGGER.info('p2p_listen_port is %s', MchainConf.p2p_listen_port)
     LOGGER.info('jsonrpc_listen_port is %s', MchainConf.jsonrpc_listen_port)
     LOGGER.info('channel_listen_port is %s', MchainConf.channel_listen_port)
+    LOGGER.info('peers is %s', MchainConf.peers)
 
-    LOGGER.info('mchain.ini end, result is %s', MchainConf())
+    LOGGER.info('node_installation.ini end, result is %s', MchainConf())

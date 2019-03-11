@@ -11,91 +11,54 @@ jobs:
           command: |
             bash ./scripts/install.sh
             sudo apt-get -y install curl
-            # pip install -U pip --user
-            # pip install configparser --user
-      # - run:
-      #     name: pylint
-      #     command: |
-      #       pip install pylint --user
-      #       touch ~/.pylintrc
-      #       pylint pys >> input 2>&1
-      #       score=`cat input |grep "Your code has been" | awk '{print $7}' | awk -F/ '{print $1}'`
-      #       if [[ "${score}" < "9.5" ]]
-      #       then
-      #           echo "Now socre is ${score}, lower than 9.5"
-      #           return 1
-      #       fi
-      #       echo "pylint pass, your score is ${score}"
-      #     environment:
-      #       PATH: /home/circleci/.local/bin:/usr/bin:/bin:/bin/grep:/usr/bin/grep:$PATH
       - run:
-          name: Demo test
-          command: |
-            ./generator --demo
-            cd ./meta
-            ./fisco-bcos --version
-            cd ..
-      - run:
-          name: Chain test
-          command: |
-            cd ./data/
-            rm -rf ./monitor
-            bash start_all.sh
-            sleep 2
-            ps aux| grep fisco-bcos |grep -v grep
-            result=`ps aux| grep fisco-bcos |grep -v grep`
-            if [ -z "$result" ]
-            then
-              echo "start failed"
-              return 1
-            fi
-            echo "start succeed"
-            curl -X POST --data '{"jsonrpc":"2.0","method":"sendRawTransaction","params":[1, "0xf8ef9f65f0d06e39dc3c08e32ac10a5070858962bc6c0f5760baca823f2d5582d03f85174876e7ff8609184e729fff82020394d6f1a71052366dbae2f7ab2d5d5845e77965cf0d80b86448f85bce000000000000000000000000000000000000000000000000000000000000001bf5bd8a9e7ba8b936ea704292ff4aaa5797bf671fdc8526dcd159f23c1f5a05f44e9fa862834dc7cb4541558f2b4961dc39eaaf0af7f7395028658d0e01b86a371ca00b2b3fabd8598fefdda4efdb54f626367fc68e1735a8047f0f1c4f840255ca1ea0512500bc29f4cfe18ee1c88683006d73e56c934100b8abf4d2334560e1d2f75e"],"id":83}' http://127.0.0.1:8545 > code.txt
-            cat ./code.txt
-            echo "transaction get code is $(cat ./code.txt)"
-            tx_result=`cat ./code.txt | grep result | grep -v grep`
-            echo $tx_result
-            if [ -z "$tx_result" ]
-            then
-              echo "transaction failed"
-              return 1
-            fi
-            echo "send transaction succeed"
-            # cd ./monitor
-            # bash monitor.sh -o ../ -r asherli
-            # cd ../
-            ./stop_all.sh
-            cd ..
-            cd ./expand
-            ./start_all.sh
-            ps aux| grep fisco-bcos |grep -v grep
-            result=`ps aux| grep fisco-bcos |grep -v grep`
-            if [ -z "$result" ]
-            then
-              echo "start expand failed"
-              return 1
-            fi
-            ./stop_all.sh
-            cd ..
-      - run:
-          name: Clear Cache
-          command: |
-            rm -rf ./data
-            rm -rf ./meta/*
-            rm -rf ./expand
-      - run:
-          name: Deploy Key Test
+          name: Download fisco-bcos
           command: |
             bash <(curl -s https://raw.githubusercontent.com/FISCO-BCOS/FISCO-BCOS/release-2.0.1/tools/ci/download_bin.sh) -o ./meta
-            ./generator --generate_all_certificates ./mybuildcert
-            ./generator --expand_all_certificates ./myexpandcert
       - run:
-          name: Build Test
-          command: |   
-            ./generator --build_install_package ./data
-            ./generator --deploy_private_key ./mybuildcert ./data
-            cd ./data
-            ./start_all.sh
+          name: Generate chain and agency certs
+          command: |
+            ./generator --generate_chain_certificate ./dir_chain_ca
+            ./generator --generate_agency_certificate ./dir_agency_ca ./dir_chain_ca agencyA
+            ./generator --generate_agency_certificate ./dir_agency_ca ./dir_chain_ca agencyB
+            cp ././dir_chain_ca/ca.crt ./meta/
+      - run:
+          name: Generate agencyA certs
+          command: |
+            cp ./dir_agency_ca/agencyA/agency.crt ./dir_agency_ca/agencyA/agency.key ./meta/
+            ./generator --generate_all_certificates ./node_agencyA
+            cp ./conf/node_deployment.ini ./conf/node_deployment.ini.agencyA
+      - run:
+          name: Generate agencyB certs
+          command: |
+            cp -r ./dir_agency_ca/agencyB/agency.crt ./dir_agency_ca/agencyB/agency.key ./meta/
+            sed -i '.bak' 's/p2p_listen_port=30300/p2p_listen_port=30302/g' ./conf/node_deployment.ini
+            sed -i '.bak' 's/p2p_listen_port=30301/p2p_listen_port=30303/g' ./conf/node_deployment.ini
+            sed -i '.bak' 's/channel_listen_port=20200/channel_listen_port=20202/g' ./conf/node_deployment.ini
+            sed -i '.bak' 's/channel_listen_port=20201/channel_listen_port=20203/g' ./conf/node_deployment.ini
+            sed -i '.bak' 's/jsonrpc_listen_port=8545/jsonrpc_listen_port=8547/g' ./conf/node_deployment.ini
+            sed -i '.bak' 's/jsonrpc_listen_port=8546/jsonrpc_listen_port=8548/g' ./conf/node_deployment.ini
+            ./generator --generate_all_certificates ./node_agencyB
+      - run:
+          name: Build group genesis
+          command: |
+            ./generator --create_group_genesis ./group
+      - run:
+          name: Build agencyB nodes
+          command: |
+            ./generator ----build_install_package ./nodeB
+            ./generator ------deploy_private_key ./node_agencyB ./nodeB
+            bash ./nodeB/start_all.sh
+      - run:
+          name: Build agencyA nodes
+          command: |
+            cp -r ./conf/node_deployment.ini.agencyA ./conf/node_deployment.ini
+            ./generator ----build_install_package ./nodeA
+            ./generator ------deploy_private_key ./node_agencyA ./nodeA
+            bash ./nodeA/start_all.sh
+      - run:
+          name: Transaction test
+          command: |
             ps aux| grep fisco-bcos |grep -v grep
             result=`ps aux| grep fisco-bcos |grep -v grep`
             if [ -z "$result" ]
@@ -115,69 +78,6 @@ jobs:
               return 1
             fi
             echo "send transaction succeed"
-            ./stop_all.sh
-            cd ..
-      - run:
-          name: Expand Test
-          command: | 
-            ./generator --build_expand_package ./expand
-            ./generator --deploy_private_key ./myexpandcert ./expand
-            cd ./expand
-            ./start_all.sh
-            ps aux| grep fisco-bcos |grep -v grep
-            result=`ps aux| grep fisco-bcos |grep -v grep`
-            if [ -z "$result" ]
-            then
-              echo "start failed"
-              return 1
-            fi
-            echo "start expand nodes succeed"
-            ./stop_all.sh
-            cd ..
-      - run:
-          name: Create Group Test
-          command: | 
-            ./generator --create_group_config ./data
-            cd ./data
-            cat group.2.genesis
-            cp group.2.ini group.2.genesis ./node_127.0.0.1_30300/conf/
-            cp group.2.ini group.2.genesis ./node_127.0.0.1_30301/conf/
-            cp group.2.ini group.2.genesis ./node_127.0.0.1_30302/conf/
-            cp group.2.ini group.2.genesis ./node_127.0.0.1_30303/conf/
-            ./stop_all.sh
-            sleep 2
-            ./start_all.sh
-            ps aux| grep fisco-bcos |grep -v grep
-            result=`ps aux| grep fisco-bcos |grep -v grep`
-            if [ -z "$result" ]
-            then
-              echo "start failed"
-              return 1
-            fi
-            echo "start group 2 nodes succeed"
-            curl -X POST --data '{"jsonrpc":"2.0","method":"sendRawTransaction","params":[2, "0xf8ef9f65f0d06e39dc3c08e32ac10a5070858962bc6c0f5760baca823f2d5582d03f85174876e7ff8609184e729fff82020394d6f1a71052366dbae2f7ab2d5d5845e77965cf0d80b86448f85bce000000000000000000000000000000000000000000000000000000000000001bf5bd8a9e7ba8b936ea704292ff4aaa5797bf671fdc8526dcd159f23c1f5a05f44e9fa862834dc7cb4541558f2b4961dc39eaaf0af7f7395028658d0e01b86a371ca00b2b3fabd8598fefdda4efdb54f626367fc68e1735a8047f0f1c4f840255ca1ea0512500bc29f4cfe18ee1c88683006d73e56c934100b8abf4d2334560e1d2f75e"],"id":83}' http://127.0.0.1:8545 > code.txt
-            cat ./code.txt
-            echo "transaction get code is $(cat ./code.txt)"
-            tx_result=`cat ./code.txt | grep result | grep -v grep`
-            echo $tx_result
-            if [ -z "$tx_result" ]
-            then
-              echo "transaction failed"
-              return 1
-            fi
-            echo "send transaction to group 2 succeed"
-            # cd ./monitor
-            # bash monitor.sh -o ../ -r asherli
-            # cd ../
-            ./stop_all.sh
-            cd ..
-      - run:
-          name: Generate Cert Test
-          command: |
-            ./generator --generate_chain_certificate ./certTest
-            ./generator --generate_agency_certificate ./certTest  ./certTest  fisco
-            ./generator --generate_node_certificate ./certTest  ./certTest/fisco  node0
-            ./generator --generate_sdk_certificate ./certTest  ./certTest/fisco
   CentOS:  # required for runs that don't use workflows
     working_directory: ~/generator
     docker:
@@ -194,23 +94,58 @@ jobs:
             yum -y install nc
             yum -y install curl
       - run:
-          name: Demo test
+          name: Download fisco-bcos
           command: |
-            ./generator --demo
-            cd ./meta
-            ./fisco-bcos --version
-            cd ..
+            bash <(curl -s https://raw.githubusercontent.com/FISCO-BCOS/FISCO-BCOS/release-2.0.1/tools/ci/download_bin.sh) -o ./meta
       - run:
-          name: Chain test
+          name: Generate chain and agency certs
           command: |
-            cd ./data/
-            rm -rf ./monitor
-            bash start_all.sh
+            ./generator --generate_chain_certificate ./dir_chain_ca
+            ./generator --generate_agency_certificate ./dir_agency_ca ./dir_chain_ca agencyA
+            ./generator --generate_agency_certificate ./dir_agency_ca ./dir_chain_ca agencyB
+            cp ././dir_chain_ca/ca.crt ./meta/
+      - run:
+          name: Generate agencyA certs
+          command: |
+            cp ./dir_agency_ca/agencyA/agency.crt ./dir_agency_ca/agencyA/agency.key ./meta/
+            ./generator --generate_all_certificates ./node_agencyA
+            cp ./conf/node_deployment.ini ./conf/node_deployment.ini.agencyA
+      - run:
+          name: Generate agencyB certs
+          command: |
+            cp -r ./dir_agency_ca/agencyB/agency.crt ./dir_agency_ca/agencyB/agency.key ./meta/
+            sed -i '.bak' 's/p2p_listen_port=30300/p2p_listen_port=30302/g' ./conf/node_deployment.ini
+            sed -i '.bak' 's/p2p_listen_port=30301/p2p_listen_port=30303/g' ./conf/node_deployment.ini
+            sed -i '.bak' 's/channel_listen_port=20200/channel_listen_port=20202/g' ./conf/node_deployment.ini
+            sed -i '.bak' 's/channel_listen_port=20201/channel_listen_port=20203/g' ./conf/node_deployment.ini
+            sed -i '.bak' 's/jsonrpc_listen_port=8545/jsonrpc_listen_port=8547/g' ./conf/node_deployment.ini
+            sed -i '.bak' 's/jsonrpc_listen_port=8546/jsonrpc_listen_port=8548/g' ./conf/node_deployment.ini
+            ./generator --generate_all_certificates ./node_agencyB
+      - run:
+          name: Build group genesis
+          command: |
+            ./generator --create_group_genesis ./group
+      - run:
+          name: Build agencyB nodes
+          command: |
+            ./generator ----build_install_package ./nodeB
+            ./generator ------deploy_private_key ./node_agencyB ./nodeB
+            bash ./nodeB/start_all.sh
+      - run:
+          name: Build agencyA nodes
+          command: |
+            cp -r ./conf/node_deployment.ini.agencyA ./conf/node_deployment.ini
+            ./generator ----build_install_package ./nodeA
+            ./generator ------deploy_private_key ./node_agencyA ./nodeA
+            bash ./nodeA/start_all.sh
+      - run:
+          name: Transaction test
+          command: |
             ps aux| grep fisco-bcos |grep -v grep
             result=`ps aux| grep fisco-bcos |grep -v grep`
             if [ -z "$result" ]
             then
-              echo "start failed"
+              echo "start build nodes failed"
               return 1
             fi
             echo "start succeed"
@@ -225,20 +160,6 @@ jobs:
               return 1
             fi
             echo "send transaction succeed"
-            ./stop_all.sh
-            cd ..
-            cd ./expand
-            ./start_all.sh
-            ps aux| grep fisco-bcos |grep -v grep
-            result=`ps aux| grep fisco-bcos |grep -v grep`
-            if [ -z "$result" ]
-            then
-              echo "start expand failed"
-              return 1
-            fi
-            ./stop_all.sh
-            cd ..
-
 workflows:
   version: 2
   build:
