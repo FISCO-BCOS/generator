@@ -38,8 +38,8 @@ def create_group_genesis(data_dir='{}/meta'.format(path.get_path())):
         os.mkdir(data_dir)
     shutil.copy('{}/tpl/group.i.genesis'.format(path.get_path()),
                 '{}/group.{}.genesis'.format(package_dir, group_id))
-    # shutil.copy('{}/tpl/group.i.ini'.format(path.get_path()),
-    #             '{}/group.{}.ini'.format(package_dir, group_id))
+    shutil.copy('{}/tpl/group.i.ini'.format(path.get_path()),
+                '{}/group.{}.ini'.format(package_dir, group_id))
     CONSOLER.info('generate %s/group.%s.genesis', package_dir, group_id)
     # CONSOLER.info('generate %s/group.%s.ini', package_dir, group_id)
     group_cfg = configparser.ConfigParser()
