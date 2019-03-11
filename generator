@@ -17,7 +17,7 @@ path.set_path(GEN_DIR)
 # init end
 
 from pys.build import config
-from pys.conf import mconf, mexpand, mgroup
+from pys.conf import mconf, mgroup
 from pys.tool import ca
 from pys import version
 from pys.log import CONSOLER
@@ -25,8 +25,6 @@ from pys.log import console_error
 from pys.opr import opr_cert
 from pys.opr import create_group
 from pys.opr import build
-from pys.opr import expand_node
-from pys.opr import demo
 from pys.log import LOGGER
 
 
