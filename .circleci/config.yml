@@ -32,12 +32,14 @@ jobs:
           name: Generate agencyB certs
           command: |
             cp -r ./dir_agency_ca/agencyB/agency.crt ./dir_agency_ca/agencyB/agency.key ./meta/
-            sed -i '.bak' 's/p2p_listen_port=30300/p2p_listen_port=30302/g' ./conf/node_deployment.ini
-            sed -i '.bak' 's/p2p_listen_port=30301/p2p_listen_port=30303/g' ./conf/node_deployment.ini
-            sed -i '.bak' 's/channel_listen_port=20200/channel_listen_port=20202/g' ./conf/node_deployment.ini
-            sed -i '.bak' 's/channel_listen_port=20201/channel_listen_port=20203/g' ./conf/node_deployment.ini
-            sed -i '.bak' 's/jsonrpc_listen_port=8545/jsonrpc_listen_port=8547/g' ./conf/node_deployment.ini
-            sed -i '.bak' 's/jsonrpc_listen_port=8546/jsonrpc_listen_port=8548/g' ./conf/node_deployment.ini
+            sed -i 's/p2p_listen_port=30300/p2p_listen_port=30302/g' ./conf/node_deployment.ini
+            sed -i 's/p2p_listen_port=30301/p2p_listen_port=30303/g' ./conf/node_deployment.ini
+            sed -i 's/channel_listen_port=20200/channel_listen_port=20202/g' ./conf/node_deployment.ini
+            sed -i 's/channel_listen_port=20201/channel_listen_port=20203/g' ./conf/node_deployment.ini
+            sed -i 's/jsonrpc_listen_port=8545/jsonrpc_listen_port=8547/g' ./conf/node_deployment.ini
+            sed -i 's/jsonrpc_listen_port=8546/jsonrpc_listen_port=8548/g' ./conf/node_deployment.ini
+            sed -i 's/peer0=127.0.0.1:30302/peer0=127.0.0.1:30300/g' ./conf/node_deployment.ini
+            sed -i 's/peer0=127.0.0.1:30303/peer0=127.0.0.1:30301/g' ./conf/node_deployment.ini
             ./generator --generate_all_certificates ./node_agencyB
       - run:
           name: Build group genesis
@@ -46,15 +48,15 @@ jobs:
       - run:
           name: Build agencyB nodes
           command: |
-            ./generator ----build_install_package ./nodeB
-            ./generator ------deploy_private_key ./node_agencyB ./nodeB
+            ./generator --build_install_package ./nodeB
+            ./generator --deploy_private_key ./node_agencyB ./nodeB
             bash ./nodeB/start_all.sh
       - run:
           name: Build agencyA nodes
           command: |
             cp -r ./conf/node_deployment.ini.agencyA ./conf/node_deployment.ini
-            ./generator ----build_install_package ./nodeA
-            ./generator ------deploy_private_key ./node_agencyA ./nodeA
+            ./generator --build_install_package ./nodeA
+            ./generator --deploy_private_key ./node_agencyA ./nodeA
             bash ./nodeA/start_all.sh
       - run:
           name: Transaction test
@@ -114,12 +116,14 @@ jobs:
           name: Generate agencyB certs
           command: |
             cp -r ./dir_agency_ca/agencyB/agency.crt ./dir_agency_ca/agencyB/agency.key ./meta/
-            sed -i '.bak' 's/p2p_listen_port=30300/p2p_listen_port=30302/g' ./conf/node_deployment.ini
-            sed -i '.bak' 's/p2p_listen_port=30301/p2p_listen_port=30303/g' ./conf/node_deployment.ini
-            sed -i '.bak' 's/channel_listen_port=20200/channel_listen_port=20202/g' ./conf/node_deployment.ini
-            sed -i '.bak' 's/channel_listen_port=20201/channel_listen_port=20203/g' ./conf/node_deployment.ini
-            sed -i '.bak' 's/jsonrpc_listen_port=8545/jsonrpc_listen_port=8547/g' ./conf/node_deployment.ini
-            sed -i '.bak' 's/jsonrpc_listen_port=8546/jsonrpc_listen_port=8548/g' ./conf/node_deployment.ini
+            sed -i 's/p2p_listen_port=30300/p2p_listen_port=30302/g' ./conf/node_deployment.ini
+            sed -i 's/p2p_listen_port=30301/p2p_listen_port=30303/g' ./conf/node_deployment.ini
+            sed -i 's/channel_listen_port=20200/channel_listen_port=20202/g' ./conf/node_deployment.ini
+            sed -i 's/channel_listen_port=20201/channel_listen_port=20203/g' ./conf/node_deployment.ini
+            sed -i 's/jsonrpc_listen_port=8545/jsonrpc_listen_port=8547/g' ./conf/node_deployment.ini
+            sed -i 's/jsonrpc_listen_port=8546/jsonrpc_listen_port=8548/g' ./conf/node_deployment.ini
+            sed -i 's/peer0=127.0.0.1:30302/peer0=127.0.0.1:30300/g' ./conf/node_deployment.ini
+            sed -i 's/peer0=127.0.0.1:30303/peer0=127.0.0.1:30301/g' ./conf/node_deployment.ini
             ./generator --generate_all_certificates ./node_agencyB
       - run:
           name: Build group genesis
@@ -128,15 +132,15 @@ jobs:
       - run:
           name: Build agencyB nodes
           command: |
-            ./generator ----build_install_package ./nodeB
-            ./generator ------deploy_private_key ./node_agencyB ./nodeB
+            ./generator --build_install_package ./nodeB
+            ./generator --deploy_private_key ./node_agencyB ./nodeB
             bash ./nodeB/start_all.sh
       - run:
           name: Build agencyA nodes
           command: |
             cp -r ./conf/node_deployment.ini.agencyA ./conf/node_deployment.ini
-            ./generator ----build_install_package ./nodeA
-            ./generator ------deploy_private_key ./node_agencyA ./nodeA
+            ./generator --build_install_package ./nodeA
+            ./generator --deploy_private_key ./node_agencyA ./nodeA
             bash ./nodeA/start_all.sh
       - run:
           name: Transaction test
