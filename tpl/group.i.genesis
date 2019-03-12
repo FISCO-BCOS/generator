@@ -1,5 +1,5 @@
 [group]
-index=${index} 
+id=${index} 
 
 ;consensus configuration
 [consensus]

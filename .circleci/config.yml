@@ -21,7 +21,7 @@ jobs:
             ./generator --generate_chain_certificate ./dir_chain_ca
             ./generator --generate_agency_certificate ./dir_agency_ca ./dir_chain_ca agencyA
             ./generator --generate_agency_certificate ./dir_agency_ca ./dir_chain_ca agencyB
-            cp ././dir_chain_ca/ca.crt ./meta/
+            cp ./dir_chain_ca/ca.crt ./meta/
       - run:
           name: Generate agencyA certs
           command: |
@@ -105,7 +105,7 @@ jobs:
             ./generator --generate_chain_certificate ./dir_chain_ca
             ./generator --generate_agency_certificate ./dir_agency_ca ./dir_chain_ca agencyA
             ./generator --generate_agency_certificate ./dir_agency_ca ./dir_chain_ca agencyB
-            cp ././dir_chain_ca/ca.crt ./meta/
+            cp ./dir_chain_ca/ca.crt ./meta/
       - run:
           name: Generate agencyA certs
           command: |

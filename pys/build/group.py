@@ -20,6 +20,7 @@ from pys.log import LOGGER, CONSOLER
 from pys.error.exp import MCError
 from pys.conf import mgroup
 from pys.build import config
+from pys.tool import utils
 
 
 def create_group_genesis(data_dir='{}/meta'.format(path.get_path())):
@@ -32,7 +33,8 @@ def create_group_genesis(data_dir='{}/meta'.format(path.get_path())):
     group_id = mgroup.MgroupConf.group_id
     p2p_ip = mgroup.MgroupConf.p2p_ip
     p2p_listen_port = mgroup.MgroupConf.p2p_listen_port
-
+    utils.file_must_not_exists(
+        '{}/group.{}.genesis'.format(data_dir, group_id))
     if not os.path.exists(package_dir):
         LOGGER.warning(' ./data not existed!')
         os.mkdir(data_dir)
