@@ -55,7 +55,7 @@ def usage():
     pkg_group = parser.add_argument_group(
         ' Build, Expand, Export, List Chain Package Options ')
 
-    pkg_group.add_argument('-b', '--build_install_package', nargs=1, metavar=('data_dir'),
+    pkg_group.add_argument('-b', '--build_install_package', nargs=2, metavar=('peer_path', 'data_dir'),
                            help=' build chain packages with mchain.ini')
     # pkg_group.add_argument('-e', '--build_expand_package', nargs=1, metavar=('data_dir'),
     #                        help='expand node packages with mexpand.ini')
@@ -97,7 +97,7 @@ def usage():
         config.set_gm()
     elif args.build_install_package:
         CONSOLER.info(' Build operation begin.')
-        build.build(args.build_install_package[0])
+        build.build(args.build_install_package[0],args.build_install_package[1])
         CONSOLER.info(' Build operation end.')
     # elif args.build:
     #     opr_build.build(args.build[0], args.build[1])

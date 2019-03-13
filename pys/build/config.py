@@ -133,8 +133,8 @@ def build_config_ini(_data_dir):
         CONSOLER.warn('section peers not existed!')
     else:
         for node_id, peer in enumerate(peers):
-            default_cfg.set("p2p", "node.{}".format(node_id),
-                            '{}'.format(peer))
+            default_cfg.set("p2p", "node.{}".format(node_id + len(p2p_listen_port)),
+                            peer)
         with open('{}/.config.ini'.format(conf_dir), 'w') as config_file:
             default_cfg.write(config_file)
 

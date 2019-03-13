@@ -8,7 +8,7 @@ BEGIN {
         err[0]++ ;
     else if($0 ~ /Host is gone/)
         err[1]++ ;
-    else if( $0 ~ /Get leader failed/ && match($0, group_id)) 
+    else if( $0 ~ /Commit leveldb exception/ && match($0, group_id)) 
         err[2]++ ;
     else if( $0 ~ /ViewChangeWarning/ && match($0, group_id))
         err[3]++ ;
