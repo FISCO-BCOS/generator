@@ -33,6 +33,29 @@ def valid_chain_id(chain_id):
         raise MCError(
             '%s is not a valid chain_id' % utils_exp)
 
+def valid_peer(peer):
+    """[Determine if the peer is valid]
+    
+    Arguments:
+        peer {[str]} -- [peers]
+     Returns:
+        [bool] -- [true or false]
+    """
+    try:
+        peer = peer.split(':')
+        if not valid_ip(peer[0]):
+            return False
+        if valid_port(peer[1]):
+            return True
+        return False
+    except ValueError as utils_exp:
+        LOGGER.error('%s is not a valid peer', utils_exp)
+    except Exception as utils_exp:
+        LOGGER.error('%s is not a valid peer', utils_exp)
+        raise MCError(
+            '%s is not a valid peer' % utils_exp)
+
+
 
 def valid_ip(_ip):
     """[Determine if the host ip is valid]

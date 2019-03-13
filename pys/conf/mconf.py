@@ -103,6 +103,14 @@ class MchainConf(object):
 
         return self.channel_listen_port
 
+    def set_peers(self, _str):
+        """[get channel port]
+
+        Returns:
+            [string] -- [peers]
+        """
+        self.peers.append(_str)
+
     def get_peers(self):
         """[get channel port]
 
@@ -184,11 +192,11 @@ def parser(mchain):
         else:
             LOGGER.warning(' node%s not existed, break!', idx)
             break
-    if config_parser.has_section('peers'):
-        for peer in config_parser.items('peers'):
-            MchainConf.peers.append(peer[1])
-    else:
-        LOGGER.warning(' section peers not existed!')
+    # if config_parser.has_section('peers'):
+    #     for peer in config_parser.items('peers'):
+    #         MchainConf.peers.append(peer[1])
+    # else:
+    #     LOGGER.warning(' section peers not existed!')
 
     LOGGER.info('group_id is %s', MchainConf.group_id)
     LOGGER.info('p2p_ip is %s', MchainConf.p2p_ip)
@@ -199,3 +207,28 @@ def parser(mchain):
     LOGGER.info('peers is %s', MchainConf.peers)
 
     LOGGER.info('node_installation.ini end, result is %s', MchainConf())
+
+
+def read_peers(data_path):
+    """[read peers]
+    
+    Arguments:
+        data_path {[file]} -- [peers file]
+    """
+    # read and parser peer file
+    try:
+        for line in open(data_path):  
+            peer = line.strip('\n')
+            utils.valid_peer(peer)
+            MchainConf.peers.append(peer)
+    except Exception as ini_exp:
+        LOGGER.error(
+            ' open %s file failed, exception is %s', data_path, ini_exp)
+        raise MCError(
+            ' open %s file failed, exception is %s' % (data_path, ini_exp))
+    MchainConf.peers = list(set(MchainConf.peers))
+    LOGGER.info('peers is %s', MchainConf.peers)
+
+    
+
+
