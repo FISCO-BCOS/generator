@@ -1,6 +1,6 @@
 version: 2
 jobs:
-  Build:  # required for runs that don't use workflows
+  build:  # required for runs that don't use workflows
     working_directory: ~/generator
     docker:
       - image: circleci/python:2.7  # primary container for the build job
@@ -124,10 +124,8 @@ jobs:
             sed -i 's/127.0.0.1:30302/127.0.0.1:30304/g' ./conf/group_genesis.ini
             sed -i 's/127.0.0.1:30303/127.0.0.1:30305/g' ./conf/group_genesis.ini
             ./generator --create_group_genesis ./data
-            cp ./data/group.2.ini ./data/group.2.genesis ./nodeA/node_127.0.0.1_30300/conf/
-            cp ./data/group.2.ini ./data/group.2.genesis ./nodeA/node_127.0.0.1_30301/conf/
-            cp ./data/group.2.ini ./data/group.2.genesis ~/generator-C/nodeC/node_127.0.0.1_30304/conf/
-            cp ./data/group.2.ini ./data/group.2.genesis ~/generator-C/nodeC/node_127.0.0.1_30305/conf/
+            ./generator --add_group ./data/group.2.genesis ./nodeA
+            ./generator --add_group ./data/group.2.genesis ~/generator-C/nodeC
             bash ./nodeA/stop_all.sh
             bash ./nodeA/start_all.sh
             bash ~/generator-C/nodeC/stop_all.sh
@@ -283,10 +281,8 @@ jobs:
             sed -i 's/127.0.0.1:30302/127.0.0.1:30304/g' ./conf/group_genesis.ini
             sed -i 's/127.0.0.1:30303/127.0.0.1:30305/g' ./conf/group_genesis.ini
             ./generator --create_group_genesis ./data
-            cp ./data/group.2.ini ./data/group.2.genesis ./nodeA/node_127.0.0.1_30300/conf/
-            cp ./data/group.2.ini ./data/group.2.genesis ./nodeA/node_127.0.0.1_30301/conf/
-            cp ./data/group.2.ini ./data/group.2.genesis ~/generator-C/nodeC/node_127.0.0.1_30304/conf/
-            cp ./data/group.2.ini ./data/group.2.genesis ~/generator-C/nodeC/node_127.0.0.1_30305/conf/
+            ./generator --add_group ./data/group.2.genesis ./nodeA
+            ./generator --add_group ./data/group.2.genesis ~/generator-C/nodeC
             bash ./nodeA/stop_all.sh
             bash ./nodeA/start_all.sh
             bash ~/generator-C/nodeC/stop_all.sh
@@ -318,6 +314,6 @@ workflows:
   version: 2
   build:
     jobs:
-      - Build
+      - build
       - CentOS
       # - Tutorial
