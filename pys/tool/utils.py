@@ -73,7 +73,7 @@ def valid_ip(_ip):
     return bool(get_ip.match(_ip))
 
 
-def valid_port(port):
+def valid_port(_port):
     """[Determine if the port is valid]
 
     Arguments:
@@ -82,7 +82,7 @@ def valid_port(port):
     Returns:
         [bool] -- [true or false]
     """
-
+    port = int(_port)
     if isinstance(port, int) and (port > 1023) and (port <= 65535):
         return True
     return False
@@ -289,3 +289,52 @@ def dir_must_not_exists(_dir):
     if os.path.exists(_dir):
         LOGGER.error(' %s existed! pls delete it!', _dir)
         raise MCError(' %s existed! pls delete it!' % _dir)
+
+def valid_node_dir(_str):
+    """[summary]
+    
+    Arguments:
+        _str {[type]} -- [description]
+    """
+    node_dir_name = _str
+    pack = node_dir_name.split('_')
+    if len(pack) == 3:
+        if pack[0] == 'node' and valid_ip(pack[1]) and valid_port(pack[2]):
+            return True
+    return False
+
+def valid_genesis(_file):
+    """[summary]
+    
+    Arguments:
+        _file {[type]} -- [description]
+    """
+    group_genesis = _file
+    LOGGER.info("group genesis file is %s", group_genesis)
+    pack = group_genesis.split('.')
+    if len(pack) == 3:
+        if pack[0] == 'group' and int(pack[1]) and pack[2] == 'genesis':
+            LOGGER.info("valid_genesis is %s", pack)
+            return int(pack[1])
+    return 0
+
+def get_all_nodes_dir(_dir):
+    """[summary]
+    
+    Arguments:
+        _dir {[type]} -- [description]
+    """
+    data_path = _dir
+    node_dir_list = [] 
+    dir_must_exists(data_path)
+    LOGGER.info("get all nodes_dir from %s", data_path)
+    for file in os.listdir(data_path):
+        file_path = os.path.join(data_path, file)
+        if os.path.isdir(file_path) and valid_node_dir(file):
+            node_dir_list.append(file_path)
+    LOGGER.info("all nodes_dir is %s", node_dir_list)
+    return node_dir_list
+
+
+
+

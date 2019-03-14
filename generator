@@ -89,6 +89,10 @@ def usage():
                              help='deploy node.key from cert_dir to pkg_dircert')
     tools_group.add_argument('-m', '--merge_config', nargs=2, metavar=('config.ini', 'config.ini'),
                              help='concatenate two config.ini')
+    tools_group.add_argument('-p', '--add_peers', nargs=2, metavar=('peers', 'config.ini'),
+                             help='add peers to config.ini')
+    tools_group.add_argument('-a', '--add_group', nargs=2, metavar=('group genesis', 'config.ini'),
+                             help='add peers to config.ini')
     args = parser.parse_args()
     if args.version:
         version.version()
@@ -160,6 +164,18 @@ def usage():
         CONSOLER.info(' Combine config.ini from %s to %s', get_path, send_path)
         config.concatenate_cfg(get_path, send_path)
         CONSOLER.info(' Combine config.ini end.')
+    elif args.add_peers:
+        get_path = args.add_peers[0]
+        send_path = args.add_peers[1]
+        CONSOLER.info(' Combine config.ini from %s to %s', get_path, send_path)
+        config.add_peers2cfg(get_path, send_path)
+        CONSOLER.info(' Combine config.ini end.')
+    elif args.add_group:
+        get_path = args.add_group[0]
+        send_path = args.add_group[1]
+        CONSOLER.info(' add group from %s to %s', get_path, send_path)
+        config.add_group(get_path, send_path)
+        CONSOLER.info(' add group end.')
     # elif args.sdkca:
     #     CONSOLER.info(' sdk cert begin.')
     #     sdk_dir = args.sdkca[0]

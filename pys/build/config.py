@@ -232,10 +232,10 @@ def build_config_ini(_data_dir):
                          '{}:{}'.format(set_item, p2p_listen_port[ip_idx]))
         with open('{}/config.ini'.format(node_dir), 'w') as config_file:
             node_cfg.write(config_file)
-    shutil.copy('{}/node_{}_{}/config.ini'.format(package_dir,
-                                                  p2p_ip[0],
-                                                  p2p_listen_port[0]),
-                '{}/config.ini'.format(package_dir))
+    # shutil.copy('{}/node_{}_{}/config.ini'.format(package_dir,
+    #                                               p2p_ip[0],
+    #                                               p2p_listen_port[0]),
+    #             '{}/config.ini'.format(package_dir))
     shutil.copy('{}/tpl/start_all.sh'.format(path.get_path()), package_dir)
     shutil.copy('{}/tpl/stop_all.sh'.format(path.get_path()), package_dir)
     shutil.copytree('{}/scripts/monitor'.format((path.get_path())),
@@ -421,3 +421,105 @@ def concatenate_cfg(cfg_file, cfg_file_get):
         p2p_cfg.write(config_file)
     LOGGER.info(
         "concatenate two config.ini now! output => %s/conf/config.ini", data)
+
+
+def merge_cfg(p2p_list, cfg_file):
+    """[combine config.ini]
+
+    Arguments:
+        p2p_list {[type]} -- [list]
+        cfg_file {[type]} -- [file]
+
+    Raises:
+        MCError -- [description]
+    """
+
+    LOGGER.info("merge peers to config.ini now!")
+    data = cfg_file
+    utils.file_must_exists(data)
+    p2p_get = p2p_list
+    p2p_send = []
+    p2p_cfg = configparser.ConfigParser()
+    try:
+        with codecs.open(data, 'r', encoding='utf-8') as config_file:
+            p2p_cfg.readfp(config_file)
+    except Exception as build_exp:
+        LOGGER.error(
+            ' open config.ini file failed, exception is %s', build_exp)
+        raise MCError(
+            ' open config.ini file failed, exception is %s' % build_exp)
+    if p2p_cfg.has_section('p2p'):
+        p2p_send_opt = p2p_cfg.options('p2p')
+    else:
+        LOGGER.error(
+            ' open config.ini file failed, exception is %s', build_exp)
+        raise MCError(
+            ' open config.ini file failed, exception is %s' % build_exp)
+    for node in p2p_send_opt:
+        p2p_section = p2p_cfg.get('p2p', node)
+        p2p_send.append(p2p_section)
+    p2p_send.pop(0)
+    p2p_send.pop(0)
+    LOGGER.info("send node is %s!", p2p_send)
+    # for node_tuple in p2p_send:
+    #     p2p_send.append(node_tuple)
+    LOGGER.info("get node ip is %s!", p2p_get)
+    p2p_send = list(set(p2p_send + p2p_get))
+    LOGGER.info("final node ip is %s!", p2p_send)
+    for ip_idx, p2p_ip in enumerate(p2p_send):
+        p2p_cfg.set("p2p", "node.{}".format(ip_idx), p2p_ip)
+    with open(data, 'w') as config_file:
+        p2p_cfg.write(config_file)
+    LOGGER.info(
+        "concatenate config.ini now! output => %s/conf/config.ini", data)
+    return True
+
+
+def add_peers2cfg(_peers, _node):
+    """[summary]
+
+    Arguments:
+        _peers {[type]} -- [description]
+        _node {[type]} -- [description]
+    """
+    data_path = _peers
+    p2p_list = []
+    node_send = []
+    utils.file_must_exists(data_path)
+    try:
+        for line in open(data_path):
+            peer = line.strip('\n')
+            utils.valid_peer(peer)
+            p2p_list.append(peer)
+    except Exception as ini_exp:
+        LOGGER.error(
+            ' open %s file failed, exception is %s', data_path, ini_exp)
+        raise MCError(
+            ' open %s file failed, exception is %s' % (data_path, ini_exp))
+    LOGGER.info('merge peers is %s', p2p_list)
+    p2p_list = list(set(p2p_list))
+    node_send = utils.get_all_nodes_dir(_node)
+    for file in node_send:
+        utils.file_must_exists('{}/config.ini'.format(file))
+        merge_cfg(p2p_list, '{}/config.ini'.format(file))
+
+
+def add_group(_group, _node):
+    """
+    Arguments:
+        _group {[type]} -- [description]
+        _node {[type]} -- [description]
+    """
+    data_path = _group
+    node_send = []
+    utils.file_must_exists(data_path)
+    file_name = os.path.basename(data_path)
+    group_id = utils.valid_genesis(file_name)
+    if group_id == 0:
+        raise MCError(' paser %s file failed' % (data_path))
+    node_send = utils.get_all_nodes_dir(_node)
+    for file in node_send:
+        utils.file_must_not_exists('{}/conf/{}'.format(file, file_name))
+        shutil.copyfile(data_path, '{}/conf/{}'.format(file, file_name))
+        shutil.copyfile('{}/tpl/group.i.ini'.format(path.get_path()),
+                        '{}/conf/group.{}.ini'.format(file, group_id))
