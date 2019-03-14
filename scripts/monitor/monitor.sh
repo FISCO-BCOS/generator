@@ -12,8 +12,8 @@ cpu_thres=600
 group_list_str=
 program="fisco-bcos"
 alert_reciver="asherli"
-alert_title="fisco-bcos-generator-monitor"
-reciver_addr=https://sc.ftqq.com/SCU44538T27d765b798c1456ab1ecb42a2c986e665c63946211db0.send
+alert_title="fisco-bcos-2.0-monitor:"`date`
+reciver_addr=https://sc.ftqq.com/SCU44538T27d765b798c1456ab1ecb42a2c986e665c63946211db0-haoxuan.send
 LOG_ERROR()
 {
     content=${1}
@@ -49,12 +49,12 @@ function debug()
 # debug
 
 alarm() {
-    # do serverchan
-    echo "${alert_title}: $1"
-    alert_ip=`/sbin/ifconfig eth0 | grep inet | awk '{print $2}'`
-    time=`date "+%Y-%m-%d %H:%M:%S"`
-    system_id=123
-    curl --data "text=${alert_title}" --data "desp={alertList:[{'alert_title':'$alert_ip','sub_system_id':'$system_id','alert_info':'$time:$1','alert_ip':'$alert_ip','alert_reciver':'$alert_reciver'}]}" $reciver_addr
+   # do serverchan
+   echo "${alert_title}: $1"
+   alert_ip=`/sbin/ifconfig eth0 | grep inet | awk '{print $2}'`
+   time=`date "+%Y-%m-%d %H:%M:%S"`
+   system_id=123
+   curl --data "text=${alert_title}" --data "desp={alertList:[{'alert_title':'$alert_ip','sub_system_id':'$system_id','alert_info':'$time:$1','alert_ip':'$alert_ip','alert_reciver':'$alert_reciver'}]}" $reciver_addr
 }
 
 restart() {
@@ -116,7 +116,7 @@ function get_total_consensus_node_count()
 {
     local group_id="${1}"
     # obtain node_list
-    node_list_json=$(execRpcCommand "false" "getMinerList" ${group_id})
+    node_list_json=$(execRpcCommand "false" "getSealerList" ${group_id})
     node_list_str=$(get_json_value ${node_list_json} "result" |  cut -d'[' -f2 | cut -d']' -f1)
     IFS_old=$IFS
     IFS=',';
@@ -131,7 +131,7 @@ function get_total_consensus_node_count()
 function check_resource()
 {
     local node_name=`basename "${1}"`
-    local node_dir="${node_name}/fisco-bcos"
+    local node_dir="${node_name}/../fisco-bcos"
     local cpu_usage=`ps aux | grep ${program} | grep -v grep | grep ${node_dir} | awk '{print $3}'`
     local mem_usage=`ps aux | grep ${program} | grep -v grep | grep ${node_dir} | awk '{print $4}'`
     ret=0
@@ -154,7 +154,7 @@ function check_process()
 {
     local restart="${1}"
     local node_name=`basename "${2}"`
-    local node_dir="${node_name}/fisco-bcos"
+    local node_dir="${node_name}/../fisco-bcos"
     # check if process id exist
     fisco_pwd=$(ps aux | grep  "$node_dir" |grep "${program}"|grep -v "grep")
     [ -z "$fisco_pwd" ] &&  {
@@ -176,7 +176,7 @@ function obtain_rpc_ip()
     local config_ip="${1}"
     rpc_ip="${config_ip}"
     if [ "${config_ip}" == "0.0.0.0" ];then
-        rpc_ip=`ifconfig | grep inet | grep -v "127.0.0.1" | sort | head -n 1 | awk '{print $2}'`
+        rpc_ip=`/sbin/ifconfig | grep inet | grep -v "127.0.0.1" | sort | head -n 1 | awk '{print $2}'`
     fi
     echo "${rpc_ip}"
 }
@@ -663,23 +663,26 @@ function do_log_analyze_by_time_point()
         nodedir=$1
         time_point=$2
         # date -d @1361542596 +"%Y-%m-%d %H:%M:%S"
-        log_file="log_"$(date -d @${time_point} +"%Y%m%d%H")".log"
+        
+	for log_file in `ls $nodedir/log/log_$(date -d @${time_point} +"%Y%m%d%H")*`;do
+		#log_file="log_"$(date -d @${time_point} +"%Y%m%d%H")".log"
 
-        log_min_time=$(date -d @${time_point} +"%Y-%m-%d %H:%M")
+        	log_min_time=$(date -d @${time_point} +"%Y-%m-%d %H:%M")
 
-        LOG_INFO " #log parser, $(date -d @$time_point +"%Y-%m-%d %H:%M:%S")"
+	        LOG_INFO " #log parser, $(date -d @$time_point +"%Y-%m-%d %H:%M:%S")"
 
-        if [[ $g_debug == "true" ]];then
-                sed -n "/$log_min_time/p" $nodedir/log/$log_file 2>/dev/null > $nodedir/$time_point"_test.log"
-        fi
-        for group in ${group_list[*]};do
-                LOG_INFO "#parse log "$nodedir"/log/"$log_file" for group:"${group}
-                eval $(sed -n "/$log_min_time/p" $nodedir/log/$log_file 2>/dev/null | awk -v from=${node_idx} -v group_id=${group} -f monitor.awk)
-                if [[ $? -eq 0 ]];then
-                        do_log_analyze_error_result ${group} ${nodedir}
-                        show_log_analyze_result ${group}
-                fi
-        done
+	        if [[ $g_debug == "true" ]];then
+        	        sed -n "/$log_min_time/p" $nodedir/log/$log_file 2>/dev/null > $nodedir/$time_point"_test.log"
+        	fi
+	        for group in ${group_list[*]};do
+        	        LOG_INFO "#parse log $log_file for group:${group}"
+               		eval $(sed -n "/$log_min_time/p" $log_file 2>/dev/null | awk -v from=${node_idx} -v group_id=${group} -f monitor.awk)
+	                if [[ $? -eq 0 ]];then
+        	                do_log_analyze_error_result ${group} ${nodedir}
+                	        show_log_analyze_result ${group}
+	                fi
+        	done
+	done
 }
 
 # analyze log file.
