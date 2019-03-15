@@ -78,7 +78,7 @@ def generator_agent_ca(_dir, _ca, agent):
                                                      .format(ca_dir,
                                                              agency_dir, agent))
             os.chdir('{}'.format(path.get_path()))
-        if not status:
+        if not bool(status):
             LOGGER.info(' Generate %s cert successful! dir is %s/%s.',
                         agent, agency_dir, agent)
         else:
@@ -97,8 +97,6 @@ def generator_agent_ca(_dir, _ca, agent):
         LOGGER.error('  Generate agency cert failed! Result is %s', result)
         raise MCError(
             'Generate agency agency failed! Result is %s' % gen_cert_exp)
-    CONSOLER.info(' Generate agency cert success, dir is %s/%s',
-                  agency_dir, agent)
 
 
 def generator_node_ca(_dir, agent, node):
@@ -126,7 +124,7 @@ def generator_node_ca(_dir, agent, node):
                                                      .format(
                                                          agent, node_dir, node))
             os.chdir('{}'.format(path.get_path()))
-        if not status:
+        if not bool(status):
             LOGGER.info(' Generate %s cert successful! dir is %s/%s.',
                         node, node_dir, node)
             os.chdir('{}'.format(path.get_path()))
@@ -155,7 +153,6 @@ def generator_node_ca(_dir, agent, node):
         LOGGER.error('  Generate node cert failed! Result is %s', result)
         raise MCError(
             'Generate root node failed! Result is %s' % gen_cert_exp)
-    CONSOLER.info(' Generate node cert success, dir is %s/%s', node_dir, node)
 
 
 def generator_sdk_ca(_dir, agent, sdk):

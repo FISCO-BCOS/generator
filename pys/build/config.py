@@ -493,15 +493,15 @@ def add_peers2cfg(_peers, _node):
             p2p_list.append(peer)
     except Exception as ini_exp:
         LOGGER.error(
-            ' open %s file failed, exception is %s', data_path, ini_exp)
+            ' add peers %s file failed, exception is %s', data_path, ini_exp)
         raise MCError(
-            ' open %s file failed, exception is %s' % (data_path, ini_exp))
+            ' add peers %s file failed, exception is %s' % (data_path, ini_exp))
     LOGGER.info('merge peers is %s', p2p_list)
     p2p_list = list(set(p2p_list))
     node_send = utils.get_all_nodes_dir(_node)
-    for file in node_send:
-        utils.file_must_exists('{}/config.ini'.format(file))
-        merge_cfg(p2p_list, '{}/config.ini'.format(file))
+    for node_file in node_send:
+        utils.file_must_exists('{}/config.ini'.format(node_file))
+        merge_cfg(p2p_list, '{}/config.ini'.format(node_file))
 
 
 def add_group(_group, _node):
@@ -518,8 +518,8 @@ def add_group(_group, _node):
     if group_id == 0:
         raise MCError(' paser %s file failed' % (data_path))
     node_send = utils.get_all_nodes_dir(_node)
-    for file in node_send:
-        utils.file_must_not_exists('{}/conf/{}'.format(file, file_name))
-        shutil.copyfile(data_path, '{}/conf/{}'.format(file, file_name))
+    for node_file in node_send:
+        utils.file_must_not_exists('{}/conf/{}'.format(node_file, file_name))
+        shutil.copyfile(data_path, '{}/conf/{}'.format(node_file, file_name))
         shutil.copyfile('{}/tpl/group.i.ini'.format(path.get_path()),
-                        '{}/conf/group.{}.ini'.format(file, group_id))
+                        '{}/conf/group.{}.ini'.format(node_file, group_id))
