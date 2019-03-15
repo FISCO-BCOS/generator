@@ -33,9 +33,10 @@ def valid_chain_id(chain_id):
         raise MCError(
             '%s is not a valid chain_id' % utils_exp)
 
+
 def valid_peer(peer):
     """[Determine if the peer is valid]
-    
+
     Arguments:
         peer {[str]} -- [peers]
      Returns:
@@ -54,7 +55,6 @@ def valid_peer(peer):
         LOGGER.error('%s is not a valid peer', utils_exp)
         raise MCError(
             '%s is not a valid peer' % utils_exp)
-
 
 
 def valid_ip(_ip):
@@ -290,9 +290,10 @@ def dir_must_not_exists(_dir):
         LOGGER.error(' %s existed! pls delete it!', _dir)
         raise MCError(' %s existed! pls delete it!' % _dir)
 
+
 def valid_node_dir(_str):
     """[summary]
-    
+
     Arguments:
         _str {[type]} -- [description]
     """
@@ -303,9 +304,10 @@ def valid_node_dir(_str):
             return True
     return False
 
+
 def valid_genesis(_file):
     """[summary]
-    
+
     Arguments:
         _file {[type]} -- [description]
     """
@@ -318,23 +320,20 @@ def valid_genesis(_file):
             return int(pack[1])
     return 0
 
+
 def get_all_nodes_dir(_dir):
     """[summary]
-    
+
     Arguments:
         _dir {[type]} -- [description]
     """
     data_path = _dir
-    node_dir_list = [] 
+    node_dir_list = []
     dir_must_exists(data_path)
     LOGGER.info("get all nodes_dir from %s", data_path)
-    for file in os.listdir(data_path):
-        file_path = os.path.join(data_path, file)
-        if os.path.isdir(file_path) and valid_node_dir(file):
+    for node_file in os.listdir(data_path):
+        file_path = os.path.join(data_path, node_file)
+        if os.path.isdir(file_path) and valid_node_dir(node_file):
             node_dir_list.append(file_path)
     LOGGER.info("all nodes_dir is %s", node_dir_list)
     return node_dir_list
-
-
-
-

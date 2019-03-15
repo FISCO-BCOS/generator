@@ -211,13 +211,13 @@ def parser(mchain):
 
 def read_peers(data_path):
     """[read peers]
-    
+
     Arguments:
         data_path {[file]} -- [peers file]
     """
     # read and parser peer file
     try:
-        for line in open(data_path):  
+        for line in open(data_path):
             peer = line.strip('\n')
             utils.valid_peer(peer)
             MchainConf.peers.append(peer)
@@ -228,7 +228,3 @@ def read_peers(data_path):
             ' open %s file failed, exception is %s' % (data_path, ini_exp))
     MchainConf.peers = list(set(MchainConf.peers))
     LOGGER.info('peers is %s', MchainConf.peers)
-
-    
-
-
