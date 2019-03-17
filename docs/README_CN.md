@@ -9,4 +9,4 @@
 - 本工具考虑了机构间节点安全性需求，所有机构间仅需要共享节点的证书，同时对应节点的私钥由各机构自己维护，不需要向机构外节点透露。
 - 本工具考虑了机构间节点的对等性需求，多机构间可以通过交换数字证书对等安全地部署自己的节点。
 
-文档见[FISCO BCOS 企业部署工具](https://fisco-bcos-documentation.readthedocs.io/zh_CN/feature-2.0.0/docs/enterprise/index.html)
+文档见[FISCO BCOS 企业部署工具](https://fisco-bcos-documentation.readthedocs.io/zh_CN/release-2.0/docs/enterprise_tools/index.html)

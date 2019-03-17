@@ -12,8 +12,8 @@ cpu_thres=600
 group_list_str=
 program="fisco-bcos"
 alert_reciver="asherli"
-alert_title="fisco-bcos-2.0-monitor:"`date`
-reciver_addr=https://sc.ftqq.com/SCU44538T27d765b798c1456ab1ecb42a2c986e665c63946211db0-haoxuan.send
+alert_title="fisco-bcos-2.0-monitor:"(date)
+reciver_addr=https://sc.ftqq.com/SCU44538T27d765b798c1456ab1ecb42a2c986e665c63946211db0.send
 LOG_ERROR()
 {
     content=${1}
@@ -176,7 +176,7 @@ function obtain_rpc_ip()
     local config_ip="${1}"
     rpc_ip="${config_ip}"
     if [ "${config_ip}" == "0.0.0.0" ];then
-        rpc_ip=`/sbin/ifconfig | grep inet | grep -v "127.0.0.1" | sort | head -n 1 | awk '{print $2}'`
+        rpc_ip=(/sbin/ifconfig | grep inet | grep -v "127.0.0.1" | sort | head -n 1 | awk '{print $2}')
     fi
     echo "${rpc_ip}"
 }
@@ -664,7 +664,7 @@ function do_log_analyze_by_time_point()
         time_point=$2
         # date -d @1361542596 +"%Y-%m-%d %H:%M:%S"
         
-	for log_file in `ls $nodedir/log/log_$(date -d @${time_point} +"%Y%m%d%H")*`;do
+	for log_file in (ls $nodedir/log/log_$(date -d @${time_point} +"%Y%m%d%H")*);do
 		#log_file="log_"$(date -d @${time_point} +"%Y%m%d%H")".log"
 
         	log_min_time=$(date -d @${time_point} +"%Y-%m-%d %H:%M")
