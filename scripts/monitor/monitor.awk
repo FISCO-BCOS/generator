@@ -14,8 +14,8 @@ BEGIN {
         err[3]++ ;
     else if( $0 ~ /.*ssl socket.*close/ )
         err[4]++ ;
-    else if ( $0 ~ /p:.*Report.*idx/ && match($0, group_id)) {
-        match($0,/idx=([0-9]+)/,idx);
+    else if ( $0 ~ /p:.*Report.*Idx/ && match($0, group_id)) {
+        match($0,/Idx=([0-9]+)/,idx);
         report[idx[1]]++;
     }
     else if ( $0 ~ /p:.*handleViewChangeMsg Succ/ && match($0, group_id)) {
@@ -37,7 +37,7 @@ BEGIN {
         }
     }
     else if ( $0 ~ /p:.*handlePrepareMsg Succ/ && match($0, group_id)) {
-        match($0,/idx=([0-9]+)/,idx);
+        match($0,/nodeIdx=([0-9]+)/,idx);
         pre_total[idx[1]]++
         if ( idx[1] == from ) {
             pre_d[idx[1]]++
