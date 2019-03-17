@@ -131,7 +131,7 @@ function get_total_consensus_node_count()
 function check_resource()
 {
     local node_name=`basename "${1}"`
-    local node_dir="${node_name}/../fisco-bcos"
+    local node_dir="${node_name}/fisco-bcos"
     local cpu_usage=`ps aux | grep ${program} | grep -v grep | grep ${node_dir} | awk '{print $3}'`
     local mem_usage=`ps aux | grep ${program} | grep -v grep | grep ${node_dir} | awk '{print $4}'`
     ret=0
@@ -154,7 +154,7 @@ function check_process()
 {
     local restart="${1}"
     local node_name=`basename "${2}"`
-    local node_dir="${node_name}/../fisco-bcos"
+    local node_dir="${node_name}/fisco-bcos"
     # check if process id exist
     fisco_pwd=$(ps aux | grep  "$node_dir" |grep "${program}"|grep -v "grep")
     [ -z "$fisco_pwd" ] &&  {

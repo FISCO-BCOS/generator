@@ -8,7 +8,6 @@ Raises:
 """
 
 import os
-
 from pys.tool import utils
 from pys import path
 from pys.log import LOGGER, CONSOLER, console_error
@@ -128,8 +127,9 @@ def generator_node_ca(_dir, agent, node):
             LOGGER.info(' Generate %s cert successful! dir is %s/%s.',
                         node, node_dir, node)
             os.chdir('{}'.format(path.get_path()))
-            os.system('cat {}/{}/agency.crt >> {}/{}/node.crt'.format(
-                _dir, node, _dir, node))
+            (status, result) = utils.getstatusoutput('cat {}/{}/agency.crt '
+                                                     '>> {}/{}/node.crt'.format(
+                                                         _dir, node, _dir, node))
             os.remove('{}/{}/agency.crt'.format(_dir, node))
             os.remove('{}/{}/node.ca'.format(_dir, node))
             os.remove('{}/{}/node.json'.format(_dir, node))
@@ -180,8 +180,9 @@ def generator_sdk_ca(_dir, agent, sdk):
                                                      .format(
                                                          agent, sdk_dir, sdk))
             os.chdir('{}'.format(path.get_path()))
-            os.system('cat {}/{}/agency.crt >> {}/{}/node.crt'.format(
-                _dir, sdk, _dir, sdk))
+            (status, result) = utils.getstatusoutput('cat {}/{}/agency.crt >> '
+                                                     '{}/{}/node.crt'.format(
+                                                         _dir, sdk, _dir, sdk))
             os.remove('{}/{}/agency.crt'.format(_dir, sdk))
             os.remove('{}/{}/node.ca'.format(_dir, sdk))
             os.remove('{}/{}/node.json'.format(_dir, sdk))
