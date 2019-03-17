@@ -86,8 +86,8 @@ def build_config_ini(_data_dir):
     """[-- build create config_ini]
 
     Keyword Arguments:
-        _meta_dir {[PATH]} -- [input dir] (default: {path.get_path()+'/meta'})
-        _data_dir {[PATH]} -- [output dir] (default: {path.get_path()+'/data'})
+        _meta_dir {[PATH]} -- [input dir] (default: {meta})
+        _data_dir {[PATH]} -- [output dir] (default: {data})
 
     Raises:
         MCError -- [description]

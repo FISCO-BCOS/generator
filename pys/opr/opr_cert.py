@@ -75,9 +75,10 @@ def gen_build_cert(_dir):
                             '{}/cert_{}_{}.crt'.format(cert_path,
                                                        node_ip,
                                                        p2p_listen_port[my_node_index]))
-            os.system('echo {}:{} >> {}/peers.txt'.format(node_ip,
+            (status, result) = utils.getstatusoutput('echo {}:{} >> {}/peers.txt'.format(node_ip,
                                                           p2p_listen_port[my_node_index],
                                                           cert_path))
+        CONSOLER.info(" status is %s, result is %s", status, result)
     CONSOLER.info(" Generate cert by node_installation.ini successful!")
 
 
