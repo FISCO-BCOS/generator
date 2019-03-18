@@ -360,7 +360,7 @@ def download_fisco(_dir):
     LOGGER.info("Downloading fisco-bcos binary from %s", Download_Link)
     CONSOLER.info("Downloading fisco-bcos binary from %s", Download_Link)
     # (status, result) = getstatusoutput('curl -LO {}'.format(Download_Link))
-    os.system('curl -LO {}'.format(Download_Link))
+    subprocess.call('curl -LO {}'.format(Download_Link), shell=True)
     # if bool(status):
     #     LOGGER.error(
     #         ' download fisco-bcos failed, result is %s.', result)
