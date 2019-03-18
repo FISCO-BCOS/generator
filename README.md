@@ -10,6 +10,4 @@ English / [中文](docs/README_CN.md)
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/be1e9f1c699e4275a97d202cec9ae1e0)](https://www.codacy.com/app/fisco/generator?utm_source=github.com&utm_medium=referral&utm_content=FISCO-BCOS/generator&utm_campaign=Badge_Grade) [![CodeFactor](https://www.codefactor.io/repository/github/fisco-bcos/generator/badge/rc-3)](https://www.codefactor.io/repository/github/fisco-bcos/generator/overview/rc-3) [![CircleCI](https://circleci.com/gh/FISCO-BCOS/generator.svg?style=svg)](https://circleci.com/gh/FISCO-BCOS/generator)
 
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/be1e9f1c699e4275a97d202cec9ae1e0)](https://www.codacy.com/app/fisco/generator?utm_source=github.com&utm_medium=referral&utm_content=FISCO-BCOS/generator&utm_campaign=Badge_Grade) [![CodeFactor](https://www.codefactor.io/repository/github/fisco-bcos/generator/badge/rc-3)](https://www.codefactor.io/repository/github/fisco-bcos/generator/overview/rc-3) [![CircleCI](https://circleci.com/gh/FISCO-BCOS/generator.svg?style=svg)](https://circleci.com/gh/FISCO-BCOS/generator)
-
 Read the docs at [FISCO BCOS enterprise  deployment tools](https://fisco-bcos-documentation.readthedocs.io/zh_CN/release-2.0/docs/enterprise_tools/index.html)
