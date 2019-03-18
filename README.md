@@ -1,3 +1,6 @@
+
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/73ce231175d643e58fb17039c0c47202)](https://app.codacy.com/app/fisco/generator?utm_source=github.com&utm_medium=referral&utm_content=FISCO-BCOS/generator&utm_campaign=Badge_Grade_Dashboard)
+
 ![](https://github.com/FISCO-BCOS/FISCO-BCOS/raw/release-2.0.1/docs/images/FISCO_BCOS_Logo.svg?sanitize=true)
 
 English / [中文](docs/README_CN.md)
