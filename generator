@@ -17,7 +17,7 @@ path.set_path(GEN_DIR)
 
 from pys.build import config
 from pys.conf import mconf, mgroup
-from pys.tool import ca
+from pys.tool import ca, utils
 from pys import version
 from pys.log import CONSOLER
 from pys.log import console_error
@@ -89,6 +89,8 @@ def usage():
                              help='add peers to config.ini')
     tools_group.add_argument('-a', '--add_group', nargs=2, metavar=('group genesis', 'config.ini'),
                              help='add peers to config.ini')
+    tools_group.add_argument('--download_fisco', nargs=1, metavar=('data_dir'),
+                             help='download fisco-bcos')
     args = parser.parse_args()
     if args.version:
         version.version()
@@ -173,6 +175,8 @@ def usage():
         CONSOLER.info(' add group from %s to %s', get_path, send_path)
         config.add_group(get_path, send_path)
         CONSOLER.info(' add group end.')
+    elif args.download_fisco:
+        utils.download_fisco(args.download_fisco[0])
     # elif args.sdkca:
     #     CONSOLER.info(' sdk cert begin.')
     #     sdk_dir = args.sdkca[0]
