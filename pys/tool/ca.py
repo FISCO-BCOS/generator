@@ -33,8 +33,8 @@ def generate_root_ca(_dir):
             (status, result) = utils.getstatusoutput('./cts.sh gen_chain_cert {}'
                                                      .format(ca_dir))
             os.chdir('{}'.format(path.get_path()))
-        if status != 0:
-            LOGGER.warn(
+        if bool(status):
+            LOGGER.error(
                 ' cts.sh failed! status is %d, output is %s, dir is %s.', status, result, ca_dir)
             raise MCError('cts.sh failed! status is %d, output is %s, dir is %s.' % (
                 status, result, dir))

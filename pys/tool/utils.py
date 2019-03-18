@@ -9,7 +9,7 @@ import re
 import os
 import subprocess
 import shutil
-from pys.log import LOGGER
+from pys.log import LOGGER, CONSOLER
 from pys.error.exp import MCError
 
 
@@ -337,3 +337,49 @@ def get_all_nodes_dir(_dir):
             node_dir_list.append(file_path)
     LOGGER.info("all nodes_dir is %s", node_dir_list)
     return node_dir_list
+
+
+def download_fisco(_dir):
+    """[download fisco-bcos]
+
+    Arguments:
+        _dir {[type]} -- [description]
+    """
+    bin_path = _dir
+    # bcos_bin_name = 'fisco-bcos'
+    package_name = "fisco-bcos.tar.gz"
+
+    (status, version) = getstatusoutput('curl -s https://raw.githubusercontent.com/'
+                                        'FISCO-BCOS/FISCO-BCOS/master/release_note.txt | sed "s/^[vV]//"')
+    if bool(status):
+        LOGGER.error(
+            ' get fisco-bcos verion failed, result is %s.', version)
+        raise MCError(' get fisco-bcos verion failed, result is %s.' % version)
+    Download_Link = 'https://github.com/FISCO-BCOS/FISCO-BCOS/releases/download/v{}/{}'.format(
+        version.strip('\n'), package_name.strip('\n'))
+    LOGGER.info("Downloading fisco-bcos binary from %s", Download_Link)
+    CONSOLER.info("Downloading fisco-bcos binary from %s", Download_Link)
+    # (status, result) = getstatusoutput('curl -LO {}'.format(Download_Link))
+    os.system('curl -LO {}'.format(Download_Link))
+    # if bool(status):
+    #     LOGGER.error(
+    #         ' download fisco-bcos failed, result is %s.', result)
+    #     raise MCError(
+    #         ' download fisco-bcos failed, result is %s.' % result)
+    (status, result) = getstatusoutput('tar -zxf {} && mv fisco-bcos {} && rm {}'.format(package_name,
+                                                                                         bin_path,
+                                                                                         package_name))
+    if bool(status):
+        LOGGER.error(
+            ' Decompress fisco-bcos failed, result is %s.', result)
+        raise MCError(
+            ' Decompress fisco-bcos failed, result is %s.' % result)
+    (status, result) = getstatusoutput('chmod a+x {}'.format(bin_path))
+    if bool(status):
+        LOGGER.error(
+            ' exec fisco-bcos failed, result is %s.', result)
+        raise MCError(
+            ' exec fisco-bcos failed, result is %s.' % result)
+    LOGGER.info("Downloading fisco-bcos successful, fisco-bcos at %s", bin_path)
+    CONSOLER.info(
+        "Downloading fisco-bcos successful, fisco-bcos at %s", bin_path)
