@@ -9,7 +9,9 @@ import re
 import os
 import subprocess
 import shutil
-from pys.log import LOGGER
+# import sys
+# from six.moves import urllib
+from pys.log import LOGGER, CONSOLER
 from pys.error.exp import MCError
 
 
@@ -34,6 +36,29 @@ def valid_chain_id(chain_id):
             '%s is not a valid chain_id' % utils_exp)
 
 
+def valid_peer(peer):
+    """[Determine if the peer is valid]
+
+    Arguments:
+        peer {[str]} -- [peers]
+     Returns:
+        [bool] -- [true or false]
+    """
+    try:
+        peer = peer.split(':')
+        if not valid_ip(peer[0]):
+            return False
+        if valid_port(peer[1]):
+            return True
+        return False
+    except ValueError as utils_exp:
+        LOGGER.error('%s is not a valid peer', utils_exp)
+    except Exception as utils_exp:
+        LOGGER.error('%s is not a valid peer', utils_exp)
+        raise MCError(
+            '%s is not a valid peer' % utils_exp)
+
+
 def valid_ip(_ip):
     """[Determine if the host ip is valid]
 
@@ -50,7 +75,7 @@ def valid_ip(_ip):
     return bool(get_ip.match(_ip))
 
 
-def valid_port(port):
+def valid_port(_port):
     """[Determine if the port is valid]
 
     Arguments:
@@ -59,7 +84,7 @@ def valid_port(port):
     Returns:
         [bool] -- [true or false]
     """
-
+    port = int(_port)
     if isinstance(port, int) and (port > 1023) and (port <= 65535):
         return True
     return False
@@ -266,3 +291,106 @@ def dir_must_not_exists(_dir):
     if os.path.exists(_dir):
         LOGGER.error(' %s existed! pls delete it!', _dir)
         raise MCError(' %s existed! pls delete it!' % _dir)
+
+
+def valid_node_dir(_str):
+    """[summary]
+
+    Arguments:
+        _str {[type]} -- [description]
+    """
+    node_dir_name = _str
+    pack = node_dir_name.split('_')
+    if len(pack) == 3:
+        if pack[0] == 'node' and valid_ip(pack[1]) and valid_port(pack[2]):
+            return True
+    return False
+
+
+def valid_genesis(_file):
+    """[summary]
+
+    Arguments:
+        _file {[type]} -- [description]
+    """
+    group_genesis = _file
+    LOGGER.info("group genesis file is %s", group_genesis)
+    pack = group_genesis.split('.')
+    if len(pack) == 3:
+        if pack[0] == 'group' and int(pack[1]) and pack[2] == 'genesis':
+            LOGGER.info("valid_genesis is %s", pack)
+            return int(pack[1])
+    return 0
+
+
+def get_all_nodes_dir(_dir):
+    """[summary]
+
+    Arguments:
+        _dir {[type]} -- [description]
+    """
+    data_path = _dir
+    node_dir_list = []
+    dir_must_exists(data_path)
+    LOGGER.info("get all nodes_dir from %s", data_path)
+    for node_file in os.listdir(data_path):
+        file_path = os.path.join(data_path, node_file)
+        if os.path.isdir(file_path) and valid_node_dir(node_file):
+            node_dir_list.append(file_path)
+    LOGGER.info("all nodes_dir is %s", node_dir_list)
+    return node_dir_list
+
+
+def download_fisco(_dir):
+    """[download fisco-bcos]
+
+    Arguments:
+        _dir {[type]} -- [description]
+    """
+    bin_path = _dir
+    # bcos_bin_name = 'fisco-bcos'
+    package_name = "fisco-bcos.tar.gz"
+
+    (status, version) = getstatusoutput('curl -s https://raw.githubusercontent.com/'
+                                        'FISCO-BCOS/FISCO-BCOS/master/release_note.txt | sed "s/^[vV]//"')
+    if bool(status):
+        LOGGER.error(
+            ' get fisco-bcos verion failed, result is %s.', version)
+        raise MCError(' get fisco-bcos verion failed, result is %s.' % version)
+    Download_Link = 'https://github.com/FISCO-BCOS/FISCO-BCOS/releases/download/v{}/{}'.format(
+        version.strip('\n'), package_name.strip('\n'))
+    # filename = package_name
+    LOGGER.info("Downloading fisco-bcos binary from %s", Download_Link)
+    CONSOLER.info("Downloading fisco-bcos binary from %s", Download_Link)
+    # (status, result) = getstatusoutput('curl -LO {}'.format(Download_Link))
+    subprocess.call('curl -LO {}'.format(Download_Link), shell=True)
+    # urllib.request.urlretrieve(Download_Link, filename, _hook_func)
+    # download(Download_Link, package_name)
+    # if bool(status):
+    #     LOGGER.error(
+    #         ' download fisco-bcos failed, result is %s.', result)
+    #     raise MCError(
+    #         ' download fisco-bcos failed, result is %s.' % result)
+    (status, result) = getstatusoutput('tar -zxf {} && mv fisco-bcos {} && rm {}'.format(package_name,
+                                                                                         bin_path,
+                                                                                         package_name))
+    if bool(status):
+        LOGGER.error(
+            ' Decompress fisco-bcos failed, result is %s.', result)
+        raise MCError(
+            ' Decompress fisco-bcos failed, result is %s.' % result)
+    (status, result) = getstatusoutput('chmod a+x {}'.format(bin_path))
+    if bool(status):
+        LOGGER.error(
+            ' exec fisco-bcos failed, result is %s.', result)
+        raise MCError(
+            ' exec fisco-bcos failed, result is %s.' % result)
+    LOGGER.info("Downloading fisco-bcos successful, fisco-bcos at %s", bin_path)
+    CONSOLER.info(
+        "Downloading fisco-bcos successful, fisco-bcos at %s", bin_path)
+
+# def _hook_func(num, block_size, total_size):
+
+#     precent = min(100, 100.0*num*block_size/total_size)
+#     sys.stdout.write('Downloading progress %.2f%%\r' % (precent))
+#     sys.stdout.flush()

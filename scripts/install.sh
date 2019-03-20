@@ -1,3 +1,4 @@
+#!/bin/bash
 # "Copyright [2019] <fisco generator>"
 # @ function : one-click install shell script(appliable for centos, ubuntu)
 # @ Require  : yum ,apt and python are ready
@@ -6,21 +7,22 @@
 # @ file     : install.sh
 # @ date     : 2019
 
-#!/bin/bash
 SHELL_FOLDER=$(cd $(dirname $0);pwd)
 project_dir="${SHELL_FOLDER}/.."
-use_cores=1
-test_mode=0
+# use_cores=1
+# test_mode=0
 Ubuntu_Platform=0
 Centos_Platform=1
-Macos_Platform=2
+# Macos_Platform=2
 
 # check sudo permission
 function sudo_permission_check() 
 {
-    sudo echo -n " "
+    # sudo echo -n " "
 
-    if [ $? -ne 0 ]; then
+    # if [ $? -ne 0 ]; then
+    if ! sudo echo -n " "
+    then
         echo "no sudo permission, please add youself in the sudoers"; exit 1;
     fi
 }
@@ -34,13 +36,13 @@ clear_cache()
 LOG_ERROR()
 {
     content=${1}
-    echo -e "\033[31m"${content}"\033[0m"
+    echo -e "\033[31m${content}\033[0m"
 }
 
 LOG_INFO()
 {
     content=${1}
-    echo -e "\033[32m"${content}"\033[0m"
+    echo -e "\033[32m${content}\033[0m"
 }
 
 execute_cmd()
@@ -94,11 +96,18 @@ get_platform()
 install_all_deps()
 {
     get_platform
-    platform=`echo $?`
+    platform=$(echo $?)
+    # platform=$(get_platform)
     if [ ${platform} -eq ${Ubuntu_Platform} ];then
         sudo apt-get install python-pip
+        sudo apt-get -y install curl
+        sudo apt-get -y install openssl
+        # sudo apt-get -y install nc
     elif [ ${platform} -eq ${Centos_Platform} ];then
         sudo yum install python-pip
+        sudo yum -y install openssl
+        # sudo yum -y install nc
+        sudo yum -y install curl
     else
         LOG_ERROR "Unsupported Platform"
         exit 1
@@ -111,7 +120,7 @@ install_all()
 	install_all_deps
     pip install configparser --user
     py_version=$($python_env -V 2>&1 | awk {'print $2'} | awk -F. {' print $1"."$2"."$3 '})
-    py_pip=pip -V 2>&1 | awk {'print $2'} | awk -F. {' print $1"."$2"."$3 '}
+    # py_pip=$(pip -V 2>&1 | awk {'print $2'} | awk -F. {' print $1"."$2"."$3 '})
 
     # params check
     if [ -z "${py_version}" ];then

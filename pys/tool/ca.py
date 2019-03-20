@@ -8,7 +8,6 @@ Raises:
 """
 
 import os
-
 from pys.tool import utils
 from pys import path
 from pys.log import LOGGER, CONSOLER, console_error
@@ -34,8 +33,8 @@ def generate_root_ca(_dir):
             (status, result) = utils.getstatusoutput('./cts.sh gen_chain_cert {}'
                                                      .format(ca_dir))
             os.chdir('{}'.format(path.get_path()))
-        if status != 0:
-            LOGGER.warn(
+        if bool(status):
+            LOGGER.error(
                 ' cts.sh failed! status is %d, output is %s, dir is %s.', status, result, ca_dir)
             raise MCError('cts.sh failed! status is %d, output is %s, dir is %s.' % (
                 status, result, dir))
@@ -78,7 +77,7 @@ def generator_agent_ca(_dir, _ca, agent):
                                                      .format(ca_dir,
                                                              agency_dir, agent))
             os.chdir('{}'.format(path.get_path()))
-        if not status:
+        if not bool(status):
             LOGGER.info(' Generate %s cert successful! dir is %s/%s.',
                         agent, agency_dir, agent)
         else:
@@ -97,8 +96,6 @@ def generator_agent_ca(_dir, _ca, agent):
         LOGGER.error('  Generate agency cert failed! Result is %s', result)
         raise MCError(
             'Generate agency agency failed! Result is %s' % gen_cert_exp)
-    CONSOLER.info(' Generate agency cert success, dir is %s/%s',
-                  agency_dir, agent)
 
 
 def generator_node_ca(_dir, agent, node):
@@ -126,12 +123,13 @@ def generator_node_ca(_dir, agent, node):
                                                      .format(
                                                          agent, node_dir, node))
             os.chdir('{}'.format(path.get_path()))
-        if not status:
+        if not bool(status):
             LOGGER.info(' Generate %s cert successful! dir is %s/%s.',
                         node, node_dir, node)
             os.chdir('{}'.format(path.get_path()))
-            os.system('cat {}/{}/agency.crt >> {}/{}/node.crt'.format(
-                _dir, node, _dir, node))
+            (status, result) = utils.getstatusoutput('cat {}/{}/agency.crt '
+                                                     '>> {}/{}/node.crt'.format(
+                                                         _dir, node, _dir, node))
             os.remove('{}/{}/agency.crt'.format(_dir, node))
             os.remove('{}/{}/node.ca'.format(_dir, node))
             os.remove('{}/{}/node.json'.format(_dir, node))
@@ -155,7 +153,6 @@ def generator_node_ca(_dir, agent, node):
         LOGGER.error('  Generate node cert failed! Result is %s', result)
         raise MCError(
             'Generate root node failed! Result is %s' % gen_cert_exp)
-    CONSOLER.info(' Generate node cert success, dir is %s/%s', node_dir, node)
 
 
 def generator_sdk_ca(_dir, agent, sdk):
@@ -183,8 +180,9 @@ def generator_sdk_ca(_dir, agent, sdk):
                                                      .format(
                                                          agent, sdk_dir, sdk))
             os.chdir('{}'.format(path.get_path()))
-            os.system('cat {}/{}/agency.crt >> {}/{}/node.crt'.format(
-                _dir, sdk, _dir, sdk))
+            (status, result) = utils.getstatusoutput('cat {}/{}/agency.crt >> '
+                                                     '{}/{}/node.crt'.format(
+                                                         _dir, sdk, _dir, sdk))
             os.remove('{}/{}/agency.crt'.format(_dir, sdk))
             os.remove('{}/{}/node.ca'.format(_dir, sdk))
             os.remove('{}/{}/node.json'.format(_dir, sdk))
