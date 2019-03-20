@@ -154,6 +154,18 @@ jobs:
               return 1
             fi
             echo "send transaction succeed"
+      - run:
+          name: Download console
+          command: |
+            cd ~/generator-A
+            ./generator --download_console ./meta
+            cat ./meta/console/conf/applicationContext.xml
+            sudo apt-get install openjdk-8-jdk
+            cd ./meta/console/
+            # bash start.sh
+            # getPeers
+            # deploy HelloWorld.sol
+            # q
   CentOS:  # required for runs that don't use workflows
     working_directory: ~/generator
     docker:
