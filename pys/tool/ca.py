@@ -152,7 +152,7 @@ def generator_node_ca(_dir, agent, node):
             '  Generate node cert failed! excepion is %s.' % gen_cert_exp)
         LOGGER.error('  Generate node cert failed! Result is %s', result)
         raise MCError(
-            'Generate root node failed! Result is %s' % gen_cert_exp)
+            'Generate node failed! Result is %s' % gen_cert_exp)
 
 
 def generator_sdk_ca(_dir, agent, sdk):
@@ -207,8 +207,8 @@ def generator_sdk_ca(_dir, agent, sdk):
         console_error('  %s ' % cert_exp)
     except Exception as gen_cert_exp:
         console_error(
-            '  Generate node cert failed! excepion is %s.' % gen_cert_exp)
+            '  Generate sdk cert failed! excepion is %s.' % gen_cert_exp)
         LOGGER.error('  Generate node cert failed! Result is %s', result)
         raise MCError(
-            'Generate root node failed! Result is %s' % gen_cert_exp)
-    CONSOLER.info(' Generate node cert success, dir is %s/%s', sdk_dir, sdk)
+            'Generate sdk cert failed! Result is %s' % gen_cert_exp)
+    CONSOLER.info(' Generate sdk cert success, dir is %s/%s', sdk_dir, sdk)

@@ -312,6 +312,12 @@ jobs:
               return 1
             fi
             echo "send transaction succeed"
+      - run:
+          name: Download console
+          command: |
+            cd ~/generator-A
+            ./generator --download_console ./meta
+            cat ./meta/console/conf/applicationContext.xml
 workflows:
   version: 2
   build:
