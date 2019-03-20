@@ -1,7 +1,7 @@
 #!/bin/bash
 
 EXIT_CODE=-1
-mypass=""
+# mypass=""
 
 
 usage() {
@@ -63,7 +63,7 @@ dir_must_not_exists() {
 
 gen_chain_cert() {
     path="$1"
-    name=`getname "$path"`
+    name=$(getname "$path")
     echo "$path --- $name"
     dir_must_not_exists "$path"
     check_name chain "$name"
@@ -122,7 +122,7 @@ gen_cert_secp256k1() {
 }
 
 gen_node_cert() {
-    if [ "" == "`openssl ecparam -list_curves 2>&1 | grep secp256k1`" ]; then
+    if [ "" == "$(openssl ecparam -list_curves 2>&1 | grep secp256k1)" ]; then
         echo "openssl don't support secp256k1, please upgrade openssl!"
         exit $EXIT_CODE
     fi
@@ -146,8 +146,8 @@ gen_node_cert() {
     cp $agpath/ca.crt $agpath/agency.crt $ndpath
 
     cd $ndpath
-    nodeid=$(cat node.nodeid | head)
-    serial=$(cat node.serial | head)
+    nodeid=$(< node.nodeid head)
+    serial=$(< node.serial head)
     cat >node.json <<EOF
 {
  "id":"$nodeid",

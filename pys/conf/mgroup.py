@@ -1,5 +1,5 @@
 # coding:utf-8
-"""[resolve mgroup.ini]
+"""[resolve group_genesis.ini]
 
 Raises:
     MCError -- [description]
@@ -14,13 +14,12 @@ Returns:
 import configparser
 import codecs
 from pys.tool import utils
-# from pys import path
 from pys.log import LOGGER
 from pys.error.exp import MCError
 
 
 class MgroupConf(object):
-    """mgroup.ini configuration
+    """group_genesis.ini configuration
     """
 
     name = 'FISCO group'
@@ -62,21 +61,21 @@ class MgroupConf(object):
 
 
 def parser(mgroup):
-    """resolve mgroup.ini
+    """resolve group_genesis.ini
 
     Arguments:
-        mgroup {string} -- path of mgroup.ini
+        mgroup {string} -- path of group_genesis.ini
 
     Raises:
         MCError -- exception description
     """
 
-    LOGGER.info('mgroup.ini is %s', mgroup)
+    LOGGER.info('group_genesis.ini is %s', mgroup)
     # resolve configuration
     if not utils.valid_string(mgroup):
-        LOGGER.error(' mgroup.ini not invalid path, mgroup.ini is %s', mgroup)
+        LOGGER.error(' group_genesis.ini not invalid path, group_genesis.ini is %s', mgroup)
         raise MCError(
-            ' mgroup.ini not invalid path, mgroup.ini is %s' % mgroup)
+            ' group_genesis.ini not invalid path, group_genesis.ini is %s' % mgroup)
 
     # read and parser config file
     config_parser = configparser.ConfigParser()
@@ -85,34 +84,34 @@ def parser(mgroup):
             config_parser.readfp(file_mchain)
     except Exception as ini_exp:
         LOGGER.error(
-            ' open mgroup.ini file failed, exception is %s', ini_exp)
+            ' open group_genesis.ini file failed, exception is %s', ini_exp)
         raise MCError(
-            ' open mgroup.ini file failed, exception is %s' % ini_exp)
+            ' open group_genesis.ini file failed, exception is %s' % ini_exp)
 
     if config_parser.has_section('group'):
         MgroupConf.group_id = config_parser.get('group', 'group_id')
     else:
         LOGGER.error(
-            ' invalid mgroup.ini format, group id is %s', MgroupConf.group_id)
+            ' invalid group_genesis.ini format, group id is %s', MgroupConf.group_id)
         raise MCError(
-            ' invalid mgroup.ini format, group id is %s' % MgroupConf.group_id)
+            ' invalid group_genesis.ini format, group id is %s' % MgroupConf.group_id)
 
-    if not config_parser.has_section('member'):
+    if not config_parser.has_section('nodes'):
         LOGGER.error(
-            ' invalid mgroup.ini format, member not existed!')
+            ' invalid group_genesis.ini format, nodes not existed!')
         raise MCError(
-            ' invalid mgroup.ini format, member not existed!')
+            ' invalid group_genesis.ini format, nodes not existed!')
 
-    group_member = config_parser.options('member')
+    group_nodes = config_parser.options('nodes')
 
-    for members in group_member:
-        ctx_mem = config_parser.get('member', members)
-        utils.valid_package(ctx_mem)
-        MgroupConf.p2p_ip.append(ctx_mem.split(':')[0])
-        MgroupConf.p2p_listen_port.append(ctx_mem.split(':')[1])
+    for node in group_nodes:
+        p2p_section = config_parser.get('nodes', node)
+        utils.valid_package(p2p_section)
+        MgroupConf.p2p_ip.append(p2p_section.split(':')[0])
+        MgroupConf.p2p_listen_port.append(p2p_section.split(':')[1])
 
     LOGGER.info('group_id is %s', MgroupConf.group_id)
     LOGGER.info('p2p_ip is %s', MgroupConf.p2p_ip)
     LOGGER.info('p2p_listen_port is %s', MgroupConf.p2p_listen_port)
 
-    LOGGER.info('mgroup.ini end, result is %s', MgroupConf())
+    LOGGER.info('group_genesis.ini end, result is %s', MgroupConf())
