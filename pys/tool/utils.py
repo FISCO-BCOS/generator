@@ -9,8 +9,8 @@ import re
 import os
 import subprocess
 import shutil
-# import sys
-# from six.moves import urllib
+import sys
+import urllib
 from pys.log import LOGGER, CONSOLER
 from pys.error.exp import MCError
 
@@ -359,12 +359,14 @@ def download_fisco(_dir):
         raise MCError(' get fisco-bcos verion failed, result is %s.' % version)
     Download_Link = 'https://github.com/FISCO-BCOS/FISCO-BCOS/releases/download/v{}/{}'.format(
         version.strip('\n'), package_name.strip('\n'))
-    # filename = package_name
     LOGGER.info("Downloading fisco-bcos binary from %s", Download_Link)
     CONSOLER.info("Downloading fisco-bcos binary from %s", Download_Link)
     # (status, result) = getstatusoutput('curl -LO {}'.format(Download_Link))
-    subprocess.call('curl -LO {}'.format(Download_Link), shell=True)
-    # urllib.request.urlretrieve(Download_Link, filename, _hook_func)
+    # subprocess.call('curl -LO {}'.format(Download_Link), shell=True)
+    if sys.version > '3':
+        urllib.request.urlretrieve(Download_Link, package_name, _hook_func)
+    else:
+        urllib.urlretrieve(Download_Link, package_name, _hook_func)
     # download(Download_Link, package_name)
     # if bool(status):
     #     LOGGER.error(
@@ -389,8 +391,8 @@ def download_fisco(_dir):
     CONSOLER.info(
         "Downloading fisco-bcos successful, fisco-bcos at %s", bin_path)
 
-# def _hook_func(num, block_size, total_size):
+def _hook_func(num, block_size, total_size):
 
-#     precent = min(100, 100.0*num*block_size/total_size)
-#     sys.stdout.write('Downloading progress %.2f%%\r' % (precent))
-#     sys.stdout.flush()
+    precent = min(100, 100.0*num*block_size/total_size)
+    sys.stdout.write('Downloading progress %.2f%%\r' % (precent))
+    sys.stdout.flush()
