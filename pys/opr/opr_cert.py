@@ -75,9 +75,11 @@ def gen_build_cert(_dir):
                             '{}/cert_{}_{}.crt'.format(cert_path,
                                                        node_ip,
                                                        p2p_listen_port[my_node_index]))
-            (status, result) = utils.getstatusoutput('echo {}:{} >> {}/peers.txt'.format(node_ip,
-                                                          p2p_listen_port[my_node_index],
-                                                          cert_path))
+            (status, result) = \
+                utils.getstatusoutput('echo {}:{} >> {}/peers.txt'
+                                      .format(node_ip,
+                                              p2p_listen_port[my_node_index],
+                                              cert_path))
         CONSOLER.info(" status is %s, result is %s", status, result)
     CONSOLER.info(" Generate cert by node_installation.ini successful!")
 
@@ -114,3 +116,27 @@ def deploy_key(_get_dir, _send_dir):
         else:
             LOGGER.warning(
                 ('%s not existed in %s/conf! skipped!!', node_dir, data_path))
+
+
+def get_console_cert(_dir):
+    """get console certs
+
+    Arguments:
+        _dir {[type]} -- [description]
+    """
+    LOGGER.info("get console in  %s!", _dir)
+    CONSOLER.info("get console in  %s!", _dir)
+    meta = '{}/meta'.format(path.get_path())
+    data = _dir
+    utils.file_must_exists('{}/ca.crt'.format(meta))
+    utils.file_must_exists('{}/agency.crt'.format(meta))
+    utils.file_must_exists('{}/agency.key'.format(meta))
+    utils.dir_must_not_exists('{}/sdk'.format(meta))
+    ca.generator_sdk_ca(meta, meta, 'sdk')
+    utils.dir_must_exists('{}/conf'.format(data))
+    shutil.copyfile('{}/ca.crt'.format(meta),
+                    '{}/conf/ca.crt'.format(data))
+    shutil.copyfile('{}/sdk/node.key'.format(meta),
+                    '{}/conf/node.key'.format(data))
+    shutil.copyfile('{}/sdk/node.crt'.format(meta),
+                    '{}/conf/node.crt'.format(data))
