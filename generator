@@ -55,8 +55,6 @@ def usage():
 
     pkg_group.add_argument('-b', '--build_install_package', nargs=2, metavar=('peers', 'data'),
                            help=' build chain packages with node_deployment.ini')
-    # pkg_group.add_argument('-e', '--build_expand_package', nargs=1, metavar=('data_dir'),
-    #                        help='expand node packages with mexpand.ini')
     pkg_group.add_argument('-c', '--create_group_genesis', nargs=1, metavar=('data_dir'),
                            help='create group genesis with group_genesis.ini.')
 
@@ -79,8 +77,6 @@ def usage():
                              help='follow gm operation.')
     tools_group.add_argument('--generate_all_certificates', nargs=1, metavar=('cert_dir'),
                              help='create cert by node_deployment.ini')
-    # tools_group.add_argument('--expand_all_certificates', nargs=1, metavar=('cert_dir'),
-    #                          help='create cert by mexpand.ini')
     tools_group.add_argument('-d', '--deploy_private_key', nargs=2, metavar=('cert_dir', 'pkg_dir'),
                              help='deploy node.key from cert_dir to pkg_dircert')
     tools_group.add_argument('-m', '--merge_config', nargs=2, metavar=('config.ini', 'config.ini'),
@@ -96,29 +92,20 @@ def usage():
     tools_group.add_argument('--get_sdk_file', nargs=1, metavar=('data_dir'),
                              help='get sdk file')
     args = parser.parse_args()
+    if args.use_guomi:
+        CONSOLER.info('======= BUILD_GM ============= ON =======')
+        utils.set_gm()
     if args.version:
         version.version()
-    elif args.use_guomi:
-        CONSOLER.info('======= BUILD_GM ============= ON =======')
-        config.set_gm()
     elif args.build_install_package:
         CONSOLER.info(' Build operation begin.')
         build.build(
             args.build_install_package[0], args.build_install_package[1])
         CONSOLER.info(' Build operation end.')
-    # elif args.build:
-    #     opr_build.build(args.build[0], args.build[1])
-    #     CONSOLER.info(' build operation end.')
-    # elif args.build_expand_package:
-    #     CONSOLER.info(' Expand operation begin.')
-    #     expand_node.expand(args.build_expand_package[0])
-    #     CONSOLER.info(' Expand operation end.')
     elif args.create_group_genesis:
         CONSOLER.info(' Expand operation begin.')
         create_group.create_group(args.create_group_genesis[0])
         CONSOLER.info(' Expand operation end.')
-    # elif args.demo:
-    #     demo.demo_build()
     elif args.generate_chain_certificate:
         CONSOLER.info(' Chain cert begin.')
         chain_dir = args.generate_chain_certificate[0]
@@ -179,12 +166,6 @@ def usage():
         build.build_console(args.download_console[0])
     elif args.get_sdk_file:
         build.get_sdk(args.get_sdk_file[0])
-    # elif args.sdkca:
-    #     CONSOLER.info(' sdk cert begin.')
-    #     sdk_dir = args.sdkca[0]
-    #     agency_dir = args.sdkca[1]
-    #     ca.generator_sdk_ca(agency_dir, sdk_dir)
-    #     CONSOLER.info(' sdk cert end.')
     else:
         console_error(
             ' Invalid operation,  \"generator -h\" can be used to show detailed usage. ')
