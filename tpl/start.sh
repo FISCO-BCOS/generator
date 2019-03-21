@@ -18,3 +18,4 @@ if [ ! -z ${node_pid} ];then
 else
     echo " ${node} start failed"
     cat ${node}/nohup.out
+fi
