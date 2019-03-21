@@ -8,7 +8,7 @@ from pys.tool import ca
 from pys.error.exp import MCError
 from pys.conf import mconf
 from pys.tool import utils
-
+from pys.build import config
 
 def gen_build_cert(_dir):
     """[gen_build_cert]
@@ -29,17 +29,32 @@ def gen_build_cert(_dir):
     utils.file_must_not_exists('{}/peers.txt'.format(cert_path))
     if not os.path.exists(cert_path):
         os.mkdir(cert_path)
-    if not os.path.exists('{}/ca.crt'.format(meta_path)):
-        CONSOLER.error(" ca.crt not existed")
-        utils.delete_data(cert_path)
-        raise MCError(
-            ' ca.crt not found in!')
-    if not (os.path.exists('{}/agency.key'.format(meta_path))
-            and os.path.exists(('{}/agency.crt'.format(meta_path)))):
-        CONSOLER.error(" agency.crt or agency.key not existed")
-        utils.delete_data(cert_path)
-        raise MCError(
-            ' agency.crt or agency.key not found in %s!' % meta_path)
+    if utils.Status.gm_option:
+        if not os.path.exists('{}/gmca.crt'.format(meta_path)):
+            CONSOLER.error(" gmca.crt not existed")
+            utils.delete_data(cert_path)
+            raise MCError(
+                ' gmca.crt not founded!')
+    else:
+        if not os.path.exists('{}/ca.crt'.format(meta_path)):
+            CONSOLER.error(" ca.crt not existed")
+            utils.delete_data(cert_path)
+            raise MCError(
+                ' ca.crt not founded!')
+    if utils.Status.gm_option:
+        if not (os.path.exists('{}/gmagency.key'.format(meta_path))
+                and os.path.exists(('{}/gmagency.crt'.format(meta_path)))):
+            CONSOLER.error(" gmagency.crt or gmagency.key not existed")
+            utils.delete_data(cert_path)
+            raise MCError(
+                ' gmagency.crt or gmagency.key not found in %s!' % meta_path)
+    else:
+        if not (os.path.exists('{}/agency.key'.format(meta_path))
+                and os.path.exists(('{}/agency.crt'.format(meta_path)))):
+            CONSOLER.error(" agency.crt or agency.key not existed")
+            utils.delete_data(cert_path)
+            raise MCError(
+                ' agency.crt or agency.key not found in %s!' % meta_path)
     for my_node_index, node_ip in enumerate(p2p_ip):
         LOGGER.info("p2p_ip -> %s", node_ip)
         CONSOLER.info(' Generate %s/node_%s_%s ',
@@ -63,9 +78,22 @@ def gen_build_cert(_dir):
             utils.file_must_not_exists('{}/cert_{}_{}.crt'.format(meta_path,
                                                                   node_ip,
                                                                   p2p_listen_port[my_node_index]))
-            shutil.copyfile('{}/node_{}_{}/node.crt'.format(data_path,
-                                                            node_ip,
-                                                            p2p_listen_port[my_node_index]),
+            if utils.Status.gm_option:
+                utils.off_gm()
+                ca.generator_node_ca('./',meta_path, '.origin_cert')
+                shutil.copytree('./.origin_cert', '{}/node_{}_{}/origin_cert'.format(data_path, node_ip, p2p_listen_port[my_node_index]))
+                shutil.rmtree('./.origin_cert')
+                utils.set_gm()
+                shutil.copyfile('{}/node_{}_{}/gmnode.crt'.format(data_path,
+                                                                node_ip,
+                                                                p2p_listen_port[my_node_index]),
+                            '{}/cert_{}_{}.crt'.format(meta_path,
+                                                       node_ip,
+                                                       p2p_listen_port[my_node_index]))
+            else:
+                shutil.copyfile('{}/node_{}_{}/node.crt'.format(data_path,
+                                                                node_ip,
+                                                                p2p_listen_port[my_node_index]),
                             '{}/cert_{}_{}.crt'.format(meta_path,
                                                        node_ip,
                                                        p2p_listen_port[my_node_index]))
@@ -80,7 +108,7 @@ def gen_build_cert(_dir):
                                       .format(node_ip,
                                               p2p_listen_port[my_node_index],
                                               cert_path))
-        CONSOLER.info(" status is %s, result is %s", status, result)
+        # CONSOLER.info(" status is %s, result is %s", status, result)
     CONSOLER.info(" Generate cert by node_installation.ini successful!")
 
 
@@ -108,14 +136,26 @@ def deploy_key(_get_dir, _send_dir):
     LOGGER.info("send cert to %s!", send_node_list)
 
     for node_dir in get_node_list:
-        utils.file_must_exists('{}/{}/node.key'.format(meta_path, node_dir))
-        if os.path.exists('{}/{}/conf'.format(data_path, node_dir)):
-            LOGGER.info("send cert from %s to %s", data_path, node_dir)
-            shutil.copyfile('{}/{}/node.key'.format(meta_path, node_dir),
-                            '{}/{}/conf/node.key'.format(data_path, node_dir))
+        if not utils.valid_node_dir(node_dir):
+            continue
+        if utils.Status.gm_option:
+            utils.file_must_exists('{}/{}/gmnode.key'.format(meta_path, node_dir))
+            if os.path.exists('{}/{}/conf'.format(data_path, node_dir)):
+                LOGGER.info("send cert from %s to %s", data_path, node_dir)
+                shutil.copyfile('{}/{}/gmnode.key'.format(meta_path, node_dir),
+                                '{}/{}/conf/gmnode.key'.format(data_path, node_dir))
+                shutil.copyfile('{}/{}/gmennode.key'.format(meta_path, node_dir),
+                                '{}/{}/conf/gmennode.key'.format(data_path, node_dir))
+                shutil.copyfile('{}/{}/gmennode.crt'.format(meta_path, node_dir),
+                                '{}/{}/conf/gmennode.crt'.format(data_path, node_dir))
+                shutil.copytree('{}/{}/origin_cert'.format(meta_path, node_dir),
+                '{}/{}/conf/origin_cert'.format(data_path, node_dir))
         else:
-            LOGGER.warning(
-                ('%s not existed in %s/conf! skipped!!', node_dir, data_path))
+            utils.file_must_exists('{}/{}/node.key'.format(meta_path, node_dir))
+            if os.path.exists('{}/{}/conf'.format(data_path, node_dir)):
+                LOGGER.info("send cert from %s to %s", data_path, node_dir)
+                shutil.copyfile('{}/{}/gmnode.key'.format(meta_path, node_dir),
+                                '{}/{}/conf/gmnode.key'.format(data_path, node_dir))
 
 
 def get_console_cert(_dir):

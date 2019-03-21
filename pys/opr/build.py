@@ -13,7 +13,10 @@ def build(peer_path, data_path):
     """[--build]
     """
     utils.file_must_exists('{}/meta/fisco-bcos'.format(path.get_path()))
-    utils.file_must_exists('{}/meta/ca.crt'.format(path.get_path()))
+    if utils.Status.gm_option:
+        utils.file_must_exists('{}/meta/gmca.crt'.format(path.get_path()))
+    else:
+        utils.file_must_exists('{}/meta/ca.crt'.format(path.get_path()))
     utils.file_must_exists(peer_path)
     mconf.read_peers(peer_path)
     config.build_config_ini(data_path)
