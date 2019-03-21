@@ -155,60 +155,60 @@ def generator_node_ca(_dir, agent, node):
             'Generate node failed! Result is %s' % gen_cert_exp)
 
 
-def generator_sdk_ca(_dir, agent, sdk):
-    """[generate node cert ]
+# def generator_sdk_ca(_dir, agent, sdk):
+#     """[generate node cert ]
 
-    Arguments:
-        agent {[path]} -- [agency cert path]
-        node {[string]} -- [sdk name]
-        _dir {[path]} -- [sdk cert path]
-    """
-    sdk_dir = os.path.abspath(_dir)
-    agent = os.path.abspath(agent)
-    try:
-        if config.Status.gm_option:
-            os.chdir('{}/scripts/gm/'.format(path.get_path()))
-            (status, result) = utils.getstatusoutput('./cts.sh'
-                                                     ' gen_node_cert {} {}/{}'
-                                                     .format(
-                                                         agent, sdk_dir, sdk))
-            os.chdir('{}'.format(path.get_path()))
-        else:
-            os.chdir('{}/scripts/'.format(path.get_path()))
-            (status, result) = utils.getstatusoutput('./cts.sh'
-                                                     ' gen_node_cert {} {}/{}'
-                                                     .format(
-                                                         agent, sdk_dir, sdk))
-            os.chdir('{}'.format(path.get_path()))
-            (status, result) = utils.getstatusoutput('cat {}/{}/agency.crt >> '
-                                                     '{}/{}/node.crt'.format(
-                                                         _dir, sdk, _dir, sdk))
-            os.remove('{}/{}/agency.crt'.format(_dir, sdk))
-            os.remove('{}/{}/node.ca'.format(_dir, sdk))
-            os.remove('{}/{}/node.json'.format(_dir, sdk))
-            os.remove('{}/{}/node.nodeid'.format(_dir, sdk))
-            os.remove('{}/{}/node.private'.format(_dir, sdk))
-            os.remove('{}/{}/node.serial'.format(_dir, sdk))
-            os.remove('{}/{}/node.param'.format(_dir, sdk))
-            os.remove('{}/{}/node.pubkey'.format(_dir, sdk))
-        if not status:
-            LOGGER.info(' Generate %s cert successful! dir is %s/%s.',
-                        sdk, sdk_dir, sdk)
-            os.chdir('{}'.format(path.get_path()))
-        else:
-            console_error(
-                '  Generate node cert failed! Please check your network,'
-                ' and try to check your opennssl version.')
-            LOGGER.error('  Generate %s cert failed! Result is %s',
-                         sdk, result)
-            raise MCError(' Generate %s cert failed! Result is %s' %
-                          (sdk, result))
-    except MCError as cert_exp:
-        console_error('  %s ' % cert_exp)
-    except Exception as gen_cert_exp:
-        console_error(
-            '  Generate sdk cert failed! excepion is %s.' % gen_cert_exp)
-        LOGGER.error('  Generate node cert failed! Result is %s', result)
-        raise MCError(
-            'Generate sdk cert failed! Result is %s' % gen_cert_exp)
-    CONSOLER.info(' Generate sdk cert success, dir is %s/%s', sdk_dir, sdk)
+#     Arguments:
+#         agent {[path]} -- [agency cert path]
+#         node {[string]} -- [sdk name]
+#         _dir {[path]} -- [sdk cert path]
+#     """
+#     sdk_dir = os.path.abspath(_dir)
+#     agent = os.path.abspath(agent)
+#     try:
+#         if config.Status.gm_option:
+#             os.chdir('{}/scripts/gm/'.format(path.get_path()))
+#             (status, result) = utils.getstatusoutput('./cts.sh'
+#                                                      ' gen_node_cert {} {}/{}'
+#                                                      .format(
+#                                                          agent, sdk_dir, sdk))
+#             os.chdir('{}'.format(path.get_path()))
+#         else:
+#             os.chdir('{}/scripts/'.format(path.get_path()))
+#             (status, result) = utils.getstatusoutput('./cts.sh'
+#                                                      ' gen_node_cert {} {}/{}'
+#                                                      .format(
+#                                                          agent, sdk_dir, sdk))
+#             os.chdir('{}'.format(path.get_path()))
+#             (status, result) = utils.getstatusoutput('cat {}/{}/agency.crt >> '
+#                                                      '{}/{}/node.crt'.format(
+#                                                          _dir, sdk, _dir, sdk))
+#             # os.remove('{}/{}/agency.crt'.format(_dir, sdk))
+#             os.remove('{}/{}/node.ca'.format(_dir, sdk))
+#             os.remove('{}/{}/node.json'.format(_dir, sdk))
+#             os.remove('{}/{}/node.nodeid'.format(_dir, sdk))
+#             os.remove('{}/{}/node.private'.format(_dir, sdk))
+#             os.remove('{}/{}/node.serial'.format(_dir, sdk))
+#             os.remove('{}/{}/node.param'.format(_dir, sdk))
+#             os.remove('{}/{}/node.pubkey'.format(_dir, sdk))
+#         if not status:
+#             LOGGER.info(' Generate %s cert successful! dir is %s/%s.',
+#                         sdk, sdk_dir, sdk)
+#             os.chdir('{}'.format(path.get_path()))
+#         else:
+#             console_error(
+#                 '  Generate node cert failed! Please check your network,'
+#                 ' and try to check your opennssl version.')
+#             LOGGER.error('  Generate %s cert failed! Result is %s',
+#                          sdk, result)
+#             raise MCError(' Generate %s cert failed! Result is %s' %
+#                           (sdk, result))
+#     except MCError as cert_exp:
+#         console_error('  %s ' % cert_exp)
+#     except Exception as gen_cert_exp:
+#         console_error(
+#             '  Generate sdk cert failed! excepion is %s.' % gen_cert_exp)
+#         LOGGER.error('  Generate node cert failed! Result is %s', result)
+#         raise MCError(
+#             'Generate sdk cert failed! Result is %s' % gen_cert_exp)
+#     CONSOLER.info(' Generate sdk cert success, dir is %s/%s', sdk_dir, sdk)
