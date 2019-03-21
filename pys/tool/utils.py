@@ -9,8 +9,8 @@ import re
 import os
 import subprocess
 import shutil
-# import sys
-# from six.moves import urllib
+import urllib
+import sys
 from pys.log import LOGGER, CONSOLER
 from pys.error.exp import MCError
 
@@ -351,29 +351,30 @@ def download_fisco(_dir):
     # bcos_bin_name = 'fisco-bcos'
     package_name = "fisco-bcos.tar.gz"
 
-    (status, version) = getstatusoutput('curl -s https://raw.githubusercontent.com/'
-                                        'FISCO-BCOS/FISCO-BCOS/master/release_note.txt | sed "s/^[vV]//"')
+    (status, version) \
+        = getstatusoutput('curl -s https://raw.githubusercontent.com/'
+                          'FISCO-BCOS/FISCO-BCOS/master/release_note.txt | sed "s/^[vV]//"')
     if bool(status):
         LOGGER.error(
             ' get fisco-bcos verion failed, result is %s.', version)
         raise MCError(' get fisco-bcos verion failed, result is %s.' % version)
-    Download_Link = 'https://github.com/FISCO-BCOS/FISCO-BCOS/releases/download/v{}/{}'.format(
+    download_link = 'https://github.com/FISCO-BCOS/FISCO-BCOS/releases/download/v{}/{}'.format(
         version.strip('\n'), package_name.strip('\n'))
     # filename = package_name
-    LOGGER.info("Downloading fisco-bcos binary from %s", Download_Link)
-    CONSOLER.info("Downloading fisco-bcos binary from %s", Download_Link)
-    # (status, result) = getstatusoutput('curl -LO {}'.format(Download_Link))
-    subprocess.call('curl -LO {}'.format(Download_Link), shell=True)
-    # urllib.request.urlretrieve(Download_Link, filename, _hook_func)
-    # download(Download_Link, package_name)
+    LOGGER.info("Downloading fisco-bcos binary from %s", download_link)
+    CONSOLER.info("Downloading fisco-bcos binary from %s", download_link)
+    # (status, result) = getstatusoutput('curl -LO {}'.format(download_link))
+    # subprocess.call('curl -LO {}'.format(download_link), shell=True)
+    download_bin(download_link, package_name)
     # if bool(status):
     #     LOGGER.error(
     #         ' download fisco-bcos failed, result is %s.', result)
     #     raise MCError(
     #         ' download fisco-bcos failed, result is %s.' % result)
-    (status, result) = getstatusoutput('tar -zxf {} && mv fisco-bcos {} && rm {}'.format(package_name,
-                                                                                         bin_path,
-                                                                                         package_name))
+    (status, result)\
+        = getstatusoutput('tar -zxf {} && mv fisco-bcos {} && rm {}'.format(package_name,
+                                                                            bin_path,
+                                                                            package_name))
     if bool(status):
         LOGGER.error(
             ' Decompress fisco-bcos failed, result is %s.', result)
@@ -389,8 +390,66 @@ def download_fisco(_dir):
     CONSOLER.info(
         "Downloading fisco-bcos successful, fisco-bcos at %s", bin_path)
 
-# def _hook_func(num, block_size, total_size):
 
-#     precent = min(100, 100.0*num*block_size/total_size)
-#     sys.stdout.write('Downloading progress %.2f%%\r' % (precent))
-#     sys.stdout.flush()
+def download_console(_dir):
+    """[summary]
+
+    Arguments:
+        _dir {[type]} -- [description]
+
+    Raises:
+        MCError -- [description]
+        MCError -- [description]
+    """
+
+    bin_path = _dir
+    package_name = "console.tar.gz"
+    dir_must_not_exists('{}/console'.format(bin_path))
+    (status, version) = getstatusoutput('curl -s https://raw.githubusercontent.com/'
+                                        'FISCO-BCOS/console/master/release_note.txt'
+                                        ' | sed "s/^[vV]//"')
+    if bool(status):
+        LOGGER.error(
+            ' get fisco-bcos verion failed, result is %s.', version)
+        raise MCError(' get fisco-bcos verion failed, result is %s.' % version)
+    download_link = 'https://github.com/FISCO-BCOS/console/releases/download/v{}/{}'.format(
+        version.strip('\n'), package_name.strip('\n'))
+    LOGGER.info("Downloading console binary %s", download_link)
+    CONSOLER.info("Downloading console binary %s", download_link)
+    download_bin(download_link, package_name)
+    # subprocess.call('curl -LO {}'.format(download_link), shell=True)
+    (status, result)\
+        = getstatusoutput('tar -zxf {} && mv '
+                          './console {}/console && rm {}'.format(package_name,
+                                                                 bin_path,
+                                                                 package_name))
+    if bool(status):
+        LOGGER.error(
+            ' Decompress console failed, result is %s.', result)
+        raise MCError(
+            ' Decompress console failed, result is %s.' % result)
+    (status, result) = getstatusoutput(
+        'chmod a+x {}/console/start.sh'.format(bin_path))
+
+
+def _hook_func(num, block_size, total_size):
+    """[get download msg]
+
+    Arguments:
+        num {[type]} -- [description]
+        block_size {[type]} -- [description]
+        total_size {[type]} -- [description]
+    """
+
+    precent = min(100, 100.0*num*block_size/total_size)
+    sys.stdout.write('Downloading progress %.2f%%\r' % (precent))
+    sys.stdout.flush()
+
+
+def download_bin(_download_link, _package_name):
+    """dowloand
+    """
+    if sys.version > '3':
+        urllib.request.urlretrieve(_download_link, _package_name, _hook_func)
+    else:
+        urllib.urlretrieve(_download_link, _package_name, _hook_func)

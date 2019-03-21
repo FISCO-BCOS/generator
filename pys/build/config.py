@@ -523,3 +523,42 @@ def add_group(_group, _node):
         shutil.copyfile(data_path, '{}/conf/{}'.format(node_file, file_name))
         shutil.copyfile('{}/tpl/group.i.ini'.format(path.get_path()),
                         '{}/conf/group.{}.ini'.format(node_file, group_id))
+
+
+def get_console_file(_file):
+    """[get console file]
+
+    Arguments:
+        _file {[type]} -- [description]
+    """
+    data = _file
+    utils.file_must_exists(data)
+    p2p_ip = mconf.MchainConf.p2p_ip
+    channel_listen_port = mconf.MchainConf.channel_listen_port
+    channel_addr = []
+    group_id = mconf.MchainConf.group_id
+    utils.replace(data,
+                  '"group1',
+                  '"group{}'.format(group_id))
+    utils.replace(data,
+                  'name="groupId" value="1"',
+                  'name="groupId" value="{}"'.format(group_id))
+    for ip_idx, p2p_get in enumerate(p2p_ip):
+        channel_addr.append('{}:{}'.format(
+            p2p_get, channel_listen_port[ip_idx]))
+    cmd = "cat {} | grep -n connectionsStr | awk '{{print $1}}'".format(data)
+    (status, result) = utils.getstatusoutput(cmd)
+    result = result.strip('\n').strip(':')
+    if bool(status):
+        LOGGER.error(
+            ' append console channel_addr failed, result is %s.', result)
+        raise MCError(
+            ' append console channel_addr failed, result is %s.' % result)
+    line_num = int(result) + 2
+    for channel in channel_addr:
+        (status, result) \
+            = utils.getstatusoutput('sed -i "{} a'
+                                    '<value>{}</value>" {}'
+                                    .format(line_num, channel, data))
+        line_num = line_num + 1
+    CONSOLER.info('get console file end')
