@@ -91,6 +91,10 @@ def usage():
                              help='add peers to config.ini')
     tools_group.add_argument('--download_fisco', nargs=1, metavar=('data_dir'),
                              help='download fisco-bcos')
+    tools_group.add_argument('--download_console', nargs=1, metavar=('data_dir'),
+                             help='download console')
+    tools_group.add_argument('--get_sdk_file', nargs=1, metavar=('data_dir'),
+                             help='get sdk file')
     args = parser.parse_args()
     if args.version:
         version.version()
@@ -138,7 +142,7 @@ def usage():
         CONSOLER.info(' SDK cert begin.')
         sdk_dir = args.generate_sdk_certificate[0]
         agency_dir = args.generate_sdk_certificate[1]
-        ca.generator_sdk_ca(sdk_dir, agency_dir, 'sdk')
+        ca.generator_node_ca(sdk_dir, agency_dir, 'sdk')
         CONSOLER.info(' SDK cert end.')
     elif args.generate_all_certificates:
         cert_dir = args.generate_all_certificates[0]
@@ -177,6 +181,10 @@ def usage():
         CONSOLER.info(' add group end.')
     elif args.download_fisco:
         utils.download_fisco(args.download_fisco[0])
+    elif args.download_console:
+        build.build_console(args.download_console[0])
+    elif args.get_sdk_file:
+        build.get_sdk(args.get_sdk_file[0])
     # elif args.sdkca:
     #     CONSOLER.info(' sdk cert begin.')
     #     sdk_dir = args.sdkca[0]
