@@ -128,15 +128,35 @@ def get_console_cert(_dir):
     CONSOLER.info("get console in  %s!", _dir)
     meta = '{}/meta'.format(path.get_path())
     data = _dir
+    get_sdk_cert()
+    utils.dir_must_exists(data)
+    shutil.copyfile('{}/ca.crt'.format(meta),
+                    '{}/ca.crt'.format(data))
+    shutil.copyfile('{}/sdk/node.key'.format(meta),
+                    '{}/node.key'.format(data))
+    shutil.copyfile('{}/sdk/node.crt'.format(meta),
+                    '{}/node.crt'.format(data))
+
+
+def get_sdk_cert():
+    """[summary]
+
+    Arguments:
+        _dir {[type]} -- [description]
+    """
+    LOGGER.info("get sdk cert in meta!")
+    CONSOLER.info("get sdk cert in meta!")
+    meta = '{}/meta'.format(path.get_path())
     utils.file_must_exists('{}/ca.crt'.format(meta))
     utils.file_must_exists('{}/agency.crt'.format(meta))
     utils.file_must_exists('{}/agency.key'.format(meta))
-    utils.dir_must_not_exists('{}/sdk'.format(meta))
-    ca.generator_sdk_ca(meta, meta, 'sdk')
-    utils.dir_must_exists('{}/conf'.format(data))
-    shutil.copyfile('{}/ca.crt'.format(meta),
-                    '{}/conf/ca.crt'.format(data))
-    shutil.copyfile('{}/sdk/node.key'.format(meta),
-                    '{}/conf/node.key'.format(data))
-    shutil.copyfile('{}/sdk/node.crt'.format(meta),
-                    '{}/conf/node.crt'.format(data))
+    if os.path.isdir('{}/sdk'.format(meta)):
+        utils.file_must_exists('{}/sdk/ca.crt'.format(meta))
+        utils.file_must_exists('{}/sdk/node.crt'.format(meta))
+        utils.file_must_exists('{}/sdk/node.key'.format(meta))
+        LOGGER.info("sdk cert existed!")
+        CONSOLER.info("sdk cert existed!")
+    else:
+        LOGGER.info("generate console cert!")
+        CONSOLER.info("generate console cert!")
+        ca.generator_node_ca(meta, meta, 'sdk')

@@ -1,5 +1,7 @@
 """[--build]
 """
+import os
+import shutil
 from pys.build import config
 from pys.tool import utils
 from pys import path
@@ -26,6 +28,24 @@ def build_console(_console_dir):
     """
     data = _console_dir
     utils.download_console(data)
-    opr_cert.get_console_cert('{}/console'.format(data))
+    opr_cert.get_console_cert('{}/console/conf'.format(data))
+    shutil.copyfile('{}/tpl/applicationContext.xml'.format(path.get_path()),
+                    '{}/console/conf/applicationContext.xml'.format(data))
     config.get_console_file(
         '{}/console/conf/applicationContext.xml'.format(data))
+
+
+def get_sdk(_dir):
+    """[summary]
+
+    Arguments:
+        _dir {[type]} -- [description]
+    """
+    data = _dir
+    utils.dir_must_not_exists(_dir)
+    os.mkdir(_dir)
+    opr_cert.get_console_cert(_dir)
+    shutil.copyfile('{}/tpl/applicationContext.xml'.format(path.get_path()),
+                    '{}/applicationContext.xml'.format(data))
+    config.get_console_file(
+        '{}/applicationContext.xml'.format(data))
