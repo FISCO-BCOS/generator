@@ -71,6 +71,8 @@ def gen_build_cert(_dir):
                              'node_{}_{}'.format(node_ip, p2p_listen_port[my_node_index]))
         if utils.Status.gm_option:
             utils.off_gm()
+            if os.path.isdir('./.origin_cert'):
+                shutil.rmtree('./.origin_cert')
             ca.generator_node_ca('./', meta_path, '.origin_cert')
             shutil.copytree('./.origin_cert', '{}/node_{}_{}/origin_cert'.format(
                 data_path, node_ip, p2p_listen_port[my_node_index]))
