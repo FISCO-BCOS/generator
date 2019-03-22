@@ -97,12 +97,12 @@ def build_config_ini(_data_dir):
         try:
             if utils.Status.gm_option:
                 utils.file_must_exists('{}/gmcert_{}_{}.crt'.format(conf_dir,
-                                                                node_ip,
-                                                                p2p_listen_port[my_node_index]))
+                                                                    node_ip,
+                                                                    p2p_listen_port[my_node_index]))
             else:
                 utils.file_must_exists('{}/cert_{}_{}.crt'.format(conf_dir,
-                                                                node_ip,
-                                                                p2p_listen_port[my_node_index]))
+                                                                  node_ip,
+                                                                  p2p_listen_port[my_node_index]))
         except Exception as build_exp:
             LOGGER.error('%s', build_exp)
             raise MCError('%s' % build_exp)
@@ -129,7 +129,7 @@ def build_config_ini(_data_dir):
                         '{}/conf/group.{}.ini'.format(node_dir, group_id))
             if gm_opr:
                 get_node_cert('{}/gmcert_{}_{}.crt'.format(meta_dir, node_ip,
-                                                         p2p_listen_port[my_node_index]),
+                                                           p2p_listen_port[my_node_index]),
                               '{}/conf/gmnode.crt'.format(node_dir))
                 get_nodeid('{}/conf/gmnode.crt'.format(node_dir),
                            '{}/conf/gmnode.nodeid'.format(node_dir))

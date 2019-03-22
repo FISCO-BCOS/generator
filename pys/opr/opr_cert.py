@@ -61,14 +61,14 @@ def gen_build_cert(_dir):
                       data_path, node_ip, p2p_listen_port[my_node_index])
         if utils.Status.gm_option:
             utils.file_must_not_exists('{}/gmcert_{}_{}.crt'.format(meta_path,
-                                                                node_ip,
-                                                                p2p_listen_port[my_node_index]))
+                                                                    node_ip,
+                                                                    p2p_listen_port[my_node_index]))
         else:
             utils.file_must_not_exists('{}/cert_{}_{}.crt'.format(meta_path,
-                                                                node_ip,
-                                                                p2p_listen_port[my_node_index]))
+                                                                  node_ip,
+                                                                  p2p_listen_port[my_node_index]))
         ca.generator_node_ca(data_path, '{}/'.format(meta_path),
-                                 'node_{}_{}'.format(node_ip, p2p_listen_port[my_node_index]))
+                             'node_{}_{}'.format(node_ip, p2p_listen_port[my_node_index]))
         if utils.Status.gm_option:
             utils.off_gm()
             ca.generator_node_ca('./', meta_path, '.origin_cert')
@@ -77,24 +77,24 @@ def gen_build_cert(_dir):
             shutil.rmtree('./.origin_cert')
             utils.set_gm()
             shutil.copyfile('{}/node_{}_{}/gmnode.crt'.format(data_path,
-                                                                node_ip,
-                                                                p2p_listen_port[my_node_index]),
+                                                              node_ip,
+                                                              p2p_listen_port[my_node_index]),
                             '{}/gmcert_{}_{}.crt'.format(meta_path,
-                                                        node_ip,
-                                                        p2p_listen_port[my_node_index]))
+                                                         node_ip,
+                                                         p2p_listen_port[my_node_index]))
             shutil.copyfile('{}/gmcert_{}_{}.crt'.format(meta_path,
-                                                    node_ip,
-                                                    p2p_listen_port[my_node_index]),
-                        '{}/gmcert_{}_{}.crt'.format(cert_path,
-                                                    node_ip,
-                                                    p2p_listen_port[my_node_index]))
+                                                         node_ip,
+                                                         p2p_listen_port[my_node_index]),
+                            '{}/gmcert_{}_{}.crt'.format(cert_path,
+                                                         node_ip,
+                                                         p2p_listen_port[my_node_index]))
         else:
             shutil.copyfile('{}/node_{}_{}/node.crt'.format(data_path,
                                                             node_ip,
                                                             p2p_listen_port[my_node_index]),
                             '{}/cert_{}_{}.crt'.format(meta_path,
-                                                        node_ip,
-                                                        p2p_listen_port[my_node_index]))
+                                                       node_ip,
+                                                       p2p_listen_port[my_node_index]))
             shutil.copyfile('{}/cert_{}_{}.crt'.format(meta_path,
                                                        node_ip,
                                                        p2p_listen_port[my_node_index]),
@@ -103,9 +103,9 @@ def gen_build_cert(_dir):
                                                        p2p_listen_port[my_node_index]))
         (status, result) = \
             utils.getstatusoutput('echo {}:{} >> {}/peers.txt'
-                                    .format(node_ip,
-                                            p2p_listen_port[my_node_index],
-                                            cert_path))
+                                  .format(node_ip,
+                                          p2p_listen_port[my_node_index],
+                                          cert_path))
         LOGGER.info(" status is %s, result is %s", status, result)
     CONSOLER.info(" Generate cert by node_installation.ini successful!")
 
