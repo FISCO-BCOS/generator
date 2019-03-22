@@ -13,6 +13,7 @@ def build(peer_path, data_path):
     """[--build]
     """
     utils.file_must_exists('{}/meta/fisco-bcos'.format(path.get_path()))
+    utils.check_fisco('{}/meta/fisco-bcos'.format(path.get_path()))
     if utils.Status.gm_option:
         utils.file_must_exists('{}/meta/gmca.crt'.format(path.get_path()))
     else:

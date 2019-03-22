@@ -51,11 +51,11 @@ def create_group_genesis(data_dir='{}/meta'.format(path.get_path())):
         try:
             if gm_opr:
                 node_id = config.get_nodeid_str(
-                    '{}/meta/cert_{}_{}.crt'.format(path.get_path(),
+                    '{}/meta/gmcert_{}_{}.crt'.format(path.get_path(),
                                                     p2p_ip[node_idx], p2p_listen_port[node_idx]))
                 node_id.strip('\n').strip(
                     'WARNING: can\'t open config file: /home/asherli/TASSL/ssl/openssl.cnf')
-                LOGGER.info('resolve %s/meta/cert_%s_%s.crt',
+                LOGGER.info('resolve %s/meta/gmcert_%s_%s.crt',
                             path.get_path(), p2p_ip[node_idx], p2p_listen_port[node_idx])
                 LOGGER.info("nodeid -> %s", node_id)
                 group_cfg.set(
