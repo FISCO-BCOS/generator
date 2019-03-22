@@ -331,10 +331,174 @@ jobs:
             cd ~/generator-A
             ./generator --download_console ./meta
             cat ./meta/console/conf/applicationContext.xml
+  build_gm:  # required for runs that don't use workflows
+    working_directory: ~/generator
+    docker:
+      - image: circleci/python:2.7  # primary container for the build job
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: |
+            bash ./scripts/install.sh
+            sudo apt-get -y install curl
+      - run:
+          name: Download fisco-bcos
+          command: |
+            ./generator --download_fisco ./meta -g
+            # bash <(curl -s https://raw.githubusercontent.com/FISCO-BCOS/FISCO-BCOS/release-2.0.1/tools/ci/download_bin.sh) -o ./meta
+      - run:
+          name: Generate chain and init agency
+          command: |
+            cd ..
+            cp -r ./generator ~/generator-A
+            cp -r ./generator ~/generator-B
+            cp -r ./generator ~/generator-C
+            cd ./generator
+            ./generator --generate_chain_certificate ./dir_chain_ca -g
+            ls ./dir_chain_ca
+            ./generator --generate_agency_certificate ./dir_agency_ca ./dir_chain_ca agencyA -g
+            ./generator --generate_agency_certificate ./dir_agency_ca ./dir_chain_ca agencyB -g
+            ./generator --generate_agency_certificate ./dir_agency_ca ./dir_chain_ca agencyC -g
+            cp ./dir_chain_ca/gmca.crt ./dir_agency_ca/agencyA/gmagency.crt ./dir_agency_ca/agencyA/gmagency.key ~/generator-A/meta/
+            cp ./dir_chain_ca/gmca.crt ./dir_agency_ca/agencyB/gmagency.crt ./dir_agency_ca/agencyB/gmagency.key ~/generator-B/meta/
+            cp ./dir_chain_ca/gmca.crt ./dir_agency_ca/agencyC/gmagency.crt ./dir_agency_ca/agencyC/gmagency.key ~/generator-C/meta/
+      - run:
+          name: Generate agencyB certs and peers
+          command: |
+            cd ~/generator-B
+            sed -i 's/p2p_listen_port=30300/p2p_listen_port=30302/g' ./conf/node_deployment.ini
+            sed -i 's/p2p_listen_port=30301/p2p_listen_port=30303/g' ./conf/node_deployment.ini
+            sed -i 's/channel_listen_port=20200/channel_listen_port=20202/g' ./conf/node_deployment.ini
+            sed -i 's/channel_listen_port=20201/channel_listen_port=20203/g' ./conf/node_deployment.ini
+            sed -i 's/jsonrpc_listen_port=8545/jsonrpc_listen_port=8547/g' ./conf/node_deployment.ini
+            sed -i 's/jsonrpc_listen_port=8546/jsonrpc_listen_port=8548/g' ./conf/node_deployment.ini
+            ./generator --generate_all_certificates ./agencyB_send -g
+            cp -r ./agencyB_send ~/generator-A/
+            cp -r ./agencyB_send/peers.txt ~/generator-C/peerB.txt
+      - run:
+          name: Generate agencyC certs and peers
+          command: |
+            cd ~/generator-C
+            sed -i 's/p2p_listen_port=30300/p2p_listen_port=30304/g' ./conf/node_deployment.ini
+            sed -i 's/p2p_listen_port=30301/p2p_listen_port=30305/g' ./conf/node_deployment.ini
+            sed -i 's/channel_listen_port=20200/channel_listen_port=20204/g' ./conf/node_deployment.ini
+            sed -i 's/channel_listen_port=20201/channel_listen_port=20205/g' ./conf/node_deployment.ini
+            sed -i 's/jsonrpc_listen_port=8545/jsonrpc_listen_port=8549/g' ./conf/node_deployment.ini
+            sed -i 's/jsonrpc_listen_port=8546/jsonrpc_listen_port=8550/g' ./conf/node_deployment.ini
+            ./generator --generate_all_certificates ./agencyC_send -g
+            cp -r ./agencyC_send ~/generator-A/
+            cp -r ./agencyC_send/peers.txt ~/generator-B/peerC.txt
+      - run:
+          name: Generate agencyA certs and peers
+          command: |
+            cd ~/generator-A
+            ./generator --generate_all_certificates ./agencyA_send -g
+            cp -r ./agencyA_send/peers.txt ~/generator-B/peersA.txt
+            cp -r ./agencyA_send/peers.txt ~/generator-C/peersA.txt
+      - run:
+          name: Generate group1
+          command: |
+            cd ~/generator-A
+            cp ./agencyB_send/* ./meta/
+            cp ./agencyC_send/* ./meta/
+            ./generator --create_group_genesis ./group -g
+            cp ./meta/group.1.genesis ~/generator-B/meta
+            cp ./meta/group.1.genesis ~/generator-C/meta
+      - run:
+          name: Build agencyA nodes
+          command: |
+            cd ~/generator-A
+            cat ./agencyB_send/peers.txt >> ./peers.txt
+            cat ./agencyC_send/peers.txt >> ./peers.txt
+            ./generator --build_install_package ./peers.txt ./nodeA -g
+            bash ./nodeA/start_all.sh
+      - run:
+          name: Build agencyB nodes
+          command: |
+            cd ~/generator-B
+            cat ./peersA.txt >> ./peersC.txt
+            ./generator --build_install_package ./peersC.txt ./nodeB -g
+            bash ./nodeB/start_all.sh
+      - run:
+          name: Build agencyC nodes
+          command: |
+            cd ~/generator-C
+            cat ./peersA.txt >> ./peersB.txt
+            ./generator --build_install_package ./peersB.txt ./nodeC -g
+            bash ./nodeC/start_all.sh
+      - run:
+          name: Transaction test in group1
+          command: |
+            ps aux| grep fisco-bcos |grep -v grep
+            result=`ps aux| grep fisco-bcos |grep -v grep`
+            if [ -z "$result" ]
+            then
+              echo "start build nodes failed"
+              return 1
+            fi
+            echo "start succeed"
+            curl -X POST --data '{"jsonrpc":"2.0","method":"sendRawTransaction","params":[1, "f901309f65f0d06e39dc3c08e32ac10a5070858962bc6c0f5760baca823f2d5582d14485174876e7ff8609184e729fff8204a294d6f1a71052366dbae2f7ab2d5d5845e77965cf0d80b86448f85bce000000000000000000000000000000000000000000000000000000000000001bf5bd8a9e7ba8b936ea704292ff4aaa5797bf671fdc8526dcd159f23c1f5a05f44e9fa862834dc7cb4541558f2b4961dc39eaaf0af7f7395028658d0e01b86a37b840c7ca78e7ab80ee4be6d3936ba8e899d8fe12c12114502956ebe8c8629d36d88481dec99735742ea523c88cf3becba1cc4375bc9e225143fe1e8e43abc8a7c493a0ba3ce8383b7c91528bede9cf890b4b1e9b99c1d8e56d6f8292c827470a606827a0ed511490a1666791b2bd7fc4f499eb5ff18fb97ba68ff9aee2068fd63b"],"id":83}' http://127.0.0.1:8545 > code.txt
+            cat ./code.txt
+            echo "transaction get code is "
+            tx_result=`cat ./code.txt | grep result | grep -v grep`
+            echo $tx_result
+            if [ -z "$tx_result" ]
+            then
+              echo "transaction failed"
+              return 1
+            fi
+            echo "send transaction succeed"
+      - run:
+          name: Generate group2
+          command: |
+            cd ~/generator-A
+            sed -i 's/group_id=1/group_id=2/g' ./conf/group_genesis.ini
+            sed -i 's/127.0.0.1:30302/127.0.0.1:30304/g' ./conf/group_genesis.ini
+            sed -i 's/127.0.0.1:30303/127.0.0.1:30305/g' ./conf/group_genesis.ini
+            ./generator --create_group_genesis ./data -g
+            ./generator --add_group ./data/group.2.genesis ./nodeA
+            ./generator --add_group ./data/group.2.genesis ~/generator-C/nodeC
+            bash ./nodeA/stop_all.sh
+            bash ./nodeA/start_all.sh
+            bash ~/generator-C/nodeC/stop_all.sh
+            ls ~/generator-C/nodeC/node_127.0.0.1_30305/conf
+            bash ~/generator-C/nodeC/start_all.sh
+            ps aux| grep fisco-bcos |grep -v grep
+      - run:
+          name: Transaction test in group2
+          command: |
+            ps aux| grep fisco-bcos |grep -v grep
+            result=`ps aux| grep fisco-bcos |grep -v grep`
+            if [ -z "$result" ]
+            then
+              echo "start build nodes failed"
+              return 1
+            fi
+            echo "start succeed"
+            curl -X POST --data '{"jsonrpc":"2.0","method":"sendRawTransaction","params":[2, "f901309f65f0d06e39dc3c08e32ac10a5070858962bc6c0f5760baca823f2d5582d14485174876e7ff8609184e729fff8204a294d6f1a71052366dbae2f7ab2d5d5845e77965cf0d80b86448f85bce000000000000000000000000000000000000000000000000000000000000001bf5bd8a9e7ba8b936ea704292ff4aaa5797bf671fdc8526dcd159f23c1f5a05f44e9fa862834dc7cb4541558f2b4961dc39eaaf0af7f7395028658d0e01b86a37b840c7ca78e7ab80ee4be6d3936ba8e899d8fe12c12114502956ebe8c8629d36d88481dec99735742ea523c88cf3becba1cc4375bc9e225143fe1e8e43abc8a7c493a0ba3ce8383b7c91528bede9cf890b4b1e9b99c1d8e56d6f8292c827470a606827a0ed511490a1666791b2bd7fc4f499eb5ff18fb97ba68ff9aee2068fd63b"],"id":83}' http://127.0.0.1:8550 > code.txt
+            cat ./code.txt
+            echo "transaction get code is "
+            tx_result=`cat ./code.txt | grep result | grep -v grep`
+            echo $tx_result
+            if [ -z "$tx_result" ]
+            then
+              echo "transaction failed"
+              return 1
+            fi
+            echo "send transaction succeed"
+      - run:
+          name: Download console
+          command: |
+            cd ~/generator-A
+            ./generator --download_console ./meta
+            cat ./meta/console/conf/applicationContext.xml
+            sudo apt-get install openjdk-8-jdk
+            cd ./meta/console/
 workflows:
   version: 2
   build:
     jobs:
       - build
       - CentOS
-      # - Tutorial
+      - build_gm

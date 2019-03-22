@@ -8,6 +8,7 @@ Returns:
 import argparse
 import os
 import sys
+import stat
 from pys import path
 import shutil
 # init path
@@ -98,6 +99,7 @@ def usage():
         if not os.path.isfile('{}/.tassl'.format(os.environ['HOME'])):
             utils.download_bin('https://github.com/FISCO-BCOS/LargeFiles/raw/master/tools/tassl.tar.gz', 'tassl')
             shutil.copyfile('./tassl', '{}/.tassl'.format(os.environ['HOME']))
+            os.chmod('{}/.tassl'.format(os.environ['HOME']), stat.S_IRWXU)
             os.remove('./tassl')
         utils.set_gm()
     if args.version:
