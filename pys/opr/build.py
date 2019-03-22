@@ -13,7 +13,11 @@ def build(peer_path, data_path):
     """[--build]
     """
     utils.file_must_exists('{}/meta/fisco-bcos'.format(path.get_path()))
-    utils.file_must_exists('{}/meta/ca.crt'.format(path.get_path()))
+    utils.check_fisco('{}/meta/fisco-bcos'.format(path.get_path()))
+    if utils.Status.gm_option:
+        utils.file_must_exists('{}/meta/gmca.crt'.format(path.get_path()))
+    else:
+        utils.file_must_exists('{}/meta/ca.crt'.format(path.get_path()))
     utils.file_must_exists(peer_path)
     mconf.read_peers(peer_path)
     config.build_config_ini(data_path)
@@ -49,3 +53,14 @@ def get_sdk(_dir):
                     '{}/applicationContext.xml'.format(data))
     config.get_console_file(
         '{}/applicationContext.xml'.format(data))
+
+
+def download_tassl():
+    """[download_tassl]
+    """
+    os.chdir('{}/scripts/gm/'.format(path.get_path()))
+    (status, result) = utils.getstatusoutput('./cts.sh download_tassl')
+    os.chdir('{}'.format(path.get_path()))
+    if bool(status):
+        raise EOFError(' download tassl failed failed! status is %d, output is %s.' % (
+            status, result))

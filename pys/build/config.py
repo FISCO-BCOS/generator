@@ -31,57 +31,6 @@ from pys.error.exp import MCError
 from pys.conf import mconf
 
 
-class Status(object):
-    """[gm Status]
-
-    Arguments:
-        object {[type]} -- [description]
-    """
-
-    gm_option = False
-    unit_time = False
-
-    def __init__(self):
-        """[init]
-        """
-
-        self. gm_option = False
-
-    def get_gm_staus(self):
-        """[get gm_option]
-
-
-        Returns:
-            [string] -- [gm]
-        """
-        return self.gm_option
-
-    def get_ut_status(self):
-        """[get unit_time]
-
-        Returns:
-            [string] -- [rpc_ip]
-        """
-        return self.unit_time
-
-
-def set_gm():
-    """[set gm]
-    """
-
-    Status.gm_option = True
-
-
-def get_status():
-    """[get gm or not]
-
-    Returns:
-        [bool] -- [true of false]
-    """
-
-    return Status.gm_option
-
-
 def build_config_ini(_data_dir):
     """[-- build create config_ini]
 
@@ -106,7 +55,7 @@ def build_config_ini(_data_dir):
     meta_dir = '{}/meta'.format(path.get_path())
     conf_dir = meta_dir
     package_dir = _data_dir
-    gm_opr = get_status()
+    gm_opr = utils.Status.gm_option
     group_id = mconf.MchainConf.group_id
 
     utils.file_must_exists('{}/group.{}.genesis'.format(meta_dir, group_id))
@@ -117,8 +66,12 @@ def build_config_ini(_data_dir):
     os.mkdir(package_dir)
 
     default_cfg = configparser.ConfigParser()
-    shutil.copy('{}/tpl/config.ini'.format(path.get_path()),
-                '{}/.config.ini'.format(conf_dir))
+    if gm_opr:
+        shutil.copy('{}/tpl/config.ini.gm'.format(path.get_path()),
+                    '{}/.config.ini'.format(conf_dir))
+    else:
+        shutil.copy('{}/tpl/config.ini'.format(path.get_path()),
+                    '{}/.config.ini'.format(conf_dir))
     try:
         with codecs.open('{}/.config.ini'.format(conf_dir),
                          'r', encoding='utf-8') as config_file:
@@ -142,9 +95,14 @@ def build_config_ini(_data_dir):
     for my_node_index, node_ip in enumerate(p2p_ip):
         LOGGER.info("p2p_ip -> %s", node_ip)
         try:
-            utils.file_must_exists('{}/cert_{}_{}.crt'.format(conf_dir,
-                                                              node_ip,
-                                                              p2p_listen_port[my_node_index]))
+            if utils.Status.gm_option:
+                utils.file_must_exists('{}/gmcert_{}_{}.crt'.format(conf_dir,
+                                                                    node_ip,
+                                                                    p2p_listen_port[my_node_index]))
+            else:
+                utils.file_must_exists('{}/cert_{}_{}.crt'.format(conf_dir,
+                                                                  node_ip,
+                                                                  p2p_listen_port[my_node_index]))
         except Exception as build_exp:
             LOGGER.error('%s', build_exp)
             raise MCError('%s' % build_exp)
@@ -163,9 +121,13 @@ def build_config_ini(_data_dir):
         os.mkdir('{}/conf'.format(node_dir))
         try:
             # get node cert
+            shutil.copy('{}/.config.ini'.format(conf_dir),
+                        '{}/config.ini'.format(node_dir))
+            shutil.copy('{}/group.{}.genesis'.format(conf_dir, group_id),
+                        '{}/conf/group.{}.genesis'.format(node_dir, group_id))
+            shutil.copy('{}/tpl/group.i.ini'.format(path.get_path()),
+                        '{}/conf/group.{}.ini'.format(node_dir, group_id))
             if gm_opr:
-                shutil.copy('{}/tpl/config.ini.gm'.format(path.get_path()),
-                            '{}/config.ini'.format(node_dir))
                 get_node_cert('{}/gmcert_{}_{}.crt'.format(meta_dir, node_ip,
                                                            p2p_listen_port[my_node_index]),
                               '{}/conf/gmnode.crt'.format(node_dir))
@@ -174,12 +136,6 @@ def build_config_ini(_data_dir):
                 shutil.copyfile('{}/gmca.crt'.format(meta_dir),
                                 '{}/conf/gmca.crt'.format(node_dir))
             else:
-                shutil.copy('{}/.config.ini'.format(conf_dir),
-                            '{}/config.ini'.format(node_dir))
-                shutil.copy('{}/group.{}.genesis'.format(conf_dir, group_id),
-                            '{}/conf/group.{}.genesis'.format(node_dir, group_id))
-                shutil.copy('{}/tpl/group.i.ini'.format(path.get_path()),
-                            '{}/conf/group.{}.ini'.format(node_dir, group_id))
                 get_node_cert('{}/cert_{}_{}.crt'.format(meta_dir, node_ip,
                                                          p2p_listen_port[my_node_index]),
                               '{}/conf/node.crt'.format(node_dir))
@@ -299,11 +255,19 @@ def get_nodeid(get_path, send_path):
         LOGGER.error(' node cert doesn\'t existed! Need %s', get_path)
         raise MCError(' node cert doesn\'t existed! Need %s' % get_path)
     try:
-        (status, result) = utils.getstatusoutput('openssl x509  -text -in {}'
-                                                 ' | sed -n "15,20p" |  sed "s/://g"'
-                                                 ' | tr "\n" " " | sed "s/ //g" |'
-                                                 ' cut -c 3-130| cat >{}'
-                                                 .format(get_path, send_path))
+        if utils.Status.gm_option:
+            (status, result) = utils.getstatusoutput('~/.tassl x509  -text -in {}'
+                                                     ' | sed -n "15,20p" |  sed '
+                                                     '"s/://g" | sed "s/pub//g" |'
+                                                     ' tr "\n" " " | sed "s/ //g"'
+                                                     ' cut -c 3-130| cat >{}'
+                                                     .format(get_path, send_path))
+        else:
+            (status, result) = utils.getstatusoutput('openssl x509  -text -in {}'
+                                                     ' | sed -n "15,20p" |  sed "s/://g"'
+                                                     ' | tr "\n" " " | sed "s/ //g" |'
+                                                     ' cut -c 3-130| cat >{}'
+                                                     .format(get_path, send_path))
         if status != 0:
             LOGGER.error(
                 ' create nodeid failed! status is %d, output is %s, dir is %s.',
@@ -340,11 +304,19 @@ def get_nodeid_str(get_path):
         LOGGER.error(' node cert doesn\'t existed! Need %s', get_path)
         raise MCError(' node cert doesn\'t existed! Need %s' % get_path)
     try:
-        (status, result) = utils.getstatusoutput('openssl x509  -text -in {}'
-                                                 ' | sed -n "15,20p" |  sed '
-                                                 '"s/://g" | sed "s/pub//g" |'
-                                                 ' tr "\n" " " | sed "s/ //g"'
-                                                 ' | cut -c 3-130'.format(get_path))
+        if utils.Status.gm_option:
+            (status, result) = utils.getstatusoutput('~/.tassl x509  -text -in {}'
+                                                     ' | sed -n "15,20p" |  sed '
+                                                     '"s/://g" | sed "s/pub//g" |'
+                                                     ' tr "\n" " " | sed "s/ //g"'
+                                                     ' | cut -c 3-130'.format(get_path))
+            result = result.split('\n')[0]
+        else:
+            (status, result) = utils.getstatusoutput('openssl x509  -text -in {}'
+                                                     ' | sed -n "15,20p" |  sed '
+                                                     '"s/://g" | sed "s/pub//g" |'
+                                                     ' tr "\n" " " | sed "s/ //g"'
+                                                     ' | cut -c 3-130'.format(get_path))
 
         if status != 0:
             LOGGER.error(
