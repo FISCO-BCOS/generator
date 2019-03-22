@@ -53,3 +53,14 @@ def get_sdk(_dir):
                     '{}/applicationContext.xml'.format(data))
     config.get_console_file(
         '{}/applicationContext.xml'.format(data))
+
+
+def download_tassl():
+    """[download_tassl]
+    """
+    os.chdir('{}/scripts/gm/'.format(path.get_path()))
+    (status, result) = utils.getstatusoutput('./cts.sh download_tassl')
+    os.chdir('{}'.format(path.get_path()))
+    if bool(status):
+        raise EOFError(' download tassl failed failed! status is %d, output is %s.' % (
+            status, result))

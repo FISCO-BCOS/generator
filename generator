@@ -97,10 +97,8 @@ def usage():
     if args.use_guomi:
         CONSOLER.info('======= BUILD_GM ============= ON =======')
         if not os.path.isfile('{}/.tassl'.format(os.environ['HOME'])):
-            utils.download_bin('https://github.com/FISCO-BCOS/LargeFiles/raw/master/tools/tassl.tar.gz', 'tassl')
-            shutil.copyfile('./tassl', '{}/.tassl'.format(os.environ['HOME']))
-            os.chmod('{}/.tassl'.format(os.environ['HOME']), stat.S_IRWXU)
-            os.remove('./tassl')
+            LOGGER.info('download gm tassl...')
+            build.download_tassl()
         utils.set_gm()
     if args.version:
         version.version()

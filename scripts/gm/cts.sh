@@ -212,6 +212,9 @@ gen_agency_cert)
 gen_node_cert)
     gen_node_cert "$1" "$2" "$3" "$4" "$5" "$6" "$7" "$8" "$9"
     ;;
+download_tassl)
+    check_and_install_tassl
+    ;;
 help)
     usage
     ;;
