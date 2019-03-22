@@ -12,7 +12,6 @@ from pys.tool import utils
 from pys import path
 from pys.log import LOGGER, CONSOLER, console_error
 from pys.error.exp import MCError
-from pys.build import config
 
 
 def generate_root_ca(_dir):
@@ -129,14 +128,14 @@ def generator_node_ca(_dir, agent, node):
             os.chdir('{}'.format(path.get_path()))
             if utils.Status.gm_option:
                 (status, result) = utils.getstatusoutput('cat {}/{}/gmagency.crt '
-                                                        '>> {}/{}/gmnode.crt'.format(
-                                                            _dir, node, _dir, node))
+                                                         '>> {}/{}/gmnode.crt'.format(
+                                                             _dir, node, _dir, node))
                 os.remove('{}/{}/gmagency.crt'.format(_dir, node))
                 os.remove('{}/{}/gmnode.serial'.format(_dir, node))
             else:
                 (status, result) = utils.getstatusoutput('cat {}/{}/agency.crt '
-                                                        '>> {}/{}/node.crt'.format(
-                                                            _dir, node, _dir, node))
+                                                         '>> {}/{}/node.crt'.format(
+                                                             _dir, node, _dir, node))
                 os.remove('{}/{}/agency.crt'.format(_dir, node))
                 os.remove('{}/{}/node.ca'.format(_dir, node))
                 os.remove('{}/{}/node.json'.format(_dir, node))

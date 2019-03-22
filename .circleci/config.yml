@@ -130,6 +130,7 @@ jobs:
             bash ./nodeA/stop_all.sh
             bash ./nodeA/start_all.sh
             bash ~/generator-C/nodeC/stop_all.sh
+            ls ~/generator-C/nodeC/node_127.0.0.1_30305/conf
             bash ~/generator-C/nodeC/start_all.sh
             ps aux| grep fisco-bcos |grep -v grep
       - run:
