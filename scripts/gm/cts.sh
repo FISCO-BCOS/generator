@@ -2,10 +2,10 @@
 dirpath="$(cd "$(dirname "$0")" && pwd)"
 cd $dirpath
 
-cert_conf_path=$dirpath/cert.cnf
+export cert_conf_path=${dirpath}/cert.cnf
 
-TASSL_CMD="${HOME}"/.tassl
-EXIT_CODE=-1
+export TASSL_CMD="${HOME}"/.tassl
+export EXIT_CODE=-1
 
 # TASSL env
 check_and_install_tassl()
@@ -22,29 +22,12 @@ check_and_install_tassl()
 check_and_install_tassl
 
 check_env() {
-    version=`openssl version 2>&1 | grep 1.0.2`
+    version=$(openssl version 2>&1 | grep 1.0.2)
     [ -z "$version" ] && {
         echo "please install openssl 1.0.2k-fips!"
         #echo "please install openssl 1.0.2 series!"
         #echo "download openssl from https://www.openssl.org."
         echo "use \"openssl version\" command to check."
-        exit $EXIT_CODE
-    }
-}
-#check_env
-
-check_java() {
-    ver=`java -version 2>&1 | grep version | grep 1.8`
-    tm=`java -version 2>&1 | grep "Java(TM)"`
-    [ -z "$ver" -o -z "$tm" ] && {
-        echo "please install java Java(TM) 1.8 series!"
-        echo "use \"java -version\" command to check."
-        exit $EXIT_CODE
-    }
-
-    which keytool >/dev/null 2>&1
-    [ $? != 0 ] && {
-        echo "keytool command not exists!"
         exit $EXIT_CODE
     }
 }
