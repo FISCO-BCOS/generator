@@ -9,6 +9,7 @@ import argparse
 import os
 import sys
 from pys import path
+import shutil
 # init path
 GEN_DIR = os.path.split(os.path.realpath(__file__))[0]
 sys.path.append('{}/pys'.format(GEN_DIR))
@@ -94,6 +95,10 @@ def usage():
     args = parser.parse_args()
     if args.use_guomi:
         CONSOLER.info('======= BUILD_GM ============= ON =======')
+        if not os.path.isfile('{}/.tassl'.format(os.environ['HOME'])):
+            utils.download_bin('https://github.com/FISCO-BCOS/LargeFiles/raw/master/tools/tassl.tar.gz', 'tassl')
+            shutil.copyfile('./tassl', '{}/.tassl'.format(os.environ['HOME']))
+            os.remove('./tassl')
         utils.set_gm()
     if args.version:
         version.version()

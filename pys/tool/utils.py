@@ -14,6 +14,7 @@ import sys
 from pys.log import LOGGER, CONSOLER
 from pys.error.exp import MCError
 
+
 class Status(object):
     """[gm Status]
 
@@ -54,6 +55,7 @@ def set_gm():
 
     Status.gm_option = True
 
+
 def off_gm():
     """[off gm]
     """
@@ -69,6 +71,7 @@ def get_status():
     """
 
     return Status.gm_option
+
 
 def valid_chain_id(chain_id):
     """[Determine if the chain id is valid]
@@ -405,7 +408,7 @@ def download_fisco(_dir):
     bin_path = _dir
     # bcos_bin_name = 'fisco-bcos'
     if Status.gm_option:
-        package_name="fisco-bcos-gm.tar.gz"
+        package_name = "fisco-bcos-gm.tar.gz"
     else:
         package_name = "fisco-bcos.tar.gz"
     (status, version) \

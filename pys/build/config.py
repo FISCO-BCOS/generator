@@ -30,6 +30,7 @@ from pys.log import LOGGER, CONSOLER
 from pys.error.exp import MCError
 from pys.conf import mconf
 
+
 def build_config_ini(_data_dir):
     """[-- build create config_ini]
 
@@ -116,14 +117,14 @@ def build_config_ini(_data_dir):
         try:
             # get node cert
             shutil.copy('{}/.config.ini'.format(conf_dir),
-                            '{}/config.ini'.format(node_dir))
+                        '{}/config.ini'.format(node_dir))
             shutil.copy('{}/group.{}.genesis'.format(conf_dir, group_id),
-                            '{}/conf/group.{}.genesis'.format(node_dir, group_id))
+                        '{}/conf/group.{}.genesis'.format(node_dir, group_id))
             shutil.copy('{}/tpl/group.i.ini'.format(path.get_path()),
                         '{}/conf/group.{}.ini'.format(node_dir, group_id))
             if gm_opr:
                 get_node_cert('{}/cert_{}_{}.crt'.format(meta_dir, node_ip,
-                                                           p2p_listen_port[my_node_index]),
+                                                         p2p_listen_port[my_node_index]),
                               '{}/conf/gmnode.crt'.format(node_dir))
                 get_nodeid('{}/conf/gmnode.crt'.format(node_dir),
                            '{}/conf/gmnode.nodeid'.format(node_dir))
@@ -251,17 +252,17 @@ def get_nodeid(get_path, send_path):
     try:
         if utils.Status.gm_option:
             (status, result) = utils.getstatusoutput('~/.tassl x509  -text -in {}'
-                                                    ' | sed -n "15,20p" |  sed '
-                                                    '"s/://g" | sed "s/pub//g" |'
-                                                    ' tr "\n" " " | sed "s/ //g"'
-                                                    ' cut -c 3-130| cat >{}'
+                                                     ' | sed -n "15,20p" |  sed '
+                                                     '"s/://g" | sed "s/pub//g" |'
+                                                     ' tr "\n" " " | sed "s/ //g"'
+                                                     ' cut -c 3-130| cat >{}'
                                                      .format(get_path, send_path))
         else:
             (status, result) = utils.getstatusoutput('openssl x509  -text -in {}'
-                                                    ' | sed -n "15,20p" |  sed "s/://g"'
-                                                    ' | tr "\n" " " | sed "s/ //g" |'
-                                                    ' cut -c 3-130| cat >{}'
-                                                    .format(get_path, send_path))
+                                                     ' | sed -n "15,20p" |  sed "s/://g"'
+                                                     ' | tr "\n" " " | sed "s/ //g" |'
+                                                     ' cut -c 3-130| cat >{}'
+                                                     .format(get_path, send_path))
         if status != 0:
             LOGGER.error(
                 ' create nodeid failed! status is %d, output is %s, dir is %s.',
@@ -300,17 +301,17 @@ def get_nodeid_str(get_path):
     try:
         if utils.Status.gm_option:
             (status, result) = utils.getstatusoutput('~/.tassl x509  -text -in {}'
-                                                    ' | sed -n "15,20p" |  sed '
-                                                    '"s/://g" | sed "s/pub//g" |'
-                                                    ' tr "\n" " " | sed "s/ //g"'
-                                                    ' | cut -c 3-130'.format(get_path))
+                                                     ' | sed -n "15,20p" |  sed '
+                                                     '"s/://g" | sed "s/pub//g" |'
+                                                     ' tr "\n" " " | sed "s/ //g"'
+                                                     ' | cut -c 3-130'.format(get_path))
             result = result.split('\n')[0]
         else:
             (status, result) = utils.getstatusoutput('openssl x509  -text -in {}'
-                                                    ' | sed -n "15,20p" |  sed '
-                                                    '"s/://g" | sed "s/pub//g" |'
-                                                    ' tr "\n" " " | sed "s/ //g"'
-                                                    ' | cut -c 3-130'.format(get_path))
+                                                     ' | sed -n "15,20p" |  sed '
+                                                     '"s/://g" | sed "s/pub//g" |'
+                                                     ' tr "\n" " " | sed "s/ //g"'
+                                                     ' | cut -c 3-130'.format(get_path))
 
         if status != 0:
             LOGGER.error(
