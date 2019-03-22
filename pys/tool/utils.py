@@ -513,3 +513,40 @@ def download_bin(_download_link, _package_name):
         urllib.request.urlretrieve(_download_link, _package_name, _hook_func)
     else:
         urllib.urlretrieve(_download_link, _package_name, _hook_func)
+
+
+def check_fisco(_file):
+    """checkfisco
+    """
+    bin_fisco = _file
+    CONSOLER.info(" Checking fisco-bcos binary...")
+    LOGGER.info(" Checking fisco-bcos binary...")
+    (status, bin_version)\
+        = getstatusoutput('{} -v'.format(bin_fisco))
+    if bool(status):
+            LOGGER.error(
+                'Checking fisco-bcos failed! status is %d, output is %s, dir is %s.', status, bin_version, bin_fisco)
+            raise MCError('Checking fisco-bcos failed! status is %d, output is %s, dir is %s.' % (
+                status, bin_version, bin_fisco))
+    if not 'FISCO-BCOS' in bin_version:
+        LOGGER.error("%s is wrong. Please correct it and try again.", bin_fisco)
+        raise Exception("%s is wrong. Please correct it and try again." % bin_fisco)   
+    if Status.gm_option:
+        if not 'gm' in bin_version:  
+            LOGGER.error(
+                'Checking fisco-bcos failed! %s isn\'t gm version. Please correct it and try again.', bin_fisco)
+            raise MCError('Checking fisco-bcos failed! %s isn\'t gm version. Please correct it and try again' % bin_version)
+    else:
+        if 'gm' in bin_version:
+            LOGGER.error(
+                'Checking fisco-bcos failed! %s isn\'t standard version. Please correct it and try again.', bin_fisco)
+            raise MCError('Checking fisco-bcos failed! %s isn\'t standard version. Please correct it and try again.' % bin_version)
+    CONSOLER.info(' Binary check passed.')
+    LOGGER.info(' Binary check passed.')
+    
+
+
+
+
+
+

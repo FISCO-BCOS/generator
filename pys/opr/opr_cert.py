@@ -59,56 +59,53 @@ def gen_build_cert(_dir):
         LOGGER.info("p2p_ip -> %s", node_ip)
         CONSOLER.info(' Generate %s/node_%s_%s ',
                       data_path, node_ip, p2p_listen_port[my_node_index])
-        if os.path.exists('{}/cert_{}_{}.crt'.format(meta_path,
-                                                     node_ip,
-                                                     p2p_listen_port[my_node_index])):
-            CONSOLER.error(('%s/cert_%s_%s.crt exist!!!', meta_path,
-                            node_ip,
-                            p2p_listen_port[my_node_index]))
-            LOGGER.error(('%s/cert_%s_%s.crt exist!!!', meta_path,
-                          node_ip,
-                          p2p_listen_port[my_node_index]))
-            raise MCError(
-                '%s/cert_%s_%s.crt exist!!!' % (meta_path,
-                                                node_ip,
-                                                p2p_listen_port[my_node_index]))
+        if utils.Status.gm_option:
+            utils.file_must_not_exists('{}/gmcert_{}_{}.crt'.format(meta_path,
+                                                                node_ip,
+                                                                p2p_listen_port[my_node_index]))
         else:
-            ca.generator_node_ca(data_path, '{}/'.format(meta_path),
-                                 'node_{}_{}'.format(node_ip, p2p_listen_port[my_node_index]))
             utils.file_must_not_exists('{}/cert_{}_{}.crt'.format(meta_path,
-                                                                  node_ip,
-                                                                  p2p_listen_port[my_node_index]))
-            if utils.Status.gm_option:
-                utils.off_gm()
-                ca.generator_node_ca('./', meta_path, '.origin_cert')
-                shutil.copytree('./.origin_cert', '{}/node_{}_{}/origin_cert'.format(
-                    data_path, node_ip, p2p_listen_port[my_node_index]))
-                shutil.rmtree('./.origin_cert')
-                utils.set_gm()
-                shutil.copyfile('{}/node_{}_{}/gmnode.crt'.format(data_path,
-                                                                  node_ip,
-                                                                  p2p_listen_port[my_node_index]),
-                                '{}/cert_{}_{}.crt'.format(meta_path,
-                                                           node_ip,
-                                                           p2p_listen_port[my_node_index]))
-            else:
-                shutil.copyfile('{}/node_{}_{}/node.crt'.format(data_path,
+                                                                node_ip,
+                                                                p2p_listen_port[my_node_index]))
+        ca.generator_node_ca(data_path, '{}/'.format(meta_path),
+                                 'node_{}_{}'.format(node_ip, p2p_listen_port[my_node_index]))
+        if utils.Status.gm_option:
+            utils.off_gm()
+            ca.generator_node_ca('./', meta_path, '.origin_cert')
+            shutil.copytree('./.origin_cert', '{}/node_{}_{}/origin_cert'.format(
+                data_path, node_ip, p2p_listen_port[my_node_index]))
+            shutil.rmtree('./.origin_cert')
+            utils.set_gm()
+            shutil.copyfile('{}/node_{}_{}/gmnode.crt'.format(data_path,
                                                                 node_ip,
                                                                 p2p_listen_port[my_node_index]),
-                                '{}/cert_{}_{}.crt'.format(meta_path,
-                                                           node_ip,
-                                                           p2p_listen_port[my_node_index]))
+                            '{}/gmcert_{}_{}.crt'.format(meta_path,
+                                                        node_ip,
+                                                        p2p_listen_port[my_node_index]))
+            shutil.copyfile('{}/gmcert_{}_{}.crt'.format(meta_path,
+                                                    node_ip,
+                                                    p2p_listen_port[my_node_index]),
+                        '{}/gmcert_{}_{}.crt'.format(cert_path,
+                                                    node_ip,
+                                                    p2p_listen_port[my_node_index]))
+        else:
+            shutil.copyfile('{}/node_{}_{}/node.crt'.format(data_path,
+                                                            node_ip,
+                                                            p2p_listen_port[my_node_index]),
+                            '{}/cert_{}_{}.crt'.format(meta_path,
+                                                        node_ip,
+                                                        p2p_listen_port[my_node_index]))
             shutil.copyfile('{}/cert_{}_{}.crt'.format(meta_path,
                                                        node_ip,
                                                        p2p_listen_port[my_node_index]),
                             '{}/cert_{}_{}.crt'.format(cert_path,
                                                        node_ip,
                                                        p2p_listen_port[my_node_index]))
-            (status, result) = \
-                utils.getstatusoutput('echo {}:{} >> {}/peers.txt'
-                                      .format(node_ip,
-                                              p2p_listen_port[my_node_index],
-                                              cert_path))
+        (status, result) = \
+            utils.getstatusoutput('echo {}:{} >> {}/peers.txt'
+                                    .format(node_ip,
+                                            p2p_listen_port[my_node_index],
+                                            cert_path))
         LOGGER.info(" status is %s, result is %s", status, result)
     CONSOLER.info(" Generate cert by node_installation.ini successful!")
 
