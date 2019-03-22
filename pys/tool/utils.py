@@ -15,6 +15,64 @@ from pys.log import LOGGER, CONSOLER
 from pys.error.exp import MCError
 
 
+class Status(object):
+    """[gm Status]
+
+    Arguments:
+        object {[type]} -- [description]
+    """
+
+    gm_option = False
+    unit_time = False
+
+    def __init__(self):
+        """[init]
+        """
+
+        self. gm_option = False
+
+    def get_gm_staus(self):
+        """[get gm_option]
+
+
+        Returns:
+            [string] -- [gm]
+        """
+        return self.gm_option
+
+    def get_ut_status(self):
+        """[get unit_time]
+
+        Returns:
+            [string] -- [rpc_ip]
+        """
+        return self.unit_time
+
+
+def set_gm():
+    """[set gm]
+    """
+
+    Status.gm_option = True
+
+
+def off_gm():
+    """[off gm]
+    """
+
+    Status.gm_option = False
+
+
+def get_status():
+    """[get gm or not]
+
+    Returns:
+        [bool] -- [true of false]
+    """
+
+    return Status.gm_option
+
+
 def valid_chain_id(chain_id):
     """[Determine if the chain id is valid]
 
@@ -349,8 +407,10 @@ def download_fisco(_dir):
     """
     bin_path = _dir
     # bcos_bin_name = 'fisco-bcos'
-    package_name = "fisco-bcos.tar.gz"
-
+    if Status.gm_option:
+        package_name = "fisco-bcos-gm.tar.gz"
+    else:
+        package_name = "fisco-bcos.tar.gz"
     (status, version) \
         = getstatusoutput('curl -s https://raw.githubusercontent.com/'
                           'FISCO-BCOS/FISCO-BCOS/master/release_note.txt | sed "s/^[vV]//"')
@@ -453,3 +513,43 @@ def download_bin(_download_link, _package_name):
         urllib.request.urlretrieve(_download_link, _package_name, _hook_func)
     else:
         urllib.urlretrieve(_download_link, _package_name, _hook_func)
+
+
+def check_fisco(_file):
+    """checkfisco
+    """
+    bin_fisco = _file
+    CONSOLER.info(" Checking fisco-bcos binary...")
+    LOGGER.info(" Checking fisco-bcos binary...")
+    (status, bin_version)\
+        = getstatusoutput('{} -v'.format(bin_fisco))
+    if bool(status):
+        LOGGER.error(
+            'Checking fisco-bcos failed! status is %d,'
+            ' output is %s, dir is %s.', status, bin_version, bin_fisco)
+        raise MCError('Checking fisco-bcos failed!'
+                      ' status is %d, output is %s, dir is %s.' % (
+                          status, bin_version, bin_fisco))
+    if not 'FISCO-BCOS' in bin_version:
+        LOGGER.error(
+            "%s is wrong. Please correct it and try again.", bin_fisco)
+        raise Exception(
+            "%s is wrong. Please correct it and try again." % bin_fisco)
+    if Status.gm_option:
+        if not 'gm' in bin_version:
+            LOGGER.error(
+                'Checking fisco-bcos failed! %s isn\'t '
+                'gm version. Please correct it and try again.', bin_fisco)
+            raise MCError(
+                'Checking fisco-bcos failed! %s isn\'t '
+                'gm version. Please correct it and try again' % bin_version)
+    else:
+        if 'gm' in bin_version:
+            LOGGER.error(
+                'Checking fisco-bcos failed! %s isn\'t '
+                'standard version. Please correct it and try again.', bin_fisco)
+            raise MCError(
+                'Checking fisco-bcos failed! %s isn\'t '
+                'standard version. Please correct it and try again.' % bin_version)
+    CONSOLER.info(' Binary check passed.')
+    LOGGER.info(' Binary check passed.')
