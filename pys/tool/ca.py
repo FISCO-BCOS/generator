@@ -8,12 +8,10 @@ Raises:
 """
 
 import os
-
 from pys.tool import utils
 from pys import path
 from pys.log import LOGGER, CONSOLER, console_error
 from pys.error.exp import MCError
-from pys.build import config
 
 
 def generate_root_ca(_dir):
@@ -24,7 +22,7 @@ def generate_root_ca(_dir):
     """
     try:
         ca_dir = os.path.abspath(_dir)
-        if config.Status.gm_option:
+        if utils.Status.gm_option:
             os.chdir('{}/scripts/gm/'.format(path.get_path()))
             (status, result) = utils.getstatusoutput('./cts.sh gen_chain_cert {}'
                                                      .format(ca_dir))
@@ -34,8 +32,8 @@ def generate_root_ca(_dir):
             (status, result) = utils.getstatusoutput('./cts.sh gen_chain_cert {}'
                                                      .format(ca_dir))
             os.chdir('{}'.format(path.get_path()))
-        if status != 0:
-            LOGGER.warn(
+        if bool(status):
+            LOGGER.error(
                 ' cts.sh failed! status is %d, output is %s, dir is %s.', status, result, ca_dir)
             raise MCError('cts.sh failed! status is %d, output is %s, dir is %s.' % (
                 status, result, dir))
@@ -64,7 +62,7 @@ def generator_agent_ca(_dir, _ca, agent):
     try:
         ca_dir = os.path.abspath(_ca)
         agency_dir = os.path.abspath(_dir)
-        if config.Status.gm_option:
+        if utils.Status.gm_option:
             os.chdir('{}/scripts/gm/'.format(path.get_path()))
             (status, result) = utils.getstatusoutput('./cts.sh'
                                                      ' gen_agency_cert {} {}/{}'
@@ -78,7 +76,7 @@ def generator_agent_ca(_dir, _ca, agent):
                                                      .format(ca_dir,
                                                              agency_dir, agent))
             os.chdir('{}'.format(path.get_path()))
-        if not status:
+        if not bool(status):
             LOGGER.info(' Generate %s cert successful! dir is %s/%s.',
                         agent, agency_dir, agent)
         else:
@@ -97,8 +95,6 @@ def generator_agent_ca(_dir, _ca, agent):
         LOGGER.error('  Generate agency cert failed! Result is %s', result)
         raise MCError(
             'Generate agency agency failed! Result is %s' % gen_cert_exp)
-    CONSOLER.info(' Generate agency cert success, dir is %s/%s',
-                  agency_dir, agent)
 
 
 def generator_node_ca(_dir, agent, node):
@@ -112,7 +108,7 @@ def generator_node_ca(_dir, agent, node):
     node_dir = os.path.abspath(_dir)
     agent = os.path.abspath(agent)
     try:
-        if config.Status.gm_option:
+        if utils.Status.gm_option:
             os.chdir('{}/scripts/gm/'.format(path.get_path()))
             (status, result) = utils.getstatusoutput('./cts.sh'
                                                      ' gen_node_cert {} {}/{}'
@@ -126,19 +122,27 @@ def generator_node_ca(_dir, agent, node):
                                                      .format(
                                                          agent, node_dir, node))
             os.chdir('{}'.format(path.get_path()))
-        if not status:
+        if not bool(status):
             LOGGER.info(' Generate %s cert successful! dir is %s/%s.',
                         node, node_dir, node)
             os.chdir('{}'.format(path.get_path()))
-            os.system('cat {}/{}/agency.crt >> {}/{}/node.crt'.format(
-                _dir, node, _dir, node))
-            os.remove('{}/{}/agency.crt'.format(_dir, node))
-            os.remove('{}/{}/node.ca'.format(_dir, node))
-            os.remove('{}/{}/node.json'.format(_dir, node))
-            os.remove('{}/{}/node.private'.format(_dir, node))
-            os.remove('{}/{}/node.serial'.format(_dir, node))
-            os.remove('{}/{}/node.param'.format(_dir, node))
-            os.remove('{}/{}/node.pubkey'.format(_dir, node))
+            if utils.Status.gm_option:
+                (status, result) = utils.getstatusoutput('cat {}/{}/gmagency.crt '
+                                                         '>> {}/{}/gmnode.crt'.format(
+                                                             _dir, node, _dir, node))
+                os.remove('{}/{}/gmagency.crt'.format(_dir, node))
+                os.remove('{}/{}/gmnode.serial'.format(_dir, node))
+            else:
+                (status, result) = utils.getstatusoutput('cat {}/{}/agency.crt '
+                                                         '>> {}/{}/node.crt'.format(
+                                                             _dir, node, _dir, node))
+                os.remove('{}/{}/agency.crt'.format(_dir, node))
+                os.remove('{}/{}/node.ca'.format(_dir, node))
+                os.remove('{}/{}/node.json'.format(_dir, node))
+                os.remove('{}/{}/node.private'.format(_dir, node))
+                os.remove('{}/{}/node.serial'.format(_dir, node))
+                os.remove('{}/{}/node.param'.format(_dir, node))
+                os.remove('{}/{}/node.pubkey'.format(_dir, node))
         else:
             console_error(
                 '  Generate node cert failed! Please check your network,'
@@ -154,63 +158,4 @@ def generator_node_ca(_dir, agent, node):
             '  Generate node cert failed! excepion is %s.' % gen_cert_exp)
         LOGGER.error('  Generate node cert failed! Result is %s', result)
         raise MCError(
-            'Generate root node failed! Result is %s' % gen_cert_exp)
-    CONSOLER.info(' Generate node cert success, dir is %s/%s', node_dir, node)
-
-
-def generator_sdk_ca(_dir, agent, sdk):
-    """[generate node cert ]
-
-    Arguments:
-        agent {[path]} -- [agency cert path]
-        node {[string]} -- [sdk name]
-        _dir {[path]} -- [sdk cert path]
-    """
-    sdk_dir = os.path.abspath(_dir)
-    agent = os.path.abspath(agent)
-    try:
-        if config.Status.gm_option:
-            os.chdir('{}/scripts/gm/'.format(path.get_path()))
-            (status, result) = utils.getstatusoutput('./cts.sh'
-                                                     ' gen_node_cert {} {}/{}'
-                                                     .format(
-                                                         agent, sdk_dir, sdk))
-            os.chdir('{}'.format(path.get_path()))
-        else:
-            os.chdir('{}/scripts/'.format(path.get_path()))
-            (status, result) = utils.getstatusoutput('./cts.sh'
-                                                     ' gen_node_cert {} {}/{}'
-                                                     .format(
-                                                         agent, sdk_dir, sdk))
-            os.chdir('{}'.format(path.get_path()))
-            os.system('cat {}/{}/agency.crt >> {}/{}/node.crt'.format(
-                _dir, sdk, _dir, sdk))
-            os.remove('{}/{}/agency.crt'.format(_dir, sdk))
-            os.remove('{}/{}/node.ca'.format(_dir, sdk))
-            os.remove('{}/{}/node.json'.format(_dir, sdk))
-            os.remove('{}/{}/node.nodeid'.format(_dir, sdk))
-            os.remove('{}/{}/node.private'.format(_dir, sdk))
-            os.remove('{}/{}/node.serial'.format(_dir, sdk))
-            os.remove('{}/{}/node.param'.format(_dir, sdk))
-            os.remove('{}/{}/node.pubkey'.format(_dir, sdk))
-        if not status:
-            LOGGER.info(' Generate %s cert successful! dir is %s/%s.',
-                        sdk, sdk_dir, sdk)
-            os.chdir('{}'.format(path.get_path()))
-        else:
-            console_error(
-                '  Generate node cert failed! Please check your network,'
-                ' and try to check your opennssl version.')
-            LOGGER.error('  Generate %s cert failed! Result is %s',
-                         sdk, result)
-            raise MCError(' Generate %s cert failed! Result is %s' %
-                          (sdk, result))
-    except MCError as cert_exp:
-        console_error('  %s ' % cert_exp)
-    except Exception as gen_cert_exp:
-        console_error(
-            '  Generate node cert failed! excepion is %s.' % gen_cert_exp)
-        LOGGER.error('  Generate node cert failed! Result is %s', result)
-        raise MCError(
-            'Generate root node failed! Result is %s' % gen_cert_exp)
-    CONSOLER.info(' Generate node cert success, dir is %s/%s', sdk_dir, sdk)
+            'Generate node failed! Result is %s' % gen_cert_exp)
