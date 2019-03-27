@@ -1,30 +1,30 @@
 #!/bin/bash
 dirpath="$(cd "$(dirname "$0")" && pwd)"
 cd $dirpath
-g_debug="false"
-rpc_ip=
-rpc_port=
-node_list=
-node_count=0
-node_idx=0
-mem_thres=20
-cpu_thres=600
-group_list_str=
-program="fisco-bcos"
-alert_reciver="asherli"
-alert_title="fisco-bcos-2.0-monitor:"(date)
-reciver_addr=https://sc.ftqq.com/SCU44538T27d765b798c1456ab1ecb42a2c986e665c63946211db0.send
+export g_debug="false"
+export rpc_ip=
+export rpc_port=
+export node_list=
+export node_count=0
+export node_idx=0
+export mem_thres=20
+export cpu_thres=600
+export group_list_str=
+export program="fisco-bcos"
+export alert_reciver="asherli"
+export alert_title="fisco-bcos-2.0-monitor:"(date)
+export reciver_addr=https://sc.ftqq.com/SCU44538T27d765b798c1456ab1ecb42a2c986e665c63946211db0.send
 LOG_ERROR()
 {
     content=${1}
-    time=`date "+%Y-%m-%d %H:%M:%S"`
+    time=$(date "+%Y-%m-%d %H:%M:%S")
     echo -e "\033[31m"[${time}] ${content}"\033[0m"
 }
 
 LOG_INFO()
 {
     content=${1}
-    time=`date "+%Y-%m-%d %H:%M:%S"`
+    time=$(date "+%Y-%m-%d %H:%M:%S")
     echo -e "\033[32m"[${time}] ${content}"\033[0m"
 }
 
@@ -51,8 +51,8 @@ function debug()
 alarm() {
    # do serverchan
    echo "${alert_title}: $1"
-   alert_ip=`/sbin/ifconfig eth0 | grep inet | awk '{print $2}'`
-   time=`date "+%Y-%m-%d %H:%M:%S"`
+   alert_ip=$(/sbin/ifconfig eth0 | grep inet | awk '{print $2}')
+   time=$(date "+%Y-%m-%d %H:%M:%S")
    system_id=123
    curl --data "text=${alert_title}" --data "desp={alertList:[{'alert_title':'$alert_ip','sub_system_id':'$system_id','alert_info':'$time:$1','alert_ip':'$alert_ip','alert_reciver':'$alert_reciver'}]}" $reciver_addr
 }
@@ -130,10 +130,10 @@ function get_total_consensus_node_count()
 # check cpu and memory
 function check_resource()
 {
-    local node_name=`basename "${1}"`
+    local node_name=$(basename "${1}")
     local node_dir="${node_name}/fisco-bcos"
-    local cpu_usage=`ps aux | grep ${program} | grep -v grep | grep ${node_dir} | awk '{print $3}'`
-    local mem_usage=`ps aux | grep ${program} | grep -v grep | grep ${node_dir} | awk '{print $4}'`
+    local cpu_usage=$(ps aux | grep ${program} | grep -v grep | grep ${node_dir} | awk '{print $3}')
+    local mem_usage=$(ps aux | grep ${program} | grep -v grep | grep ${node_dir} | awk '{print $4}')
     ret=0
     if [ `echo "$mem_usage>$mem_thres" | bc` -eq "1" ];then
         error_msg="[node: ${node_name}, mem_thres: ${mem_thres}, cur_mem: ${mem_usage}, cur_cpu: [${cpu_usage}]] in use of over-threshold memory"
@@ -153,7 +153,7 @@ function check_resource()
 function check_process()
 {
     local restart="${1}"
-    local node_name=`basename "${2}"`
+    local node_name=$(basename "${2}")
     local node_dir="${node_name}/fisco-bcos"
     # check if process id exist
     fisco_pwd=$(ps aux | grep  "$node_dir" |grep "${program}"|grep -v "grep")
@@ -187,7 +187,7 @@ function check_pbft_view()
     local restart="${2}"
     local startfile="${3}"
     local node_dir="${4}"
-    local node=`basename ${node_dir}`
+    local node=$(basename ${node_dir})
     # get blocknumber
     height_json=$(execRpcCommand "false" "getBlockNumber" ${group_id})
     height=$(get_json_value ${height_json} "result" | cut -d'[' -f2 | cut -d']' -f1)
@@ -671,7 +671,7 @@ function do_log_analyze_by_time_point()
 
 	        LOG_INFO " #log parser, $(date -d @$time_point +"%Y-%m-%d %H:%M:%S")"
 
-	        if [[ $g_debug == "true" ]];then
+	        if [[ ${g_debug} == "true" ]];then
         	        sed -n "/$log_min_time/p" $nodedir/log/$log_file 2>/dev/null > $nodedir/$time_point"_test.log"
         	fi
 	        for group in ${group_list[*]};do
