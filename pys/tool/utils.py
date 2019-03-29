@@ -485,10 +485,10 @@ def download_console(_dir):
     download_bin(download_link, package_name)
     # subprocess.call('curl -LO {}'.format(download_link), shell=True)
     (status, result)\
-        = getstatusoutput('tar -zxf {} && mv '
-                          './console {}/console && rm {}'.format(package_name,
-                                                                 bin_path,
-                                                                 package_name))
+        = getstatusoutput('tar -zxf {} -C {} && '
+                          'rm {}'.format(package_name,
+                                                    bin_path,
+                                                    package_name))
     if bool(status):
         LOGGER.error(
             ' Decompress console failed, result is %s.', result)

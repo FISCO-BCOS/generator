@@ -526,7 +526,7 @@ def get_console_file(_file):
             ' append console channel_addr failed, result is %s.', result)
         raise MCError(
             ' append console channel_addr failed, result is %s.' % result)
-    line_num = int(result) + 2
+    line_num = int(result) + 1
     for channel in channel_addr:
         (status, result) \
             = utils.getstatusoutput('sed -i "{} a'
