@@ -3,13 +3,20 @@ jobs:
   build:  # required for runs that don't use workflows
     working_directory: ~/generator
     docker:
-      - image: circleci/python:2.7  # primary container for the build job
+      - image: circleci/python:3.6.4  # primary container for the build job
     steps:
       - checkout
       - run:
           name: Install dependencies
           command: |
             bash ./scripts/install.sh
+            whereis python
+            python -V
+            /usr/bin/python -V
+            python -m pip install configparser
+            sed -i 's?#!/usr/bin/python?#!/usr/local/bin/python3.6?' ./generator
+            cat ./generator
+            # export PATH=/home/circleci/.local/lib/python3.6/site-packages:$PATH
             sudo apt-get -y install curl
       - run:
           name: Download fisco-bcos
