@@ -3,7 +3,7 @@ jobs:
   build:  # required for runs that don't use workflows
     working_directory: ~/generator
     docker:
-      - image: circleci/python:2.7  # primary container for the build job
+      - image: circleci/python:3.6.4  # primary container for the build job
     steps:
       - checkout
       - run:
