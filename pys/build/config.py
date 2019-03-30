@@ -131,16 +131,16 @@ def build_config_ini(_data_dir):
                 get_node_cert('{}/gmcert_{}_{}.crt'.format(meta_dir, node_ip,
                                                            p2p_listen_port[my_node_index]),
                               '{}/conf/gmnode.crt'.format(node_dir))
-                get_nodeid('{}/conf/gmnode.crt'.format(node_dir),
-                           '{}/conf/gmnode.nodeid'.format(node_dir))
+                # get_nodeid('{}/conf/gmnode.crt'.format(node_dir),
+                #            '{}/conf/gmnode.nodeid'.format(node_dir))
                 shutil.copyfile('{}/gmca.crt'.format(meta_dir),
                                 '{}/conf/gmca.crt'.format(node_dir))
             else:
                 get_node_cert('{}/cert_{}_{}.crt'.format(meta_dir, node_ip,
                                                          p2p_listen_port[my_node_index]),
                               '{}/conf/node.crt'.format(node_dir))
-                get_nodeid('{}/conf/node.crt'.format(node_dir),
-                           '{}/conf/node.nodeid'.format(node_dir))
+                # get_nodeid('{}/conf/node.crt'.format(node_dir),
+                #            '{}/conf/node.nodeid'.format(node_dir))
                 shutil.copyfile('{}/ca.crt'.format(meta_dir),
                                 '{}/conf/ca.crt'.format(node_dir))
         except Exception as build_exp:
