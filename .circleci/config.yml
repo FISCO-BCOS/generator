@@ -87,6 +87,7 @@ jobs:
             cat ./agencyB_send/peers.txt >> ./peers.txt
             cat ./agencyC_send/peers.txt >> ./peers.txt
             ./generator --build_install_package ./peers.txt ./nodeA
+            cat ./nodeA/node_127.0.0.1_30300/conf/node.nodeid
             bash ./nodeA/start_all.sh
       - run:
           name: Build agencyB nodes
