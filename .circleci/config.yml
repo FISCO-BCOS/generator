@@ -181,8 +181,10 @@ jobs:
           command: |
             cd ~/generator-A
             cd nodeA/monitor
+            sudo apt-get install bc
+            sudo apt-get install gawk
             bash ./monitor.sh -o ~/generator-A/nodeA/
-            bash ./monitor.sh -m statistics -f ~/generator-A/nodeA/node_127.0.0.1_30300/log/log* -g 1
+            bash ./monitor.sh -m statistics -f ~/generator-C/nodeC/node_127.0.0.1_30305/log/log* -g 1
   CentOS:  # required for runs that don't use workflows
     working_directory: ~/generator
     docker:
@@ -352,6 +354,7 @@ jobs:
           command: |
             cd ~/generator-A
             cd nodeA/monitor
+            ls ~/generator-A/nodeA/node_127.0.0.1_30300/log/
             bash ./monitor.sh -m statistics -f ~/generator-A/nodeA/node_127.0.0.1_30300/log/log* -g 1
   build_gm:  # required for runs that don't use workflows
     working_directory: ~/generator
