@@ -314,7 +314,7 @@ function check_node_work_properly()
 # check all node of this server, if all node work well.
 function check_all_node_work_properly()
 {
-        for configfile in $ls $(dirpath/node*/config.ini)
+        for configfile in `ls $dirpath/node*/config.ini`
         do
             nodedir=$(dirname $configfile)
             echo "*******************check ${nodedir} START**********************"
@@ -709,7 +709,7 @@ function do_log_analyze_by_file()
 # 
 function do_all_log_analyze()
 {
-        for configfile in $(ls $dirpath/node*/config.ini)
+        for configfile in `ls $dirpath/node*/config.ini`
         do
                 nodedir=$(dirname $configfile)
     echo "  "

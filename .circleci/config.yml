@@ -176,6 +176,12 @@ jobs:
             # getPeers
             # deploy HelloWorld.sol
             # q
+      - run:
+          name: Test monitor.sh
+          command: |
+            cd ~/generator-A
+            cd nodeA/monitor
+            bash ./monitor.sh -m statistics -f ~/generator-A/nodeA/node_127.0.0.1_30300/log/log* -g 1
   CentOS:  # required for runs that don't use workflows
     working_directory: ~/generator
     docker:
@@ -340,6 +346,12 @@ jobs:
             cd ~/generator-A
             ./generator --download_console ./meta
             cat ./meta/console/conf/applicationContext.xml
+      - run:
+          name: Test monitor.sh
+          command: |
+            cd ~/generator-A
+            cd nodeA/monitor
+            bash ./monitor.sh -m statistics -f ~/generator-A/nodeA/node_127.0.0.1_30300/log/log* -g 1
   build_gm:  # required for runs that don't use workflows
     working_directory: ~/generator
     docker:
