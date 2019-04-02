@@ -36,7 +36,7 @@ def create_group_genesis(data_dir='{}/meta'.format(path.get_path())):
     utils.file_must_not_exists(
         '{}/group.{}.genesis'.format(data_dir, group_id))
     if not os.path.exists(package_dir):
-        LOGGER.warning(' ./data not existed!')
+        LOGGER.warning(' %s not existed!', package_dir)
         os.mkdir(data_dir)
     shutil.copy('{}/tpl/group.i.genesis'.format(path.get_path()),
                 '{}/group.{}.genesis'.format(package_dir, group_id))
