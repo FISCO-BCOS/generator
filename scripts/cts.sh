@@ -112,7 +112,20 @@ gen_cert_secp256k1() {
     name="$3"
     type="$4"
     openssl ecparam -out $certpath/${type}.param -name secp256k1
-    openssl genpkey -paramfile $certpath/${type}.param -out $certpath/${type}.key
+    while :
+    do
+        openssl genpkey -paramfile $certpath/${type}.param -out $certpath/${type}.key
+        privateKey=$(openssl ec -in $certpath/${type}.key -text 2> /dev/null| sed -n '3,5p' | sed 's/://g'| tr "\n" " "|sed 's/ //g')
+        openssl ec -in $certpath/${type}.key -text 2> /dev/null| sed -n '3,5p' | sed 's/://g'| tr "\n" " "|sed 's/ //g'
+        len=${#privateKey}
+        head2=${privateKey:0:2}
+        if [ "64" != "${len}" ] || [ "00" == "$head2" ];then
+            rm $certpath/${type}.key
+
+            continue;
+        fi
+        break;
+    done
     openssl pkey -in $certpath/${type}.key -pubout -out $certpath/${type}.pubkey
     openssl req -new -sha256 -subj "/CN=${name}/O=fisco-bcos/OU=${type}" -key $certpath/${type}.key -config $capath/cert.cnf -out $certpath/${type}.csr
     openssl x509 -req -days 3650 -sha256 -in $certpath/${type}.csr -CAkey $capath/agency.key -CA $capath/agency.crt\
