@@ -13,7 +13,7 @@ import configparser
 import codecs
 from pys.tool import utils
 # from pys import path
-from pys.log import LOGGER
+from pys.log import LOGGER, CONSOLER
 from pys.error.exp import MCError
 
 
@@ -161,13 +161,26 @@ def parser(mchain):
         if config_parser.has_section(node_index):
             p2p_ip = config_parser.get(node_index, 'p2p_ip')
             rpc_ip = config_parser.get(node_index, 'rpc_ip')
-            if not utils.valid_ip(rpc_ip):
+            if not utils.valid_ip(p2p_ip):
                 LOGGER.error(
-                    ' invalid node_installation.ini format, rpc_ip is %s, jsonrpc_port is %s',
-                    p2p_ip, rpc_ip)
+                    ' invalid node_installation.ini format, p2p_ip is %s',
+                    p2p_ip)
                 raise MCError(
-                    ' invalid node_installation.ini format, p2p_ip is %s, rpc_ip is %s'
-                    % (p2p_ip, rpc_ip))
+                    ' invalid node_installation.ini format, p2p_ip is %s'
+                    % p2p_ip)
+            # if  rpc_ip == "0.0.0.0" and utils.Status.allow_unsecure_cfg:
+            if rpc_ip == "0.0.0.0":
+                LOGGER.warning(
+                    'Your rpc_ip is %s, this is an unsecurity way', rpc_ip)
+                CONSOLER.warning(
+                    ' \033[1;31m Your rpc_ip is %s, this is an unsecurity way \033[0m', rpc_ip)
+            elif not utils.valid_ip(rpc_ip):
+                LOGGER.error(
+                    ' invalid node_installation.ini format, rpc_ip is %s',
+                    rpc_ip)
+                raise MCError(
+                    ' invalid node_installation.ini format, rpc_ip is %s'
+                    % rpc_ip)
             p2p_listen_port = config_parser.get(node_index, 'p2p_listen_port')
             jsonrpc_listen_port = config_parser.get(
                 node_index, 'jsonrpc_listen_port')

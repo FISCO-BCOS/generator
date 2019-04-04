@@ -27,6 +27,7 @@ class Status(object):
 
     gm_option = False
     unit_time = False
+    allow_unsecure_cfg = False
 
     def __init__(self):
         """[init]
@@ -50,6 +51,12 @@ class Status(object):
             [string] -- [rpc_ip]
         """
         return self.unit_time
+
+    def set_allow_unsecure_cfg(self):
+        """[summary]
+        """
+
+        self.allow_unsecure_cfg = True
 
 
 def set_gm():
@@ -487,8 +494,8 @@ def download_console(_dir):
     (status, result)\
         = getstatusoutput('tar -zxf {} -C {} && '
                           'rm {}'.format(package_name,
-                                                    bin_path,
-                                                    package_name))
+                                         bin_path,
+                                         package_name))
     if bool(status):
         LOGGER.error(
             ' Decompress console failed, result is %s.', result)

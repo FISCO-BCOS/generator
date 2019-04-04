@@ -61,8 +61,8 @@ def build_config_ini(_data_dir):
     utils.file_must_exists('{}/group.{}.genesis'.format(meta_dir, group_id))
 
     if os.path.exists(package_dir):
-        LOGGER.error(' ./data existed, maybe u had created it!')
-        raise MCError(' ./data existed, maybe u had created it!')
+        LOGGER.error(' %s existed, maybe u had created it!', package_dir)
+        raise MCError(' %s existed, maybe u had created it!' % package_dir)
     os.mkdir(package_dir)
 
     default_cfg = configparser.ConfigParser()

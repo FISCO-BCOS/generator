@@ -50,8 +50,8 @@ def usage():
         ' and manage the chain  package with ansible. ')
 
     parser.add_argument('-v', '--version',
-                        action='store_true', help='show generator\'s version. ')
-
+                        action='store_true', help='show generator\'s version. ') 
+                            
     pkg_group = parser.add_argument_group(
         ' Build, Expand, Export, List Chain Package Options ')
 
@@ -181,7 +181,6 @@ def usage():
 def main():
     """[main]
     """
-
     try:
         init()
     except Exception as main_exp:
