@@ -12,10 +12,14 @@
     listen_port=30300
     ;nodes to connect
     node.0=
+
+    ;enable/disable network compress
+    enable_compress=
     
-;certificate rejected list		
-[crl]		
-    ;crl.0=4d9752efbb1de1253d1d463a934d34230398e787b3112805728525ed5b9d2ba29e4ad92c6fcde5156ede8baa5aca372a209f94dc8f283c8a4fa63e3787c338a4
+;certificate rejected list
+[certificate_blacklist]
+    ; crl.0 should be nodeid, nodeid's length is 128
+    ;crl.0=
 
 ;group configurations
 ;if need add a new group, eg. group2, can add the following configuration:
@@ -27,7 +31,7 @@
     group_config_path=conf/
 
 ;certificate configuration
-[secure]
+[network_security]
     ;directory the certificates located in
     data_path=conf/
     ;the node private key file
@@ -36,6 +40,21 @@
     cert=gmnode.crt
     ;the ca certificate file
     ca_cert=gmca.crt
+
+; storage security releated configurations
+[storage_security]
+; enable storage_security or not
+;enable=true
+; the IP of key mananger
+;key_manager_ip=
+; the Port of key manager
+;key_manager_port=
+;cipher_data_key=
+
+[chain]
+    id=1
+[compatibility]
+    supported_version=2.0.0-rc1
 
 ;log configurations
 [log]

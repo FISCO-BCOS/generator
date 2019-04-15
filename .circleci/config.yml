@@ -78,6 +78,7 @@ jobs:
             cp ./agencyB_send/* ./meta/
             cp ./agencyC_send/* ./meta/
             ./generator --create_group_genesis ./group
+            cat ./meta/group.1.genesis
             cp ./meta/group.1.genesis ~/generator-B/meta
             cp ./meta/group.1.genesis ~/generator-C/meta
       - run:
