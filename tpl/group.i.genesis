@@ -7,7 +7,7 @@ timestamp=${time_stamp}
     ;consensus algorithm type, now support PBFT(consensus_type=pbft) and Raft(consensus_type=raft)
     consensus_type=pbft
     ;the max number of transactions of a block
-    max_trans_num=10000
+    max_trans_num=1000
     ;the ttl of broadcasted pbft message
     ;ttl=2
     ;the node id of leaders
