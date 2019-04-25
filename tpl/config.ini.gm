@@ -39,23 +39,14 @@
 
 ;log configurations
 [log]
-    ;the directory of the log
-    LOG_PATH=./log
-    GLOBAL-ENABLED=true
-    GLOBAL-FORMAT=%level|%datetime{%Y-%M-%d %H:%m:%s:%g}|%msg
-    GLOBAL-MILLISECONDS_WIDTH=3
-    GLOBAL-PERFORMANCE_TRACKING=false
-    GLOBAL-MAX_LOG_FILE_SIZE=209715200
-    GLOBAL-LOG_FLUSH_THRESHOLD=100
-
-    ;log level configuration, enable(true)/disable(false) corresponding level log
-    FATAL-ENABLED=true
-    ERROR-ENABLED=true
-    WARNING-ENABLED=true
-    INFO-ENABLED=true
-    DEBUG-ENABLED=false
-    TRACE-ENABLED=false
-    VERBOSE-ENABLED=false
-    ;log level for boost log
-    Level=INFO
-    MaxLogFileSize=1677721600
+    ; the directory of the log
+    log_path=./log
+    ; info debug trace 
+    level=info
+    ; MB
+    max_log_file_size=200
+    ; control log auto_flush
+    flush=true
+    ; easylog config
+    format=%level|%datetime{%Y-%M-%d %H:%m:%s:%g}|%msg
+    log_flush_threshold=100
