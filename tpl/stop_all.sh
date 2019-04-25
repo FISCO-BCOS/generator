@@ -9,7 +9,3 @@ do
     fi  
 done
 sleep 2
-
-        # if [ "{directory}" == "monitor" ];then
-        #     continue;
-        # fi
