@@ -194,6 +194,7 @@ def build_config_ini(_data_dir):
     #             '{}/config.ini'.format(package_dir))
     os.mkdir(package_dir + '/scripts/')
     shutil.copy('{}/scripts/install.sh'.format(path.get_path()), package_dir + '/scripts/')
+    shutil.copy('{}/scripts/pack.sh'.format(path.get_path()), package_dir + '/scripts/')
     shutil.copy('{}/tpl/start_all.sh'.format(path.get_path()), package_dir)
     shutil.copy('{}/tpl/stop_all.sh'.format(path.get_path()), package_dir)
     shutil.copytree('{}/scripts/monitor'.format((path.get_path())),

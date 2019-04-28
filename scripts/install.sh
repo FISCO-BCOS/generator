@@ -99,12 +99,12 @@ install_all_deps()
     platform=$(echo $?)
     # platform=$(get_platform)
     if [ ${platform} -eq ${Ubuntu_Platform} ];then
-        sudo apt-get install python-pip
+        sudo apt-get -y install python-pip
         sudo apt-get -y install curl
         sudo apt-get -y install openssl
         # sudo apt-get -y install nc
     elif [ ${platform} -eq ${Centos_Platform} ];then
-        sudo yum install python-pip
+        sudo yum -y install python-pip
         sudo yum -y install openssl
         # sudo yum -y install nc
         sudo yum -y install curl
