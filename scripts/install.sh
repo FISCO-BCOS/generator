@@ -114,10 +114,16 @@ install_all_deps()
     fi
 }
 
+install_deps()
+{
+    sudo_permission_check
+    install_all_deps
+}
+
 install_all()
 {
     sudo_permission_check
-	install_all_deps
+    install_all_deps
     pip install configparser --user
     py_version=$($python_env -V 2>&1 | awk {'print $2'} | awk -F. {' print $1"."$2"."$3 '})
     # py_pip=$(pip -V 2>&1 | awk {'print $2'} | awk -F. {' print $1"."$2"."$3 '})
@@ -128,4 +134,8 @@ install_all()
     fi
 }
 
-install_all
+if [ "$1"=="deps" ];then
+    install_deps
+else
+    install_all
+fi
