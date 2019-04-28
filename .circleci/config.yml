@@ -52,6 +52,16 @@ jobs:
             cp -r ./agencyB_send ~/generator-A/
             cp -r ./agencyB_send/peers.txt ~/generator-C/peerB.txt
       - run:
+          name: check certificates
+          command: |
+            pwd
+            cd ~/generator-B
+            ls ./meta
+            cat ./meta/ca.crt
+            cat ./meta/cert_127.0.0.1_30302.crt
+            bash ./scripts/check_certificates.sh -t ./meta/ca.crt
+            bash ./scripts/check_certificates.sh -v ./meta/ca.crt ./meta/cert_127.0.0.1_30302.crt
+      - run:
           name: Generate agencyC certs and peers
           command: |
             cd ~/generator-C
