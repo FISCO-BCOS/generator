@@ -104,7 +104,7 @@ install_all_deps()
         sudo apt-get -y install openssl
         # sudo apt-get -y install nc
     elif [ ${platform} -eq ${Centos_Platform} ];then
-        sudo yum -y install python-pip
+        sudo yum install -y python-pip
         sudo yum -y install openssl
         # sudo yum -y install nc
         sudo yum -y install curl
@@ -122,8 +122,7 @@ install_deps()
 
 install_all()
 {
-    sudo_permission_check
-    install_all_deps
+    install_deps
     pip install configparser --user
     py_version=$($python_env -V 2>&1 | awk {'print $2'} | awk -F. {' print $1"."$2"."$3 '})
     # py_pip=$(pip -V 2>&1 | awk {'print $2'} | awk -F. {' print $1"."$2"."$3 '})
@@ -133,8 +132,7 @@ install_all()
         alarm " not invalid python path, path is ${python_env}."; exit 1;
     fi
 }
-
-if [ "$1"=="deps" ];then
+if [ "$1" == "deps" ];then
     install_deps
 else
     install_all
