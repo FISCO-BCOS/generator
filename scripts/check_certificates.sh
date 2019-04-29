@@ -11,8 +11,8 @@ help()
     echo $1
     cat << EOF
 Usage:
-    -t <check the validity period>     [Required] "certificates_path" eg "~/mydata/node.crt"
-    -v <check the root certificate>    [Required] "root_certificates_path node_certificates_path" eg "~/mydata/node.crt"
+    -t <check the validity period>     [Required] "certificates_path" eg: "~/mydata/node.crt"
+    -v <check the root certificate>    [Required] "root_certificates_path node_certificates_path" eg: "~/mydata/ca.crt ~/mydata/node.crt"
 
 e.g 
     $0 -t ~/ca.crt
