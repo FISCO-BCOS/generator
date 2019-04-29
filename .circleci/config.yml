@@ -9,6 +9,7 @@ jobs:
       - run:
           name: Install dependencies
           command: |
+            # export PATH=/usr/local/bin/;/home/circleci/.local/lib/python3.6/site-packages:$PATH
             bash ./scripts/install.sh
             whereis python
             python -V
@@ -16,7 +17,6 @@ jobs:
             python -m pip install configparser
             sed -i 's?#!/usr/bin/python?#!/usr/local/bin/python3.6?' ./generator
             cat ./generator
-            # export PATH=/home/circleci/.local/lib/python3.6/site-packages:$PATH
             sudo apt-get -y install curl
       - run:
           name: Download fisco-bcos
