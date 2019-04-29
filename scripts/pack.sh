@@ -55,8 +55,11 @@ function clean()
 
     node_count=0
     # check if exist node dir belong to the IP server
-    for configfile in $(ls ${workdir}/node*/config.ini 2> /dev/null)
+    for configfile in ${workdir}/node*/config.ini
     do
+        if [ ! -f ${configfile} ];then
+            continue
+        fi
         nodedir=$(dirname ${configfile})
         node=$(basename ${nodedir})
         if [[ ${node} =~ ${ip} ]];then
@@ -69,8 +72,11 @@ function clean()
         return
     fi
 
-    for configfile in $(ls ${workdir}/node*/config.ini > /dev/null 2>&1)
+    for configfile in  ${workdir}/node*/config.ini
     do
+        if [ ! -f ${configfile} ];then
+            continue
+        fi
         nodedir=$(dirname ${configfile})
         node=$(basename ${nodedir})
         if [[ ${node} =~ ${ip} ]];then
@@ -87,11 +93,11 @@ opr=""
 work_dir=${dirpath}/..
 while getopts "d:i:pch" option; do
         case $option in
-        d) work_dir=$OPTARG ;;
-        i) ip=$OPTARG ;;
-        p) opr="pack" ;;
-        c) opr="clean" ;;
-        h) help ;;
+            d) work_dir=$OPTARG ;;
+            i) ip=$OPTARG ;;
+            p) opr="pack" ;;
+            c) opr="clean" ;;
+            *) help ;;
         esac
 done
 
