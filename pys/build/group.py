@@ -42,7 +42,18 @@ def create_group_genesis(data_dir='{}/meta'.format(path.get_path())):
                 '{}/group.{}.genesis'.format(package_dir, group_id))
     shutil.copy('{}/tpl/group.i.ini'.format(path.get_path()),
                 '{}/group.{}.ini'.format(package_dir, group_id))
-    CONSOLER.info('generate %s/group.%s.genesis', package_dir, group_id)
+    # uptes second to ms
+    (status, time_stamp) = utils.getstatusoutput('echo $(date +%s"000")')
+    if not bool(status):
+        CONSOLER.info('generate %s/group.%s.genesis, timestamp is %s',
+                      package_dir, group_id, time_stamp)
+    else:
+        LOGGER.error(
+            ' Generate %s/group.%s.genesis failed! Please check your network.',
+            package_dir, group_id)
+        raise MCError(
+            ' Generate %s/group.%s.genesis failed, timestamp is %s! Please check your network.'
+            % (package_dir, group_id, time_stamp))
     # CONSOLER.info('generate %s/group.%s.ini', package_dir, group_id)
     group_cfg = configparser.ConfigParser()
     with open('{}/group.{}.genesis'.format(package_dir, group_id), 'r') as config_file:
@@ -76,6 +87,7 @@ def create_group_genesis(data_dir='{}/meta'.format(path.get_path())):
             raise MCError(
                 'create group genesis failed! exception is %s' % group_exp)
         group_cfg.set("group", "id", group_id)
+        group_cfg.set("group", "timestamp", time_stamp)
     with open('{}/group.{}.genesis'.format(package_dir, group_id), 'w') as config_file:
         group_cfg.write(config_file)
     shutil.copy('{}/group.{}.genesis'.format(package_dir, group_id),

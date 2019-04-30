@@ -12,7 +12,7 @@ do
         echo " ${node} isn't running."
         exit 0
     fi
-    [ ! -z ${node_pid} ] && kill ${node_pid} 2> /dev/null
+    [ ! -z ${node_pid} ] && kill ${node_pid} > /dev/null
     sleep 0.6
     node_pid=$(ps aux|grep ${fisco_bcos}|grep -v grep|awk '{print $2}')
     if [ -z ${node_pid} ];then
@@ -21,5 +21,5 @@ do
     fi
     ((i=i+1))
 done
-echo " stop ${node} failed, exceed maximum number of retries."
-
+echo "  Exceed maximum number of retries. Please try again to stop ${node}"
+exit 1
