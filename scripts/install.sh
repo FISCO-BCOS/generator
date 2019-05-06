@@ -130,41 +130,49 @@ install_deps() {
 install_all() {
     install_deps
     pip install configparser --user
+    python_env=$(which python)
     py_version=$($python_env -V 2>&1 | awk {'print $2'} | awk -F. {' print $1 '})
     py_pip=$(pip -V 2>&1 | awk 'END {print $6}' | sed 's/)$//' | awk -F. '{print $1}')
 
     # params check
-    if [ -z "${py_version}" ]; then
-        alarm " not invalid python path, path is ${python_env}."
+    if [[ -z "${py_version}" ]]; then
+        LOG_ERROR " not invalid python path, path is ${python_env}."
         exit 1
     fi
 
-    if [ ${py_version} != ${py_pip} ]; then
-     alarm "python and pip is not same version"
-     alarm "python -V"
-     python -v
-     alarm "pip -V"
-     pip -v
-     exit 1
-    fi
+    if [[ "${py_version}" != "${py_pip}" ]]; then
+        LOG_ERROR "python and pip is not same version"
+        LOG_ERROR "python -V, get version => ${py_version}"
+        python -V
+        LOG_ERROR "pip -V, get version => ${py_pip}"
+        pip -V
 
-    if [ ${py_pip} == "3" ]; then
-     python_local=$(which python)
-     echo "try to use python3"
-     if [ ! -x "./generator"]; then 
-        sed -i 's?#!/usr/bin/python?#!${python_local}?' ./generator
-     elif [ ! -x "../generator"]; then 
-        sed -i 's?#!/usr/bin/python?#!${python_local}?' ./generator
-     else
-        alarm "Cann't find generator!"
         exit 1
-     fi
     fi
 
+    if [[ "${py_pip}" == "3" ]]; then
+        echo "try to use python3"
+        if [[ -f "./generator" ]]; then
+            sed -i "s?#!/usr/bin/python?#!${python_env}?" ./generator
+        elif [[ -f "../generator" ]]; then
+            sed -i "s?#!/usr/bin/python?#!${python_env}?" ./generator
+        else
+            LOG_ERROR "Cann't find generator!"
+            exit 1
+        fi
+    fi
 
 }
+
 if [ "$1" == "deps" ]; then
     install_deps
 else
     install_all
+fi
+
+result=$(./generator --help | grep generate_all_certificates)
+if [[ -z "${result}" ]]; then
+    LOG_ERROR " start failed!"
+    echo ${result}
+    exit 1
 fi
