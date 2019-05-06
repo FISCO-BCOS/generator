@@ -15,7 +15,7 @@ jobs:
             python -V
             /usr/bin/python -V
             python -m pip install configparser
-            sed -i 's?#!/usr/bin/python?#!/usr/local/bin/python3.6?' ./generator
+            # sed -i 's?#!/usr/bin/python?#!/usr/local/bin/python3.6?' ./generator
             cat ./generator
             sudo apt-get -y install curl
       - run:
