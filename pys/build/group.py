@@ -45,8 +45,8 @@ def create_group_genesis(data_dir='{}/meta'.format(path.get_path())):
     # uptes second to ms
     (status, time_stamp) = utils.getstatusoutput('echo $(date +%s"000")')
     if not bool(status):
-        CONSOLER.info('generate %s/group.%s.genesis, timestamp is %s',
-                      package_dir, group_id, time_stamp)
+        CONSOLER.info('generate %s/group.%s.genesis, successful',
+                      package_dir, group_id)
     else:
         LOGGER.error(
             ' Generate %s/group.%s.genesis failed! Please check your network.',
