@@ -11,7 +11,6 @@ SHELL_FOLDER=$(
     pwd
 )
 
-project_dir="${SHELL_FOLDER}/.."
 output_dir=$1
 dir_name=()
 EXIT_CODE=1
@@ -80,25 +79,28 @@ dir_must_not_exists() {
 
 check_node_ini() {
     i=0
-    for dir in $(ls ${output_dir}); do
-        if [ -d ${output_dir}/${dir} ]; then
-            if [ ! -f "${output_dir}/${dir}/node_deployment.ini" ]; then
-                LOG_ERROR "${output_dir}/${dir}/node_deployment.ini not exist!"
+    for dir in ${output_dir}/*; do
+        [[ -e ${dir} ]] || break
+        if [ -d ${dir} ]; then
+            if [ ! -f "${dir}/node_deployment.ini" ]; then
+                LOG_ERROR "${dir}/node_deployment.ini not exist!"
                 exit 1
             fi
-            LOG_INFO "try to use ${output_dir}/${dir}/node_deployment.ini"
-            if [ -d "${output_dir}/${dir}/generator" ]; then
-                LOG_ERROR "${output_dir}/${dir}/generator existed, please delete it!"
+            LOG_INFO "try to use ${dir}/node_deployment.ini"
+            if [ -d "${dir}/generator" ]; then
+                LOG_ERROR "${dir}/generator existed, please delete it!"
                 exit 1
             fi
-            dir_name[i]=${output_dir}/${dir}
+            dir_name[i]=${dir}
             i=${i}+1
-
-            # git clone https://github.com/FISCO-BCOS/generator.git ${output_dir}/${dir}/generator-${dir}
-            # cp ${SHELL_FOLDER}//meta/fisco-bcos ${output_dir}/${dir}/generator-${dir}/meta/fisco-bcos
         fi
     done
 
+}
+
+run_install() {
+    cd ${SHELL_FOLDER}/
+    bash ./scripts/install.sh
 }
 
 init_chain() {
@@ -157,7 +159,7 @@ group_id=1
 
 [nodes]
 EOF
-    while read line; do
+    while read -r line; do
         echo "node${i}=${line}" >>./conf/group_genesis.ini
         # echo "node${i}=${line}"
         i=$((i + 1))
@@ -191,10 +193,20 @@ generate_node() {
 #     ./generator --download_console ./
 # }
 
-init_chain
-check_node_ini ${output_dir}
-init_agency
-init_node_cert
-init_genesis
-# download_console
-generate_node
+main() {
+    run_install
+    init_chain
+    check_node_ini ${output_dir}
+    init_agency
+    init_node_cert
+    init_genesis
+    # download_console
+    generate_node
+}
+
+if [ -z "$1" ]; then
+    LOG_ERROR "not input found!"
+    help
+else
+    main $1
+fi
