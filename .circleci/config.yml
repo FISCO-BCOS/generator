@@ -9,10 +9,14 @@ jobs:
       - run:
           name: Test demo
           command: |
+            sudo apt-get -y install curl
             bash ./click2start.sh ./one_click
             bash ./one_click/agencyA/node/start_all.sh
             bash ./one_click/agencyB/node/start_all.sh
             ls ./one_click/agencyA
+      - run:
+          name: Test transaction
+          command: |
             ps aux| grep fisco-bcos |grep -v grep
             result=`ps aux| grep fisco-bcos |grep -v grep`
             if [ -z "$result" ]
@@ -33,9 +37,16 @@ jobs:
             fi
             echo "send transaction succeed"
       - run:
-          name: Test transaction
+          name: Download console
           command: |
-
+            ./generator --download_console ./
+            cp -rf ./console ./one_click/agencyA/console
+            cp ./one_click/agencyA/sdk/* ./one_click/agencyA/console/conf
+            ls ./one_click/agencyA/console/
+            ls ./one_click/agencyA/sdk
+            cat ./one_click/agencyA/sdk/ca.crt
+            cat ./one_click/agencyA/console/conf/ca.crt
+            cat ./one_click/agencyA/console/conf/applicationContext.xml
   build:  # required for runs that don't use workflows
     working_directory: ~/generator
     docker:
@@ -584,7 +595,7 @@ workflows:
   version: 2
   build:
     jobs:
+      - demo
       - build
       - CentOS
       - build_gm
-      - demo
