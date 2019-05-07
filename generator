@@ -8,7 +8,6 @@ Returns:
 import argparse
 import os
 import sys
-import stat
 from pys import path
 import shutil
 # init path
