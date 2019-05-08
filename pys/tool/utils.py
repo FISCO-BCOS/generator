@@ -446,9 +446,9 @@ def download_fisco(_dir):
     #     raise MCError(
     #         ' download fisco-bcos failed, result is %s.' % result)
     (status, result)\
-        = getstatusoutput('tar -zxf {} && mv fisco-bcos {} && rm {}'.format(package_name,
-                                                                            bin_path,
-                                                                            package_name))
+        = getstatusoutput('tar -zxf {} -C {} && rm {}'.format(package_name,
+                                                              bin_path,
+                                                              package_name))
     if bool(status):
         LOGGER.error(
             ' Decompress fisco-bcos failed, result is %s.', result)
@@ -520,6 +520,45 @@ def _hook_func(num, block_size, total_size):
     sys.stdout.flush()
 
 
+def chunk_report(bytes_so_far, chunk_size, total_size):
+    """[summary]
+
+    Arguments:
+        bytes_so_far {[type]} -- [description]
+        chunk_size {[type]} -- [description]
+        total_size {[type]} -- [description]
+    """
+    percent = float(bytes_so_far) / total_size
+    percent = round(percent*100, 2)
+    sys.stdout.write("Downloaded %d of %d bytes (%0.2f%%)\r" %
+                     (bytes_so_far, total_size, percent))
+
+    if bytes_so_far >= total_size:
+        sys.stdout.write('\n')
+
+
+def chunk_read(response, chunk_size=8192, report_hook=None, ):
+    """output download
+    """
+    total_size = response.info().getheader('Content-Length').strip()
+    total_size = int(total_size)
+    bytes_so_far = 0
+    data = []
+
+    while 1:
+        chunk = response.read(chunk_size)
+        bytes_so_far += len(chunk)
+
+        if not chunk:
+            break
+
+        data += chunk
+        if report_hook:
+            report_hook(bytes_so_far, chunk_size, total_size)
+
+    return "".join(data)
+
+
 def download_bin(_download_link, _package_name):
     """dowloand
     """
@@ -528,8 +567,9 @@ def download_bin(_download_link, _package_name):
     else:
         if os.environ.get('https_proxy') or os.environ.get('http_proxy'):
             url = _download_link
-            f = urllib2.urlopen(url)
-            data = f.read()
+            response = urllib2.urlopen(url)
+            data = chunk_read(response, report_hook=chunk_report)
+            # data = response.read()
             with open(_package_name, 'wb') as code:
                 code.write(data)
         else:

@@ -3,7 +3,7 @@
 # @ function : one click to build chain (appliable for centos, ubuntu)
 # @ Require  : openssl
 # @ author   : asherli
-# @ file     : click2start.sh
+# @ file     : one_click_generator.sh
 # @ date     : 2019
 
 SHELL_FOLDER=$(
@@ -19,7 +19,7 @@ help() {
     echo $1
     cat <<EOF
 Usage:
-     <haimeixianghao>     [Required] "./dir"
+     View at https://haoxuan.readthedocs.io/zh_CN/latest/docs/enterprise_tools/enterprise_quick_start.html 
 EOF
 }
 
