@@ -16,6 +16,7 @@ if sys.version > '3':
     import urllib.request
 else:
     import urllib
+    import urllib2
 
 
 class Status(object):
@@ -525,7 +526,14 @@ def download_bin(_download_link, _package_name):
     if sys.version > '3':
         urllib.request.urlretrieve(_download_link, _package_name, _hook_func)
     else:
-        urllib.urlretrieve(_download_link, _package_name, _hook_func)
+        if os.environ.get('https_proxy') or os.environ.get('http_proxy'):
+            url = _download_link
+            f = urllib2.urlopen(url)
+            data = f.read()
+            with open(_package_name, 'wb') as code:
+                code.write(data)
+        else:
+            urllib.urlretrieve(_download_link, _package_name, _hook_func)
 
 
 def check_fisco(_file):
