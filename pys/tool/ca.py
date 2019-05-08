@@ -36,7 +36,7 @@ def generate_root_ca(_dir):
             LOGGER.error(
                 ' cts.sh failed! status is %d, output is %s, dir is %s.', status, result, ca_dir)
             raise MCError('cts.sh failed! status is %d, output is %s, dir is %s.' % (
-                status, result, dir))
+                status, result, ca_dir))
         LOGGER.info(
             ' cts.sh success! status is %d, output is %s, dir is %s.', status, result, ca_dir)
         LOGGER.info(' Generate root cert success, dir is %s', ca_dir)
