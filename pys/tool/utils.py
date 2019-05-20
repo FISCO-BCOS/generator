@@ -562,18 +562,25 @@ def chunk_read(response, chunk_size=8192, report_hook=None, ):
 def download_bin(_download_link, _package_name):
     """dowloand
     """
-    if sys.version > '3':
-        urllib.request.urlretrieve(_download_link, _package_name, _hook_func)
-    else:
-        if os.environ.get('https_proxy') or os.environ.get('http_proxy'):
-            url = _download_link
-            response = urllib2.urlopen(url)
-            data = chunk_read(response, report_hook=chunk_report)
-            # data = response.read()
-            with open(_package_name, 'wb') as code:
-                code.write(data)
+    try:
+        if sys.version > '3':
+            urllib.request.urlretrieve(
+                _download_link, _package_name, _hook_func)
         else:
-            urllib.urlretrieve(_download_link, _package_name, _hook_func)
+            if os.environ.get('https_proxy') or os.environ.get('http_proxy'):
+                url = _download_link
+                response = urllib2.urlopen(url)
+                data = chunk_read(response, report_hook=chunk_report)
+                # data = response.read()
+                with open(_package_name, 'wb') as code:
+                    code.write(data)
+            else:
+                urllib.urlretrieve(_download_link, _package_name, _hook_func)
+    except Exception as download_err:
+        LOGGER.error(
+            'download %s failed! exception is %s', _package_name, download_err)
+        raise MCError(
+            'download %s failed! exception is %s' % (_package_name, download_err))
 
 
 def check_fisco(_file):
