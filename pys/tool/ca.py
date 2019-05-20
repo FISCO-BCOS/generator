@@ -80,9 +80,9 @@ def generator_agent_ca(_dir, _ca, agent):
             LOGGER.info(' Generate %s cert successful! dir is %s/%s.',
                         agent, agency_dir, agent)
         else:
-            console_error(
-                '  Generate cert failed! Please check your network,'
-                ' and try to check your opennssl version.')
+            # console_error(
+            #     '  Generate cert failed! Please check your network,'
+            #     ' and try to check your opennssl version.')
             LOGGER.error('  Generate %s cert failed! Result is %s',
                          agent, result)
             raise MCError(' Generate %s cert failed! Result is %s' %
@@ -144,9 +144,9 @@ def generator_node_ca(_dir, agent, node):
                 os.remove('{}/{}/node.param'.format(_dir, node))
                 os.remove('{}/{}/node.pubkey'.format(_dir, node))
         else:
-            console_error(
-                '  Generate node cert failed! Please check your network,'
-                ' and try to check your opennssl version.')
+            # console_error(
+            #     '  Generate node cert failed! Please check your network,'
+            #     ' and try to check your opennssl version.')
             LOGGER.error('  Generate %s cert failed! Result is %s',
                          node, result)
             raise MCError(' Generate %s cert failed! Result is %s' %
