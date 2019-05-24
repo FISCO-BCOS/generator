@@ -134,7 +134,9 @@ init_agency() {
 }
 
 init_node_cert() {
-    rm ${SHELL_FOLDER}/meta/peersALL.txt
+    if [ -f "${SHELL_FOLDER}/meta/peersALL.txt" ]; then
+        rm ${SHELL_FOLDER}/meta/peersALL.txt
+    fi
     for agency in ${dir_name[*]}; do
         cd ${agency}/generator-agency
         cp -r ../node_deployment.ini ./conf/
@@ -145,14 +147,18 @@ init_node_cert() {
         cat ./node_send/peers.txt >>${SHELL_FOLDER}/meta/peersALL.txt
         cd ${SHELL_FOLDER}
     done
-    rm ${SHELL_FOLDER}/meta/peers.txt
+    if [ -f "${SHELL_FOLDER}/meta/peers.txt" ]; then
+        rm ${SHELL_FOLDER}/meta/peers.txt
+    fi
     sort -n ${SHELL_FOLDER}/meta/peersALL.txt | uniq >${SHELL_FOLDER}/meta/peers.txt
 }
 
 init_genesis() {
     cd ${SHELL_FOLDER}
     i=0
-    rm ./conf/group_genesis.ini
+    if [ -f "./conf/group_genesis.ini" ]; then
+        rm ./conf/group_genesis.ini
+    fi
     cat <<EOF >>"./conf/group_genesis.ini"
 [group]
 group_id=1
