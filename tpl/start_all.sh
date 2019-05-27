@@ -9,4 +9,4 @@ do
         bash ${SHELL_FOLDER}/${directory}/start.sh &
     fi  
 done  
-sleep 3.5
+wait
