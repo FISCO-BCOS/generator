@@ -9,4 +9,4 @@ do
         bash ${SHELL_FOLDER}/${directory}/stop.sh &
     fi  
 done  
-sleep 3
+wait
