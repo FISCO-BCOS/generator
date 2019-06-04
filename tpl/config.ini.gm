@@ -53,6 +53,7 @@ cipher_data_key=
     supported_version=2.0.0-rc3
 ;log configurations
 [log]
+    enable=true
     ; the directory of the log
     log_path=./log
     ; info debug trace 
