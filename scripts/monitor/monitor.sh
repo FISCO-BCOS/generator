@@ -1,34 +1,37 @@
 #!/bin/bash
 dirpath="$(cd "$(dirname "$0")" && pwd)"
 cd $dirpath
-export g_debug="false"
-export rpc_ip=
-export rpc_port=
-export node_list=
-export node_count=0
-export node_idx=0
-export mem_thres=20
-export cpu_thres=600
-export group_list_str=
-export program="fisco-bcos"
-export alert_reciver="asherli"
-export alert_title="fisco-bcos-2.0-monitor:"$(date)
-export reciver_addr=https://sc.ftqq.com/SCU44538T27d765b798c1456ab1ecb42a2c986e665c63946211db0.send
-LOG_ERROR()
+g_debug="false"
+rpc_ip=
+rpc_port=
+node_list=
+node_count=0
+node_idx=0
+mem_thres=20
+cpu_thres=600
+group_list_str="1"
+expected_cons=1
+program="fisco-bcos"
+alert_receiver="asherli"
+alert_title="fisco-bcos-2.0-monitor:"$(date)
+restart="false"
+export receiver_addr=https://sc.ftqq.com/SCU44538T27d765b798c1456ab1ecb42a2c986e665c63946211db0.send
+
+function LOG_ERROR()
 {
     content=${1}
     time=$(date "+%Y-%m-%d %H:%M:%S")
-    echo -e "\033[31m"[${time}] ${content}"\033[0m"
+    echo -e "\033[31m"[${time}] ${content}"\033[0m\n"
 }
 
-LOG_INFO()
+function LOG_INFO()
 {
     content=${1}
     time=$(date "+%Y-%m-%d %H:%M:%S")
     echo -e "\033[32m"[${time}] ${content}"\033[0m"
 }
 
-execute_cmd()
+function execute_cmd()
 {
     command="${1}"
     #LOG_INFO "RUN: ${command}"
@@ -45,8 +48,6 @@ function debug()
         g_debug="true"
 }
 
-# debug switch
-# debug
 
 alarm() {
    # do serverchan
@@ -54,25 +55,21 @@ alarm() {
    alert_ip=$(/sbin/ifconfig eth0 | grep inet | awk '{print $2}')
    time=$(date "+%Y-%m-%d %H:%M:%S")
    system_id=123
-   curl --data "text=${alert_title}" --data "desp={alertList:[{'alert_title':'$alert_ip','sub_system_id':'$system_id','alert_info':'$time:$1','alert_ip':'$alert_ip','alert_reciver':'$alert_reciver'}]}" $reciver_addr
+   curl --data "text=${alert_title}" --data "desp={alertList:[{'alert_title':'$alert_ip','sub_system_id':'$system_id','alert_info':'$time:$1','alert_ip':'$alert_ip','alert_reciver':'$alert_receiver'}]}" $receiver_addr
+   echo -e "\n"
 }
 
-restart() {
-        stopfile=${1/start/stop}
-        $stopfile
-        sleep 3
-        $startfile
-}
 # restart node
 restart() {
         stopfile=${1/start/stop}
-        $stopfile
+        startfile="${1}"
+        execute_cmd "bash $stopfile"
         sleep 3
-        $startfile
+        execute_cmd "bash $startfile"
 }
 
 # execute RPC command
-execRpcCommand() 
+function execRpcCommand() 
 {
     local all_group="${1}"
     local functionName="${2}"
@@ -99,16 +96,13 @@ function get_json_value()
 {
   local json=$1
   local key=$2
-
   if [[ -z "$3" ]]; then
     local num=1
   else
     local num=$3
   fi
-
-  local value=$(echo "${json}" | awk -F"[:}]" '{for(i=1;i<=NF;i++){if($i~/'${key}'\042/){print $(i+1)}}}' | tr -d '"' | sed -n ${num}p)
-
-  echo ${value}
+  local value=$(echo "${json}" | awk -F"[:,}]" '{for(i=1;i<=NF;i++){if($i~/'${key}'\042/){print $(i+1)}}}' | tr -d '"' | sed -n ${num}p)
+  echo "${value}"
 }
 
 # get total consensus count of this chain
@@ -152,8 +146,7 @@ function check_resource()
 
 function check_process()
 {
-    local restart="${1}"
-    local node_name=$(basename "${2}")
+    local node_name=$(basename "${1}")
     local node_dir="${node_name}/fisco-bcos"
     # check if process id exist
     fisco_pwd=$(ps aux | grep  "$node_dir" |grep "${program}"|grep -v "grep")
@@ -181,12 +174,123 @@ function obtain_rpc_ip()
     echo "${rpc_ip}"
 }
 
+function restartNode()
+{
+    local prefix="${1}"
+    local retJson="${2}"
+    local startfile="${3}"
+    if [[ -z "${retJson}" ]];then
+        error_str="${prefix} for cannot connect to $rpc_ip:$rpc_port"
+        if [ "$restart" == "true" ];then
+            error_str="Trying to restart node: ${error_str}"
+            restart ${startfile}
+        fi
+        alarm "${error_str}"
+        LOG_ERROR "${error_str}"
+        return 1
+    fi
+}
+
+function isSealer()
+{
+    local group_id="${1}"
+    local startfile="${2}"
+    local node_dir="${3}"
+    consensusStatusJson=$(execRpcCommand "false" "getConsensusStatus" ${group_id})
+    # get nodeIdx
+    node_index=$(get_json_value "${consensusStatusJson}" "index" 1)
+
+    local error_prefix="getConsensusStatus ERROR: [node: ${node_dir}][group:${group_id}] is not working properly "
+    restartNode ${error_prefix} "${node_index}" "${startfile}"
+    # callback jsonRPC interface failed
+    if [ $? -eq 1 ];then
+        return 1
+    fi
+    # get view
+    view=$(get_json_value "${consensusStatusJson}" "currentView" 1)
+    echo "${node_index}" "${view}"
+}
+
+function check_connections()
+{
+    local group_id="${1}"
+    local startfile="${2}"
+    local node_dir="${3}"
+    peersJson=$(execRpcCommand "false" "getPeers" ${group_id})
+    
+    error_str_prefix="getPeers ERROR: [node: ${node_dir}][group:${group_id} is not working properly "
+	
+    restartNode "${error_str_prefix}" "${peersJson}" "${startfile}"
+    # callback jsonRPC interface failed
+    if [ $? -eq 1 ];then
+        return 1
+    fi
+    peers=$(echo "${peersJson}" | jq -r '.result[].NodeID')
+    
+    if [ -z "${peers}" ];then
+        i=0
+    else
+        i=$(echo "${peers}" | wc -l)
+    fi
+    if [ $i -lt ${expected_cons} ];then
+	error_str="${error_str_prefix} for network connection failures, expected=${expected_cons}, real connections is ${i}"
+        if [ "$restart" == "true" ];then
+                error_str="Trying to restart node for: ${error_str}"
+                restart $startfile
+        fi
+        alarm "${error_str}"
+        LOG_ERROR "${error_str}"
+        return 1
+    fi
+}
+
+
+function check_observer()
+{
+    local group_id="${1}"
+    local startfile="${2}"
+    local node_dir="${3}"
+    syncStatusJson=$(execRpcCommand "false" "getSyncStatus" ${group_id})
+    error_str_prefix="check status of observer node ERROR: [node: ${node_dir}][group:${group_id}] is not working properly "
+    
+    blockNumberJson=$(get_json_value "${syncStatusJson}" "blockNumber" 1)
+    restartNode "${error_str_prefix}" "${blockNumberJson}" "${startfile}"
+    # callback jsonRPC interface failed
+    if [ $? -eq 1 ];then
+        return 1
+    fi
+ 
+
+    peerBlockNumbers=$(echo "${syncStatusJson}" | jq -r '.result.peers[].blockNumber')
+    # get blockNumber for all nodes
+    currentBlockNumber=$((blockNumberJson))
+    for blockNumberStr in ${peerBlockNumbers}
+    do
+        blockNumber=$((blockNumberStr))
+        minBlockNumber=$blockNumber
+        if [ ${blockNumber} -ge 1 ];then
+            minBlockNumber=$[${blockNumber} - 1]
+        fi
+        if [[ ${currentBlockNumber} -lt ${minBlockNumber} ]];then
+            error_str="${error_str_prefix} for not syncing block from other nodes: height ${blockNumber}, height of other node: ${blockNumberJson}"
+            if [ "$restart" == "true" ];then
+                error_str="Trying to restart node: ${error_str}"
+                restart $startfile
+            fi
+            alarm "${error_str}"
+            LOG_ERROR "${error_str}"
+            return 1
+        fi
+    done
+}
+
+
 function check_pbft_view()
 {
     local group_id="${1}"
-    local restart="${2}"
-    local startfile="${3}"
-    local node_dir="${4}"
+    local startfile="${2}"
+    local node_dir="${3}"
+    local pbft_view="${4}"
     local node=$(basename ${node_dir})
     # get blocknumber
     height_json=$(execRpcCommand "false" "getBlockNumber" ${group_id})
@@ -201,19 +305,6 @@ function check_pbft_view()
         LOG_ERROR "ERROR! [node: ${node_dir}] [group: ${group_id}] Cannot connect to $rpc_ip:$rpc_port $height"
         return 1
     }
-    # get pbft view
-    pbft_view_json=$(execRpcCommand "false" "getPbftView" ${group_id})
-    pbft_view=$(get_json_value ${pbft_view_json} "result" | cut -d'[' -f2 | cut -d']' -f1)
-    LOG_INFO "[node: ${node_dir}] [group: ${group_id}] current pbft view: ${pbft_view}"
-    [[ -z "$pbft_view" ]] && {
-        [ "$restart" == "true" ] &&  {
-                alarm "ERROR! [node: ${node_dir}][group: ${group_id}] Cannot connect to $config_ip:$rpc_prt $viewresult"
-                restart $startfile
-                return 1
-        }
-        LOG_ERROR "ERROR![node: ${node_dir}] [group: ${group_id}] Cannot connect to $config_ip:$rpc_port $viewresult"
-        return 1
-     }
      # get prev height
      local height_file="$nodedir/${node}.${group_id}.height"
      local prev_height=0
@@ -243,12 +334,32 @@ function check_group_work_properly()
 {
     local node_dir="${1}"
     local group_id="${2}"
-    local restart="${3}"
     local start_file=${1}/start.sh
-    # check pbft view
-    check_pbft_view "${group_id}" "${restart}" "${start_file}" "${node_dir}"
+    # check connection
+    check_connections "${group_id}" "${start_file}" "${node_dir}"
     if [ $? -eq 1 ];then
+       return 1
+    fi
+            
+    local node_info=$(isSealer ${group_id} ${start_file} ${node_dir})
+    if [ "${node_info}" == "1" ];then
         return 1
+    fi
+    # get node index
+    local node_index=$(echo ${node_info} | cut -d ' ' -f1)
+    local currentView=$(echo ${node_info} | cut -d ' ' -f2)
+    if [ "${node_index}" == "65535" ];then
+	    LOG_INFO "===== Observer node, check blockNumber only=== "
+        check_observer "${group_id}" "${start_file}" "${node_dir}"
+        if [ $? -eq 1 ];then
+		return 1
+        fi
+    else
+        # check pbft view
+        check_pbft_view "${group_id}" "${start_file}" "${node_dir}" "${currentView}"
+        if [ $? -eq 1 ];then
+		return 1
+        fi
     fi
     return 0
 }
@@ -266,11 +377,10 @@ function get_group_list()
 function check_all_group_work_properly()
 {
     local node_dir="${1}"
-    local restart="${2}"
     # get groups from rpc
     get_group_list
     for group in ${group_list[*]};do
-        check_group_work_properly "${node_dir}" "${group}" "${restart}" 
+        check_group_work_properly "${node_dir}" "${group}" 
     done
 }
 
@@ -280,7 +390,6 @@ function check_node_work_properly()
     # node dir
     nodedir=$1
     # should restart the node when it not work properly
-    restart="$2"
     # start shell
     startfile=$1/start.sh
     # stop shell
@@ -296,7 +405,7 @@ function check_node_work_properly()
     rpc_port=$(read_ini ${configini} rpc jsonrpc_listen_port)
     LOG_INFO "=== rpc_port:"${rpc_port}
     # check process
-    check_process "${restart}" "${nodedir}"
+    check_process "${nodedir}"
     if [[ $? == 1 ]];then
         return 1
     fi
@@ -307,7 +416,7 @@ function check_node_work_properly()
         return 1
     fi
     # check all groups work properly
-    check_all_group_work_properly "${nodedir}" "${restart}"
+    check_all_group_work_properly "${nodedir}"
     return 0
 }
 
@@ -318,7 +427,7 @@ function check_all_node_work_properly()
         do
             nodedir=$(dirname $configfile)
             echo "*******************check ${nodedir} START**********************"
-            check_node_work_properly $nodedir "true"
+            check_node_work_properly $nodedir
             time_point=$(($(date +%s) - 60))
             do_log_analyze_by_time_point $nodedir $time_point
             echo "*******************check ${nodedir} END*************************"
@@ -688,7 +797,7 @@ function do_log_analyze_by_time_point()
 # analyze log file.
 function do_log_analyze_by_file()
 {
-        file=$1
+        file="${1}"
         if [[ ! -f $file ]];then
                 echo " $file is not exist. "
                 return
@@ -697,7 +806,6 @@ function do_log_analyze_by_file()
         IFS=','
         group_list=(${group_list_str})
         IFS=${IFS_old}
-
         for group in ${group_list[*]};do
         eval $(awk -v from=${node_idx} -v group_id=${group} -f monitor.awk $file)
         if [[ $? -eq 0 ]];then
@@ -711,14 +819,14 @@ function do_all_log_analyze()
 {
         for configfile in `ls $dirpath/node*/config.ini`
         do
-                nodedir=$(dirname $configfile)
-    echo "  "
-		echo "========= do_all_log_analyze: ${nodedir} BEGIN========="
-                # check if node work well first, then do log analyze.
-		check_node_work_properly $nodedir "false"
-                do_log_analyze_by_duration_time $nodedir $start_time $end_time
-		echo "========= do_all_log_analyze: ${nodedir} END========="
-    echo "  "
+            nodedir=$(dirname $configfile)
+            echo "  "
+		    echo "========= do_all_log_analyze: ${nodedir} BEGIN========="
+            # check if node work well first, then do log analyze.
+		    check_node_work_properly $nodedir
+            do_log_analyze_by_duration_time $nodedir $start_time $end_time
+		    echo "========= do_all_log_analyze: ${nodedir} END========="
+            echo "  "
         done
 }
 
@@ -733,28 +841,32 @@ start_time=$(($end_time-duration*60))
 # help
 function help()
 {
-        echo "Usage : bash monitor.sh "
-        echo "   -s : send alert to your address"
-        echo "   -m : monitor, statistics.  default : monitor ."
-        echo "   -f : log file to be analyzed. "
-        echo "   -o : dirpath "
-        echo "   -p : name of the monitored program , default is fisco-bcos"
-        echo "   -g : specified the group list to be analized"
-        echo "   -d : log analyze time range. default : 10(min), it should not bigger than max value : 60(min)."
-        echo "   -r : setting alert receiver" 
-        echo "   -h : help. "
-        echo " example : "
-        echo "   bash  monitor.sh -s yourmail@mail.com -o nodes -r your_name"
-        echo "   bash  monitor.sh -s yourmail@mail.com -m statistics -o nodes -r your_name"
-        echo "   bash  monitor.sh -s yourmail@mail.com -m statistics -f node0/log/log_2019021314.log -g 1 2 -r your_name"
+        echo "Options :"
+        echo -e "-s[Recommend]:  send alert to your address"
+        echo -e "-m[Optional]:\tfunction, include to monitor and statistics, default is monitor "
+        echo -e "-f[Required]:\tlog file to be analyzed"
+        echo -e "-o[Required]:\tdirpath"
+        echo -e "-p[Optional]:\tname of the monitored program , default is fisco-bcos"
+        echo -e "-g[Optional]:\tused in statistics mode, default is 1, specified the group list to be analized"
+        echo -e "-d[Optional]:\tlog analyze time range. default : 10(min), it should not bigger than max value : 60(min)"
+        echo -e "-r[Recommend]:  setting alert receiver"
+        echo -e "-R[Optional]:\trestart node when monitor node failure(default not restart)"
+        echo -e "-c[Optional]:\texpected connections, e.g. 3 in the 4-node case, default is 1"
+	echo -e "-h:\thelp"
+        echo "Usages : "
+        echo "   bash  monitor.sh -s yourmail@mail.com -o nodes -r your_name -R -c expected_connections"
+        echo "   bash  monitor.sh -s yourmail@mail.com -m statistics -o nodes -r your_name -g group_list"
+	echo "Examples : "
+        echo "   bash  monitor.sh -s yourmail@mail.com -o nodes -r your_name -R -c 3"
+        echo "   bash  monitor.sh -s yourmail@mail.com -m statistics -f node0/log/log_2019021314.log -g 1 2 -r your_name -g 1"
         exit 0
 }
 
 function main()
 {
-while getopts "s:m:f:d:o:g:p:r:h" option;do
+while getopts "s:m:f:d:o:g:p:r:c:Rh" option;do
     case $option in
-    s) reciver_addr=$OPTARG;;
+    s) receiver_addr=$OPTARG;;
     m) mode=$OPTARG;;
     f) log_file=$OPTARG;;
     d)
@@ -765,8 +877,11 @@ while getopts "s:m:f:d:o:g:p:r:h" option;do
         ;;
     o) dirpath=$OPTARG;;
     p) program=$OPTARG;;
-    r) alert_reciver=$OPTARG;;
+    r) alert_receiver=$OPTARG;;
+    R) restart="true";;
     g) group_list_str=$OPTARG;;
+    c) expected_cons=$((OPTARG));;
+   
     h) help;;
     esac
 done
@@ -779,7 +894,7 @@ case $mode in
         if [[ -z $log_file ]];then
                 do_all_log_analyze  
         else
-                do_log_analyze_by_file $log_file
+                do_log_analyze_by_file "$log_file"
         fi
         ;;
  *)
