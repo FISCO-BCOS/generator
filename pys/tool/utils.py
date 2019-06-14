@@ -426,8 +426,9 @@ def download_fisco(_dir):
     else:
         package_name = "fisco-bcos.tar.gz"
     (status, version)\
-        = getstatusoutput('curl -s https://raw.githubusercontent.com/'
-                          'FISCO-BCOS/FISCO-BCOS/master/release_note.txt | sed "s/^[vV]//"')
+        = getstatusoutput('curl -s https://api.github.com/repos/FISCO-BCOS/'
+                          'FISCO-BCOS/releases | grep "tag_name" | grep "v2" '
+                          '| sort -u | tail -n 1 | cut -d \\" -f 4 | sed "s/^[vV]//"')
     if bool(status):
         LOGGER.error(
             ' get fisco-bcos verion failed, result is %s.', version)
@@ -479,9 +480,9 @@ def download_console(_dir):
     bin_path = _dir
     package_name = "console.tar.gz"
     dir_must_not_exists('{}/console'.format(bin_path))
-    (status, version) = getstatusoutput('curl -s https://raw.githubusercontent.com/'
-                                        'FISCO-BCOS/console/master/release_note.txt'
-                                        ' | sed "s/^[vV]//"')
+    (status, version) = getstatusoutput('curl -s https://api.github.com/repos/FISCO-BCOS/'
+                                        'console/releases | grep "tag_name" '
+                                        '| sort -u | tail -n 1 | cut -d \\" -f 4 | sed "s/^[vV]//"')
     if bool(status):
         LOGGER.error(
             ' get fisco-bcos verion failed, result is %s.', version)
