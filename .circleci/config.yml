@@ -69,7 +69,7 @@ jobs:
           name: Download fisco-bcos
           command: |
             ./generator --download_fisco ./meta
-            # bash <(curl -s https://raw.githubusercontent.com/FISCO-BCOS/FISCO-BCOS/release-2.0.1/tools/ci/download_bin.sh) -o ./meta
+            # bash <(curl -s https://raw.githubusercontent.com/FISCO-BCOS/FISCO-BCOS/release-2.0.0-rc3/tools/ci/download_bin.sh) -b release-2.0.0-rc3 -o ./meta
       - run:
           name: Generate chain and init agency
           command: |
@@ -262,7 +262,7 @@ jobs:
           name: Download fisco-bcos
           command: |
             ./generator --download_fisco ./meta
-            # bash <(curl -s https://raw.githubusercontent.com/FISCO-BCOS/FISCO-BCOS/release-2.0.1/tools/ci/download_bin.sh) -o ./meta
+            # bash <(curl -s https://raw.githubusercontent.com/FISCO-BCOS/FISCO-BCOS/release-2.0.0-rc3/tools/ci/download_bin.sh) -b release-2.0.0-rc3 -o ./meta
       - run:
           name: Generate chain and init agency
           command: |
@@ -429,7 +429,7 @@ jobs:
           name: Download fisco-bcos
           command: |
             ./generator --download_fisco ./meta -g
-            # bash <(curl -s https://raw.githubusercontent.com/FISCO-BCOS/FISCO-BCOS/release-2.0.1/tools/ci/download_bin.sh) -o ./meta
+            # bash <(curl -s https://raw.githubusercontent.com/FISCO-BCOS/FISCO-BCOS/release-2.0.0-rc3/tools/ci/download_bin.sh) -b release-2.0.0-rc3 -o ./meta -g
       - run:
           name: Generate chain and init agency
           command: |
