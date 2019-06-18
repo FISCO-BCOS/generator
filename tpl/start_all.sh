@@ -1,11 +1,12 @@
 #!/bin/bash
 SHELL_FOLDER=$(cd $(dirname $0);pwd)
 
-for directory in $(ls ${SHELL_FOLDER})
+dirs=($(ls -l ${SHELL_FOLDER} | awk '/^d/ {print $NF}'))
+for directory in ${dirs[*]} 
 do  
-    if [[ -d "${SHELL_FOLDER}/${directory}" && -f "${SHELL_FOLDER}/${directory}/start.sh" ]];then  
+    if [[ -f "${SHELL_FOLDER}/${directory}/config.ini" && -f "${SHELL_FOLDER}/${directory}/start.sh" ]];then  
         echo "try to start ${directory}"
         bash ${SHELL_FOLDER}/${directory}/start.sh &
     fi  
-done 
-sleep 3.5
+done  
+wait

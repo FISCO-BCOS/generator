@@ -11,10 +11,6 @@ timestamp=${time_stamp}
     ;the node id of leaders
     node.0=
 
-[storage]
-    ;storage db type, now support leveldb 
-    type=LevelDB
-    topic=DB
 [state]
     ;support mpt/storage
     type=storage
