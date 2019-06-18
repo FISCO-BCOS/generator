@@ -4,7 +4,7 @@ SHELL_FOLDER=$(cd $(dirname $0);pwd)
 fisco_bcos=${SHELL_FOLDER}/fisco-bcos
 node=$(basename ${SHELL_FOLDER})
 node_pid=$(ps aux|grep ${fisco_bcos}|grep -v grep|awk '{print $2}')
-try_times=5
+try_times=10
 i=0
 if [ -z ${node_pid} ];then
     echo " ${node} isn't running."
