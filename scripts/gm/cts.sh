@@ -139,8 +139,6 @@ gen_agency_cert() {
     $TASSL_CMD x509 -req -CA $chain/gmca.crt -CAkey $chain/gmca.key -days 3650 -CAcreateserial -in $agencydir/gmagency.csr -out $agencydir/gmagency.crt -extfile $chain/gmcert.cnf -extensions v3_agency_root
 
     cp $chain/gmca.crt $chain/gmcert.cnf $chain/gmsm2.param $agencydir/
-    cp $chain/gmca.crt $agencydir/ca-agency.crt
-    more $agencydir/gmagency.crt | cat >>$agencydir/ca-agency.crt
     rm -f $agencydir/gmagency.csr
 
     echo "build $name agency cert successful!"
