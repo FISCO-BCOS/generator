@@ -99,8 +99,6 @@ gen_agency_cert() {
         -in $agencydir/agency.csr -out $agencydir/agency.crt  -extensions v4_req -extfile $chain/cert.cnf
     
     cp $chain/ca.crt $chain/cert.cnf $agencydir/
-    cp $chain/ca.crt $agencydir/ca-agency.crt
-    more $agencydir/agency.crt | cat >>$agencydir/ca-agency.crt
     rm -f $agencydir/agency.csr
 
     echo "build $name agency cert successful!"
