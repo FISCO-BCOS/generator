@@ -176,3 +176,4 @@ if [[ -z "${result}" ]]; then
     echo ${result}
     exit 1
 fi
+echo "install generator successful!"
