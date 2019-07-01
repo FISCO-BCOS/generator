@@ -3,4 +3,4 @@
 Parse .ini configuration of cmd -> build and cmd -> expand
 """
 
-__all__ = ['mconf', 'mexpand', 'mgroup']
+__all__ = ['mconf', 'mgroup']
