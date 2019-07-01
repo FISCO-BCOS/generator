@@ -9,7 +9,6 @@ import argparse
 import os
 import sys
 from pys import path
-import shutil
 # init path
 GEN_DIR = os.path.split(os.path.realpath(__file__))[0]
 sys.path.append('{}/pys'.format(GEN_DIR))
