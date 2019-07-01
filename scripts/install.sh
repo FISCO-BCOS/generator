@@ -129,7 +129,7 @@ install_deps() {
 
 install_all() {
     install_deps
-    pip install configparser --user
+    export LC_ALL=C && pip install configparser --user
     python_env=$(which python)
     py_version=$($python_env -V 2>&1 | awk {'print $2'} | awk -F. {' print $1 '})
     py_pip=$(pip -V 2>&1 | awk 'END {print $6}' | sed 's/)$//' | awk -F. '{print $1}')
