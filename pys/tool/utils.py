@@ -504,6 +504,13 @@ def download_console(_dir):
             ' Decompress console failed, result is %s.' % result)
     (status, result) = getstatusoutput(
         'chmod a+x {}/console/start.sh'.format(bin_path))
+    if bool(status):
+        LOGGER.error(
+            'chmod console failed! status is %d,'
+            ' output is %s.', status, result)
+        raise MCError('chmod console failed!'
+                      ' status is %d, output is %s.' % (
+                          status, result))
 
 
 def _hook_func(num, block_size, total_size):
