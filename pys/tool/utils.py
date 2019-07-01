@@ -1,17 +1,16 @@
 # coding:utf-8
-from pys.error.exp import MCError
-from pys.log import LOGGER, CONSOLER
-import sys
 """[utils.py]
 
 Returns:
     [string] -- [utils str]
 """
-
+import sys
 import re
 import os
 import subprocess
 import shutil
+from pys.error.exp import MCError
+from pys.log import LOGGER, CONSOLER
 if sys.version > '3':
     import urllib.request
 else:
