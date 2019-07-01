@@ -2,4 +2,4 @@
 """[operator]
 """
 
-__all__ = ['build', 'create_group', 'expand_node', 'demo', 'opr_cert']
+__all__ = ['build', 'create_group', 'expand_node', 'opr_cert']
