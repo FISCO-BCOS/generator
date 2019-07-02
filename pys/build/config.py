@@ -171,6 +171,12 @@ def build_config_ini(_data_dir):
     # set p2p ip in config.ini
     for my_node_index, ip_item in enumerate(p2p_ip):
         node_cfg = configparser.ConfigParser()
+        if not utils.valid_ip(ip_item):
+            LOGGER.error(
+                ' init config.ini file failed, found ip => %s, exception is %s', ip_item, build_exp)
+            utils.delete_data(package_dir)
+            raise MCError(
+                ' init config.ini file failed, found ip => %s, exception is %s' % (ip_item, build_exp))
         node_dir = '{}/node_{}_{}'.format(package_dir,
                                           ip_item, p2p_listen_port[my_node_index])
         try:
@@ -193,8 +199,10 @@ def build_config_ini(_data_dir):
     #                                               p2p_listen_port[0]),
     #             '{}/config.ini'.format(package_dir))
     os.mkdir(package_dir + '/scripts/')
-    shutil.copy('{}/scripts/install.sh'.format(path.get_path()), package_dir + '/scripts/')
-    shutil.copy('{}/scripts/pack.sh'.format(path.get_path()), package_dir + '/scripts/')
+    shutil.copy('{}/scripts/install.sh'.format(path.get_path()),
+                package_dir + '/scripts/')
+    shutil.copy('{}/scripts/pack.sh'.format(path.get_path()),
+                package_dir + '/scripts/')
     shutil.copy('{}/tpl/start_all.sh'.format(path.get_path()), package_dir)
     shutil.copy('{}/tpl/stop_all.sh'.format(path.get_path()), package_dir)
     shutil.copytree('{}/scripts/monitor'.format((path.get_path())),
