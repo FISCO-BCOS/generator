@@ -176,4 +176,4 @@ if [[ -z "${result}" ]]; then
     echo ${result}
     exit 1
 fi
-echo "install generator successful!"
+echo -e "\033[32m install generator successful!\033[0m"
