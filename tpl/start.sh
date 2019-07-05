@@ -10,7 +10,7 @@ if [ ! -z ${node_pid} ];then
     echo " ${node} is running, pid is $node_pid."
     exit 0
 else 
-    nohup ${fisco_bcos} -c config.ini 2>>nohup.out &
+    nohup ${fisco_bcos} -c config.ini >>nohup.out 2>&1 &
     sleep 1.5
 fi
 try_times=4
