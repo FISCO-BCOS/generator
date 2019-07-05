@@ -50,7 +50,7 @@ cipher_data_key=
 [chain]
     id=1
 [compatibility]
-    supported_version=2.0.0-rc3
+    supported_version=2.0.0
 ;log configurations
 [log]
     enable=true
@@ -63,6 +63,5 @@ cipher_data_key=
     ; control log auto_flush
     flush=true
     ; easylog config
-    format=%level|%datetime{%Y-%M-%d %H:%m:%s:%g}|%msg
     log_flush_threshold=100
     
