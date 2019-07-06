@@ -13,7 +13,7 @@ from pys.error.exp import MCError
 from pys.log import LOGGER, CONSOLER
 from pys import path
 if sys.version > '3':
-    import urllib.request
+    import urllib.request, urllib.error
 else:
     import urllib
     import urllib2
@@ -660,8 +660,21 @@ def valid_url(_url):
     #print fullURL
     try:
         if sys.version > '3':
-            req = urllib.Request(baseURL)
-            resp = urllib.Request.urlopen(req)
+            try:
+                resp = urllib.request.urlopen(baseURL)
+                return True
+            except urllib.error.HTTPError as e:
+                # Return code error (e.g. 404, 501, ...)
+                # ...
+                LOGGER.warning('HTTPError: {}'.format(e.code))
+                return False
+            except urllib.error.URLError as e:
+                # Not an HTTP-specific error (e.g. connection refused)
+                # ...
+                LOGGER.warning('URLError: {}'.format(e.reason))
+                return False
+            LOGGER.warning('Maybe others err')
+            return False
         else:
             req = urllib2.Request(baseURL)
             resp = urllib2.urlopen(req)
@@ -669,11 +682,10 @@ def valid_url(_url):
             # Do whatever you want if 404 is found
             LOGGER.warning("404 Found!")
             return False
-        else:
-            # Do your normal stuff here if page is found.
-            LOGGER.info("URL: {0} Response: {1}".format(
-                baseURL, resp.getcode()))
-            return True
-    except:
-        LOGGER.error("Could not connect to URL: {0} ".format(baseURL))
+        # Do your normal stuff here if page is found.
+        LOGGER.info("URL: {0} Response: {1}".format(
+            baseURL, resp.getcode()))
+        return True
+    except Exception as download_err:
+        LOGGER.error("Could not connect to URL: %s ,err is %s",baseURL, download_err)
         return False
