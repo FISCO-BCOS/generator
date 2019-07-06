@@ -16,10 +16,7 @@ dir_name=()
 EXIT_CODE=1
 
 help() {
-    echo $1
-    cat <<EOF
-Usage:
-     View at https://fisco-bcos-documentation.readthedocs.io/zh_CN/release-2.0.0/docs/enterprise_tools/enterprise_quick_start.html
+    echo "View at https://fisco-bcos-documentation.readthedocs.io/zh_CN/release-2.0.0/docs/enterprise_tools/enterprise_quick_start.html"
 }
 
 check_result() {

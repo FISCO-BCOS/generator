@@ -11,6 +11,7 @@ import subprocess
 import shutil
 from pys.error.exp import MCError
 from pys.log import LOGGER, CONSOLER
+from pys import path
 if sys.version > '3':
     import urllib.request
 else:
@@ -418,6 +419,7 @@ def download_fisco(_dir):
     Arguments:
         _dir {[type]} -- [description]
     """
+    dir_must_exists(_dir)
     bin_path = _dir
     # bcos_bin_name = 'fisco-bcos'
     if Status.gm_option:
@@ -425,26 +427,31 @@ def download_fisco(_dir):
     else:
         package_name = "fisco-bcos.tar.gz"
     (status, version)\
-        = getstatusoutput('curl -s https://api.github.com/repos/FISCO-BCOS/'
-                          'FISCO-BCOS/releases | grep "tag_name" | grep "\"v2\.[0-9]\.[0-9]\"" '
-                          '| sort -u | tail -n 1 | cut -d \\" -f 4 | sed "s/^[vV]//"')
+        = getstatusoutput(r'curl -s https://api.github.com/repos/FISCO-BCOS/FISCO-BCOS/releases '
+                          r'| grep "tag_name" | grep "\"v2\.[0-9]\.[0-9]\""'
+                          r' | sort -u | tail -n 1 | cut -d \" -f 4 | sed "s/^[vV]//"')
     if bool(status):
         LOGGER.error(
             ' get fisco-bcos verion failed, result is %s.', version)
         raise MCError(' get fisco-bcos verion failed, result is %s.' % version)
+    print("version is %s!", version)
     download_link = 'https://github.com/FISCO-BCOS/FISCO-BCOS/releases/download/v{}/{}'.format(
         version.strip('\n'), package_name.strip('\n'))
-    # filename = package_name
-    LOGGER.info("Downloading fisco-bcos binary from %s", download_link)
-    CONSOLER.info("Downloading fisco-bcos binary from %s", download_link)
-    # (status, result) = getstatusoutput('curl -LO {}'.format(download_link))
-    # subprocess.call('curl -LO {}'.format(download_link), shell=True)
-    download_bin(download_link, package_name)
-    # if bool(status):
-    #     LOGGER.error(
-    #         ' download fisco-bcos failed, result is %s.', result)
-    #     raise MCError(
-    #         ' download fisco-bcos failed, result is %s.' % result)
+    cnd_link = 'https://www.fisco.com.cn/cdn/FISCO-BCOS/releases/download/v{}/{}'.format(
+        version.strip('\n'), package_name.strip('\n'))
+    if valid_url(cnd_link):
+        LOGGER.info("Downloading fisco-bcos binary from %s", cnd_link)
+        CONSOLER.info("Downloading fisco-bcos binary from %s", cnd_link)
+        download_bin(cnd_link, package_name)
+    elif valid_url(download_link):
+        LOGGER.info("Downloading fisco-bcos binary from %s", download_link)
+        CONSOLER.info("Downloading fisco-bcos binary from %s", download_link)
+        download_bin(download_link, package_name)
+    else:
+        LOGGER.error(
+            ' Download fisco-bcos failed, Please check your network!')
+        raise MCError(
+            ' Download fisco-bcos failed, Please check your network!')
     (status, result)\
         = getstatusoutput('tar -zxf {} -C {} && rm {}'.format(package_name,
                                                               bin_path,
@@ -476,7 +483,12 @@ def download_console(_dir):
         MCError -- [description]
     """
 
+    dir_must_exists(_dir)
     bin_path = _dir
+    meta = '{}/meta'.format(path.get_path())
+    file_must_exists('{}/ca.crt'.format(meta))
+    file_must_exists('{}/agency.crt'.format(meta))
+    file_must_exists('{}/agency.key'.format(meta))
     package_name = "console.tar.gz"
     dir_must_not_exists('{}/console'.format(bin_path))
     (status, version) = getstatusoutput('curl -s https://api.github.com/repos/FISCO-BCOS/'
@@ -488,10 +500,21 @@ def download_console(_dir):
         raise MCError(' get fisco-bcos verion failed, result is %s.' % version)
     download_link = 'https://github.com/FISCO-BCOS/console/releases/download/v{}/{}'.format(
         version.strip('\n'), package_name.strip('\n'))
-    LOGGER.info("Downloading console binary %s", download_link)
-    CONSOLER.info("Downloading console binary %s", download_link)
-    download_bin(download_link, package_name)
-    # subprocess.call('curl -LO {}'.format(download_link), shell=True)
+    cnd_link = 'https://www.fisco.com.cn/cdn/console/releases/download/v{}/{}'.format(
+        version.strip('\n'), package_name.strip('\n'))
+    if valid_url(cnd_link):
+        LOGGER.info("Downloading console binary from %s", cnd_link)
+        CONSOLER.info("Downloading console binary from %s", cnd_link)
+        download_bin(cnd_link, package_name)
+    elif valid_url(download_link):
+        LOGGER.info("Downloading console binary from %s", download_link)
+        CONSOLER.info("Downloading console binary from %s", download_link)
+        download_bin(download_link, package_name)
+    else:
+        LOGGER.error(
+            ' Download console failed, Please check your network!')
+        raise MCError(
+            ' Download console failed, Please check your network!')
     (status, result)\
         = getstatusoutput('tar -zxf {} -C {} && '
                           'rm {}'.format(package_name,
@@ -628,3 +651,29 @@ def check_fisco(_file):
                 'standard version. Please correct it and try again.' % bin_version)
     CONSOLER.info(' Binary check passed.')
     LOGGER.info(' Binary check passed.')
+
+
+def valid_url(_url):
+    """check valid url
+    """
+    baseURL = _url
+    #print fullURL
+    try:
+        if sys.version > '3':
+            req = urllib.Request(baseURL)
+            resp = urllib.Request.urlopen(req)
+        else:
+            req = urllib2.Request(baseURL)
+            resp = urllib2.urlopen(req)
+        if resp.getcode() == 404:
+            # Do whatever you want if 404 is found
+            LOGGER.warning("404 Found!")
+            return False
+        else:
+            # Do your normal stuff here if page is found.
+            LOGGER.info("URL: {0} Response: {1}".format(
+                baseURL, resp.getcode()))
+            return True
+    except:
+        LOGGER.error("Could not connect to URL: {0} ".format(baseURL))
+        return False
