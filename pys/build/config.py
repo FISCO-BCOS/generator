@@ -516,7 +516,7 @@ def get_console_file(_file):
     """
     data = _file
     utils.file_must_exists(data)
-    p2p_ip = mconf.MchainConf.p2p_ip
+    rpc_ip = mconf.MchainConf.rpc_ip
     channel_listen_port = mconf.MchainConf.channel_listen_port
     channel_addr = []
     group_id = mconf.MchainConf.group_id
@@ -526,9 +526,9 @@ def get_console_file(_file):
     utils.replace(data,
                   'name="groupId" value="1"',
                   'name="groupId" value="{}"'.format(group_id))
-    for ip_idx, p2p_get in enumerate(p2p_ip):
+    for ip_idx, rpc_get in enumerate(rpc_ip):
         channel_addr.append('{}:{}'.format(
-            p2p_get, channel_listen_port[ip_idx]))
+            rpc_get, channel_listen_port[ip_idx]))
     cmd = "cat {} | grep -n connectionsStr | awk '{{print $1}}'".format(data)
     (status, result) = utils.getstatusoutput(cmd)
     result = result.strip('\n').strip(':')
