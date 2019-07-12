@@ -103,6 +103,7 @@ init_chain() {
     cd ${SHELL_FOLDER}/
     ./generator --generate_chain_certificate ./dir_chain_ca
     check_result
+    cp ./dir_chain_ca/* ${output_dir}
     if [ ! -f "${SHELL_FOLDER}/meta/fisco-bcos" ]; then
         LOG_INFO "doanloading fisco-bcos..."
         ./generator --download_fisco ./meta
@@ -110,22 +111,22 @@ init_chain() {
     fi
 }
 
-init_agency_with_ke() {
-    echo "no key"
-
-}
-
 init_agency() {
     for agency in ${dir_name[*]}; do
         cd ${SHELL_FOLDER}
-        file_must_not_exists ${agency}/agency.crt
-        file_must_not_exists ${agency}/agency.key
         git clone https://github.com/FISCO-BCOS/generator.git ${agency}/generator-agency
-        cp ${SHELL_FOLDER}//meta/fisco-bcos ${agency}/generator-agency/meta/fisco-bcos
-        ./generator --generate_agency_certificate ${agency} ./dir_chain_ca agency_cert
-        check_result
-        cp ${agency}/agency_cert/* ./${agency}/generator-agency/meta
-        cp ${agency}/agency_cert/* ${SHELL_FOLDER}/meta/
+        cp ${SHELL_FOLDER}/meta/fisco-bcos ${agency}/generator-agency/meta/fisco-bcos
+        if [ -f "${agency}/agency.crt" ] and [ -f "${agency}/agency.crt" ]; then
+            cp ${agency}/agency.* ./${agency}/generator-agency/meta
+            # cp ${agency}/agency_cert/* ${SHELL_FOLDER}/meta/
+        else
+            file_must_not_exists ${agency}/agency.crt
+            file_must_not_exists ${agency}/agency.key
+            ./generator --generate_agency_certificate ${agency} ./dir_chain_ca agency_cert
+            check_result
+            cp ${agency}/agency_cert/* ./${agency}/generator-agency/meta
+            # cp ${agency}/agency_cert/* ${SHELL_FOLDER}/meta/
+        fi
     done
 }
 
@@ -147,6 +148,7 @@ init_node_cert() {
         rm ${SHELL_FOLDER}/meta/peers.txt
     fi
     sort -n ${SHELL_FOLDER}/meta/peersALL.txt | uniq >${SHELL_FOLDER}/meta/peers.txt
+    cp ${SHELL_FOLDER}/meta/peers.txt ${output_dir}/
 }
 
 init_genesis() {
@@ -170,7 +172,7 @@ EOF
     ./generator --create_group_genesis ./group
     check_result
     for agency in ${dir_name[*]}; do
-        cp ./group/group.1.genesis ${agency}/generator-agency/meta/
+        cp ./group/group.*.genesis ${agency}/generator-agency/meta/
     done
 
 }
@@ -190,20 +192,23 @@ generate_node() {
     done
 }
 
-# download_console() {
-#     cd ${SHELL_FOLDER}
-#     ./generator --download_console ./
-# }
-
-main() {
+build_init() {
     run_install
     init_chain
     check_node_ini ${output_dir}
     init_agency
     init_node_cert
     init_genesis
-    # download_console
     generate_node
+}
+
+chain_cert_mut_exist() {
+    file_must_exists ${output_dir}/ca.crt
+    file_must_exists ${output_dir}/ca.key
+}
+
+expand_init() {
+    chain_cert_mut_exist
 }
 
 if [ -z "$1" ]; then
@@ -212,3 +217,23 @@ if [ -z "$1" ]; then
 else
     main $1
 fi
+
+case "$1" in
+-b)
+    build_init $2
+    ;;
+-build)
+    build_init $2
+    ;;
+-e)
+    expand_init $2
+    ;;
+-expand)
+    expand_init $2
+    ;;
+help)
+    help
+    ;;
+*)
+    help
+esac

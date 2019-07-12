@@ -10,7 +10,7 @@ jobs:
           name: Test demo
           command: |
             sudo apt-get -y install curl
-            bash ./one_click_generator.sh ./one_click
+            bash ./one_click_generator.sh -b ./one_click
             bash ./one_click/agencyA/node/start_all.sh
             bash ./one_click/agencyB/node/start_all.sh
             ls ./one_click/agencyA
