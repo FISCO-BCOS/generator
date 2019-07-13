@@ -11,8 +11,9 @@ SHELL_FOLDER=$(
     pwd
 )
 
-output_dir=$1
+output_dir=$2
 dir_name=()
+group_id=
 EXIT_CODE=1
 
 help() {
@@ -22,11 +23,8 @@ help() {
 check_result() {
     ret=$?
     if [ $ret -ne 0 ]; then
-        LOG_ERROR "FAILED execution of command: ${command}"
-        # clear_cache
+        LOG_ERROR "STATUS CHECK FAILED"
         exit 1
-    else
-        LOG_INFO "SUCCESS execution of command: ${command}"
     fi
 }
 
@@ -67,9 +65,24 @@ dir_must_exists() {
 }
 
 dir_must_not_exists() {
-    if [ -e "$1" ]; then
+    if [ -d "$1" ]; then
         echo "$1 DIR exists, please clean old DIR!"
         exit $EXIT_CODE
+    fi
+}
+
+check_rename() {
+    if [ -d "$1" ]; then
+        echo "$1 exists, Want to rename it?(y/n)"
+        read status
+        if [ "${status}" == "y" ]; then
+            LOG_INFO "input name at local path"
+            read name
+            mv $1 ${name}
+        else
+            LOG_ERROR "$1 exist, break!"
+            exit 1
+        fi
     fi
 }
 
@@ -83,12 +96,9 @@ check_node_ini() {
                 exit 1
             fi
             LOG_INFO "try to use ${dir}/node_deployment.ini"
-            if [ -d "${dir}/generator" ]; then
-                LOG_ERROR "${dir}/generator existed, please delete it!"
-                exit 1
-            fi
             dir_name[i]=${dir}
             i=${i}+1
+            group_id=$(cat ${dir}/node_deployment.ini | grep group_id= | tr -cd "[0-9]")
         fi
     done
 
@@ -101,28 +111,32 @@ run_install() {
 
 init_chain() {
     cd ${SHELL_FOLDER}/
-    ./generator --generate_chain_certificate ./dir_chain_ca
+    ./generator --generate_chain_certificate ./.dir_chain_ca
     check_result
-    cp ./dir_chain_ca/* ${output_dir}
+    cp ./.dir_chain_ca/* ${output_dir}/
+    cp ./.dir_chain_ca/* /meta/
     if [ ! -f "${SHELL_FOLDER}/meta/fisco-bcos" ]; then
         LOG_INFO "doanloading fisco-bcos..."
         ./generator --download_fisco ./meta
         check_result
     fi
+    rm -rf ./.dir_chain_ca
 }
 
 init_agency() {
     for agency in ${dir_name[*]}; do
         cd ${SHELL_FOLDER}
-        git clone https://github.com/FISCO-BCOS/generator.git ${agency}/generator-agency
-        cp ${SHELL_FOLDER}/meta/fisco-bcos ${agency}/generator-agency/meta/fisco-bcos
-        if [ -f "${agency}/agency.crt" ] and [ -f "${agency}/agency.crt" ]; then
-            cp ${agency}/agency.* ./${agency}/generator-agency/meta
-            # cp ${agency}/agency_cert/* ${SHELL_FOLDER}/meta/
+        if [ ! -d ${agency}/generator-agency ]; then
+            git clone https://github.com/FISCO-BCOS/generator.git ${agency}/generator-agency
+            cp ${SHELL_FOLDER}/meta/fisco-bcos ${agency}/generator-agency/meta/fisco-bcos
+        fi
+        if [ -f "${agency}/agency_cert/agency.crt" ]; then
+            if [ -f "${agency}/agency_cert/agency.crt" ]; then
+                cp ${agency}/agency_cert/* ./${agency}/generator-agency/meta
+            fi
         else
-            file_must_not_exists ${agency}/agency.crt
-            file_must_not_exists ${agency}/agency.key
-            ./generator --generate_agency_certificate ${agency} ./dir_chain_ca agency_cert
+            dir_must_not_exists ${agency}/agency_cert/agency.crt
+            ./generator --generate_agency_certificate ${agency} ${output_dir}/ agency_cert
             check_result
             cp ${agency}/agency_cert/* ./${agency}/generator-agency/meta
             # cp ${agency}/agency_cert/* ${SHELL_FOLDER}/meta/
@@ -138,6 +152,7 @@ init_node_cert() {
         cd ${agency}/generator-agency
         cp -r ../node_deployment.ini ./conf/
         LOG_INFO "${agency} generate node now..."
+        check_rename ./node_send
         ./generator --generate_all_certificates ./node_send
         check_result
         cp ./node_send/cert* ${SHELL_FOLDER}/meta
@@ -159,7 +174,7 @@ init_genesis() {
     fi
     cat <<EOF >>"./conf/group_genesis.ini"
 [group]
-group_id=1
+group_id=${group_id}
 
 [nodes]
 EOF
@@ -169,25 +184,29 @@ EOF
         i=$((i + 1))
     done <./meta/peers.txt
 
-    ./generator --create_group_genesis ./group
+    ./generator --create_group_genesis ./.group
+    cp ./.group/group.*.genesis ${output_dir}/
     check_result
     for agency in ${dir_name[*]}; do
-        cp ./group/group.*.genesis ${agency}/generator-agency/meta/
+        cp ./.group/group.*.genesis ${SHELL_FOLDER}/${agency}/generator-agency/meta/
     done
-
+    rm -rf ./.group
 }
 
 generate_node() {
     cd ${SHELL_FOLDER}
     for agency in ${dir_name[*]}; do
         cd ${agency}/generator-agency/
+        check_rename ./node
         ./generator --build_install_package ${SHELL_FOLDER}/meta/peers.txt ./node
         check_result
+        check_rename ./sdk
         ./generator --get_sdk_file ./sdk
         check_result
-        cp -rf ./node ${SHELL_FOLDER}/${agency}/node
-        # cp -r ${SHELL_FOLDER}/console ${agency}/console
-        cp -rf ./sdk/ ${SHELL_FOLDER}/${agency}/sdk
+        check_rename ${SHELL_FOLDER}/${agency}/node
+        check_rename ${SHELL_FOLDER}/${agency}/sdk
+        mv ./node ${SHELL_FOLDER}/${agency}/node
+        mv ./sdk/ ${SHELL_FOLDER}/${agency}/sdk
         cd ${SHELL_FOLDER}
     done
 }
@@ -195,27 +214,64 @@ generate_node() {
 build_init() {
     run_install
     init_chain
-    check_node_ini ${output_dir}
+    check_node_ini
     init_agency
     init_node_cert
     init_genesis
     generate_node
 }
 
-chain_cert_mut_exist() {
+chain_must_exist() {
     file_must_exists ${output_dir}/ca.crt
     file_must_exists ${output_dir}/ca.key
+    file_must_exists ${output_dir}/peers.txt
+
+}
+
+copy_genesis() {
+    for agency in ${dir_name[*]}; do
+        cp ${output_dir}/group.${group_id}.genesis ${SHELL_FOLDER}/${agency}/generator-agency/meta/
+    done
+}
+
+add_peers_expand_node() {
+    cat ${output_dir}/peers.txt >>${SHELL_FOLDER}/meta/peers.txt
+    sort -n ${SHELL_FOLDER}/meta/peers.txt | uniq
 }
 
 expand_init() {
-    chain_cert_mut_exist
+    chain_must_exist
+    expand_node_ini
+    init_agency
+    init_node_cert
+    copy_genesis
+    add_peers_expand_node
+    generate_node
+}
+
+expand_node_ini() {
+    i=0
+    for dir in ${output_dir}/*; do
+        [[ -e ${dir} ]] || break
+        if [ -d ${dir} ]; then
+            if [ ! -f "${dir}/node_deployment.ini" ]; then
+                LOG_ERROR "${dir}/node_deployment.ini not exist!"
+                exit 1
+            fi
+            # group_id=$(cat ${dir}/node_deployment.ini | grep group_id= | tr '\r' ' ' | sed s/ //g | sed s/group_id=//g)
+            group_id=$(cat ${dir}/node_deployment.ini | grep group_id= | tr -cd "[0-9]")
+            file_must_exists ${output_dir}/group.${group_id}.genesis
+            LOG_INFO "Need group.${group_id}.genesis in ${output_dir}"
+            LOG_INFO "try to use ${dir}/node_deployment.ini"
+            dir_name[i]=${dir}
+            i=${i}+1
+        fi
+    done
 }
 
 if [ -z "$1" ]; then
     LOG_ERROR "not input found!"
     help
-else
-    main $1
 fi
 
 case "$1" in
@@ -236,4 +292,8 @@ help)
     ;;
 *)
     help
+    ;;
 esac
+
+check_result
+echo -e "\033[32m install generator successful!\033[0m"

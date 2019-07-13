@@ -39,14 +39,13 @@ jobs:
       - run:
           name: Download console
           command: |
+            cd ./one_click/agencyA/generator-agency
             ./generator --download_console ./
-            cp -rf ./console ./one_click/agencyA/console
-            cp ./one_click/agencyA/sdk/* ./one_click/agencyA/console/conf
-            ls ./one_click/agencyA/console/
-            ls ./one_click/agencyA/sdk
-            cat ./one_click/agencyA/sdk/ca.crt
-            cat ./one_click/agencyA/console/conf/ca.crt
-            cat ./one_click/agencyA/console/conf/applicationContext.xml
+            ls ./console/
+            ls ./sdk
+            cat sdk/ca.crt
+            cat ./console/conf/ca.crt
+            cat ./console/conf/applicationContext.xml
   build:  # required for runs that don't use workflows
     working_directory: ~/generator
     docker:
