@@ -123,11 +123,12 @@ install_all_deps() {
 }
 
 install_deps() {
-    sudo_permission_check
+    # sudo_permission_check
     install_all_deps
 }
 
 install_all() {
+    sudo_permission_check
     install_deps
     export LC_ALL=C && pip install configparser --user
     python_env=$(which python)
@@ -166,6 +167,7 @@ install_all() {
 
 if [ "$1" == "deps" ]; then
     install_deps
+    exit 0
 else
     install_all
 fi
