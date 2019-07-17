@@ -127,7 +127,6 @@ init_chain() {
     ./generator --generate_chain_certificate ./.dir_chain_ca
     check_result
     cp ./.dir_chain_ca/* ${output_dir}/
-    cp ./.dir_chain_ca/* /meta/
     if [ ! -f "${SHELL_FOLDER}/meta/fisco-bcos" ]; then
         LOG_INFO "doanloading fisco-bcos..."
         ./generator --download_fisco ./meta

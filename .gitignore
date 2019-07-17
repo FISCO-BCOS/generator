@@ -4,3 +4,6 @@ meta/*
 data/*
 log/all.log
 test*/*
+one_click/*
+conf/*
+.vscode/*
