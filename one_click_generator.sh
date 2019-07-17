@@ -71,18 +71,31 @@ dir_must_not_exists() {
     fi
 }
 
+# check_rename() {
+#     if [ -d "$1" ]; then
+#         echo "$1 exists, Want to rename it?(y/n)"
+#         read status
+#         if [ "${status}" == "y" ]; then
+#             LOG_INFO "input name at local path"
+#             read name
+#             mv $1 ${name}
+#         else
+#             LOG_ERROR "$1 exist, break!"
+#             exit 1
+#         fi
+#     fi
+# }
+
+get_time_stamp() {
+    current=$(date "+%Y-%m-%d %H:%M:%S")
+    timeStamp=$(date -d "$current" +%s)
+    echo ${timeStamp}
+}
+
 check_rename() {
     if [ -d "$1" ]; then
-        echo "$1 exists, Want to rename it?(y/n)"
-        read status
-        if [ "${status}" == "y" ]; then
-            LOG_INFO "input name at local path"
-            read name
-            mv $1 ${name}
-        else
-            LOG_ERROR "$1 exist, break!"
-            exit 1
-        fi
+        echo "$1 exists, rename it to $1_$(get_time_stamp)"
+        mv $1 $1_$(get_time_stamp)
     fi
 }
 
@@ -162,6 +175,9 @@ init_node_cert() {
     if [ -f "${SHELL_FOLDER}/meta/peers.txt" ]; then
         rm ${SHELL_FOLDER}/meta/peers.txt
     fi
+    if [ -f "${output_dir}/peers.txt" ]; then
+        cat ${output_dir}/peers.txt >>${SHELL_FOLDER}/meta/peersALL.txt
+    fi
     sort -n ${SHELL_FOLDER}/meta/peersALL.txt | uniq >${SHELL_FOLDER}/meta/peers.txt
     cp ${SHELL_FOLDER}/meta/peers.txt ${output_dir}/
 }
@@ -191,6 +207,9 @@ EOF
         cp ./.group/group.*.genesis ${SHELL_FOLDER}/${agency}/generator-agency/meta/
     done
     rm -rf ./.group
+    rm ${SHELL_FOLDER}/meta/cert_*
+    rm ${SHELL_FOLDER}/meta/group.*
+    rm -rf ${SHELL_FOLDER}/meta/node_*
 }
 
 generate_node() {
