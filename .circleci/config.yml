@@ -2,8 +2,8 @@ version: 2
 jobs:
   one_click:  # required for runs that don't use workflows
     working_directory: ~/generator
-    docker:
-      - image: circleci/python:2.7  # primary container for the build job
+    machine:
+      image: ubuntu-1604:201903-01  # primary container for the build job
     steps:
       - checkout
       - run:
@@ -410,8 +410,8 @@ jobs:
             bash ./monitor.sh -m statistics -f ~/generator-A/nodeA/node_127.0.0.1_30300/log/log* -g 1
   build_gm:  # required for runs that don't use workflows
     working_directory: ~/generator
-    docker:
-      - image: circleci/python:2.7  # primary container for the build job
+    machine:
+      image: ubuntu-1604:201903-01 # primary container for the build job
     steps:
       - checkout
       - run:
