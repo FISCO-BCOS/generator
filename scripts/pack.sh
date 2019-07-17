@@ -78,7 +78,7 @@ function clean()
         if [ ! -f ${configfile} ];then
             continue
         fi
-
+        nodedir=$(dirname ${configfile})
         cp ${fiscopath} ${nodedir} 2> /dev/null
     done
 
