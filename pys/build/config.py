@@ -194,7 +194,7 @@ def build_config_ini(_data_dir):
         for ip_idx, set_item in enumerate(p2p_ip):
             fin_p2p_ip.append("{}:{}".format(set_item, p2p_listen_port[ip_idx]))
         fin_p2p_ip = list(set(fin_p2p_ip))
-        for index, p2p_section in enumerate(p2p_ip):
+        for index, p2p_section in enumerate(fin_p2p_ip):
             node_cfg.set("p2p", "node.{}".format(index),
                          '{}'.format(p2p_section))
         with open('{}/config.ini'.format(node_dir), 'w') as config_file:
