@@ -165,7 +165,7 @@ install_all() {
     fi
 
     if [ ${platform} -eq ${Ubuntu_Platform} ]; then
-        ubuntu_version=$(cat /etc/os-release | grep VERSION_ID)
+        ubuntu_version=$(< /etc/os-release grep VERSION_ID )
         case ${ubuntu_version} in
         *10*)
             if [[ "${py_pip}" != "3" ]]; then

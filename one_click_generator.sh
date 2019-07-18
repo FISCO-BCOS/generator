@@ -113,7 +113,7 @@ check_node_ini() {
             LOG_INFO "try to use ${dir}/node_deployment.ini"
             dir_name[i]=${dir}
             i=${i}+1
-            group_id=$(cat ${dir}/node_deployment.ini | grep group_id= | tr -cd "[0-9]")
+            group_id=$(< ${dir}/node_deployment.ini grep group_id= | tr -cd '0-9')
         fi
     done
 
@@ -279,7 +279,7 @@ expand_node_ini() {
                 exit 1
             fi
             # group_id=$(cat ${dir}/node_deployment.ini | grep group_id= | tr '\r' ' ' | sed s/ //g | sed s/group_id=//g)
-            group_id=$(cat ${dir}/node_deployment.ini | grep group_id= | tr -cd "[0-9]")
+            group_id=$(< ${dir}/node_deployment.ini grep group_id= | tr -cd '0-9')
             file_must_exists ${output_dir}/group.${group_id}.genesis
             LOG_INFO "Need group.${group_id}.genesis in ${output_dir}"
             LOG_INFO "try to use ${dir}/node_deployment.ini"
