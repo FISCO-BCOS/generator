@@ -97,6 +97,7 @@ get_platform() {
             esac
         else
             LOG_ERROR "Unsupported Platform"
+            exit 1
         fi
         ;;
     esac
