@@ -13,3 +13,21 @@
 -   本工具考虑了机构间节点的对等性需求，多机构间可以通过交换数字证书对等安全地部署自己的节点。
 
 文档见[FISCO BCOS 企业部署工具](https://fisco-bcos-documentation.readthedocs.io/zh_CN/latest/docs/enterprise_tools/index.html)。
+
+## 贡献代码
+欢迎参与FISCO BCOS的社区建设：
+- 点亮我们的小星星(点击项目左上方Star按钮)。
+- 提交代码(Pull requests)，参考我们的[代码贡献流程](CONTRIBUTING_CN.md)。
+- [提问和提交BUG](https://github.com/FISCO-BCOS/generator/issues)。
+
+## 加入我们的社区
+
+FISCO BCOS开源社区是国内活跃的开源社区，社区长期为机构和个人开发者提供各类支持与帮助。已有来自各行业的数千名技术爱好者在研究和使用FISCO BCOS。如您对FISCO BCOS开源技术及应用感兴趣，欢迎加入社区获得更多支持与帮助。
+
+![](https://media.githubusercontent.com/media/FISCO-BCOS/LargeFiles/master/images/QR_image.png)
+
+## License
+
+![license](https://img.shields.io/badge/license-Apache%20v2-blue.svg)
+
+generator的开源协议为[Apache License 2.0](http://www.apache.org/licenses/). 详情参考[LICENSE](../LICENSE)。
