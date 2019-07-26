@@ -41,9 +41,9 @@ Go to [issues page](https://github.com/FISCO-BCOS/generator/issues)
 8. Merged !!!!
 
 
-## Continous integration
+## Continuous integration
 
-**Continous integration platform**
+**Continuous integration platform**
 
 * Circle-CI: [![CircleCI](https://circleci.com/gh/FISCO-BCOS/generator.svg?style=shield)](https://circleci.com/gh/FISCO-BCOS/generator)
 
