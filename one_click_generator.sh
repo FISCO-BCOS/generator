@@ -19,7 +19,9 @@ group_id=
 EXIT_CODE=1
 
 help() {
-    echo "View at https://fisco-bcos-documentation.readthedocs.io/zh_CN/release-2.0.0/docs/enterprise_tools/enterprise_quick_start.html"
+    echo "bash one_click_generator.sh -b ./tmp_onc_click"
+    echo "bash one_click_generator.sh -e ./tmp_onc_click_expand"
+    echo "View at https://fisco-bcos-documentation.readthedocs.io/zh_CN/release-2.0/docs/enterprise_tools/enterprise_quick_start.html"
 }
 
 check_result() {
@@ -89,6 +91,8 @@ dir_must_not_exists() {
 # }
 
 check_generator_status () {
+    file_must_not_exists ${SHELL_FOLDER}/meta/ca.*
+    file_must_not_exists ${SHELL_FOLDER}/meta/agency.*
     file_must_not_exists ${SHELL_FOLDER}/meta/cert_*
     dir_must_not_exists ${SHELL_FOLDER}/meta/node_*
     if [ ! -f "${SHELL_FOLDER}/meta/fisco-bcos" ]; then
