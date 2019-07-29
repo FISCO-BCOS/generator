@@ -26,7 +26,7 @@ check_result() {
     ret=$?
     if [ $ret -ne 0 ]; then
         LOG_ERROR "STATUS CHECK FAILED"
-        exit 1
+        exit $EXIT_CODE
     fi
 }
 
@@ -83,10 +83,20 @@ dir_must_not_exists() {
 #             mv $1 ${name}
 #         else
 #             LOG_ERROR "$1 exist, break!"
-#             exit 1
+#             exit $EXIT_CODE
 #         fi
 #     fi
 # }
+
+check_generator_status () {
+    file_must_not_exists ${SHELL_FOLDER}/meta/cert_*
+    dir_must_not_exists ${SHELL_FOLDER}/meta/node_*
+    if [ ! -f "${SHELL_FOLDER}/meta/fisco-bcos" ]; then
+        LOG_INFO "doanloading fisco-bcos..."
+        ./generator --download_fisco ./meta
+        check_result
+    fi
+}
 
 get_time_stamp() {
     current=$(date "+%Y-%m-%d %H:%M:%S")
@@ -108,7 +118,11 @@ check_node_ini() {
         if [ -d ${dir} ]; then
             if [ ! -f "${dir}/node_deployment.ini" ]; then
                 LOG_ERROR "${dir}/node_deployment.ini not exist!"
-                exit 1
+                exit $EXIT_CODE
+            fi
+            if [ -d "${dir}/generator-agency" ]; then
+                LOG_ERROR "${dir}/generator-agency exist!"
+                exit $EXIT_CODE
             fi
             LOG_INFO "try to use ${dir}/node_deployment.ini"
             dir_name[i]=${dir}
@@ -119,21 +133,12 @@ check_node_ini() {
 
 }
 
-run_install() {
-    cd ${SHELL_FOLDER}/
-    bash ./scripts/install.sh
-}
 
 init_chain() {
     cd ${SHELL_FOLDER}/
     ./generator --generate_chain_certificate ./.dir_chain_ca
     check_result
     cp ./.dir_chain_ca/* ${output_dir}/
-    if [ ! -f "${SHELL_FOLDER}/meta/fisco-bcos" ]; then
-        LOG_INFO "doanloading fisco-bcos..."
-        ./generator --download_fisco ./meta
-        check_result
-    fi
     rm -rf ./.dir_chain_ca
 }
 
@@ -149,7 +154,7 @@ init_agency() {
                 cp ${agency}/agency_cert/* ./${agency}/generator-agency/meta
             fi
         else
-            dir_must_not_exists ${agency}/agency_cert/agency.crt
+            file_must_not_exists ${agency}/agency_cert/agency.crt
             ./generator --generate_agency_certificate ${agency} ${output_dir}/ agency_cert
             check_result
             cp ${agency}/agency_cert/* ./${agency}/generator-agency/meta
@@ -229,10 +234,17 @@ generate_node() {
         mv ./sdk/ ${SHELL_FOLDER}/${agency}/sdk
         cd ${SHELL_FOLDER}
     done
+    if [ -f "${SHELL_FOLDER}/meta/peers*" ]; then
+        rm ${SHELL_FOLDER}/meta/peers*
+    fi
+    if [ -f "${SHELL_FOLDER}/meta/cert_*" ]; then
+        rm ${SHELL_FOLDER}/meta/cert_*
+    fi
 }
 
 build_init() {
-    run_install
+    # run_install
+    check_generator_status
     init_chain
     check_node_ini
     init_agency
@@ -260,6 +272,7 @@ add_peers_expand_node() {
 }
 
 expand_init() {
+    check_generator_status
     chain_must_exist
     expand_node_ini
     init_agency
@@ -276,7 +289,11 @@ expand_node_ini() {
         if [ -d ${dir} ]; then
             if [ ! -f "${dir}/node_deployment.ini" ]; then
                 LOG_ERROR "${dir}/node_deployment.ini not exist!"
-                exit 1
+                exit $EXIT_CODE
+            fi
+            if [ -d "${dir}/generator-agency" ]; then
+                LOG_ERROR "${dir}/generator-agency exist!"
+                exit $EXIT_CODE
             fi
             # group_id=$(cat ${dir}/node_deployment.ini | grep group_id= | tr '\r' ' ' | sed s/ //g | sed s/group_id=//g)
             group_id=$(< ${dir}/node_deployment.ini grep group_id= | tr -cd '0-9')
@@ -316,4 +333,4 @@ help)
 esac
 
 check_result
-echo -e "\033[32m install generator successful!\033[0m"
+echo -e "\033[32m run one_click_generator successful!\033[0m"

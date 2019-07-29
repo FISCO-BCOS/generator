@@ -7,3 +7,5 @@ test*/*
 one_click/*
 conf/*
 .vscode/*
+.DS_Store
+.srl

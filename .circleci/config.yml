@@ -7,13 +7,15 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Test demo
+          name: Test build
           command: |
             sudo apt-get -y install curl
-            bash ./one_click_generator.sh -b ./one_click
-            bash ./one_click/agencyA/node/start_all.sh
-            bash ./one_click/agencyB/node/start_all.sh
-            ls ./one_click/agencyA
+            bash ./scripts/install.sh
+            cp -r ./tmp_one_click ./tmp_one_click_expand
+            bash ./one_click_generator.sh -b ./tmp_one_click
+            bash ./tmp_one_click/agencyA/node/start_all.sh
+            bash ./tmp_one_click/agencyB/node/start_all.sh
+            ls ./tmp_one_click/agencyA
       - run:
           name: Test transaction
           command: |
@@ -37,9 +39,17 @@ jobs:
             fi
             echo "send transaction succeed"
       - run:
+          name: Test expand
+          command: |
+            cp ./tmp_one_click/group.* ./tmp_one_click_expand
+            cp ./tmp_one_click/peers* ./tmp_one_click_expand
+            cp ./tmp_one_click/ca.* ./tmp_one_click_expand
+            bash ./one_click_generator.sh -e ./tmp_one_click_expand
+            ls ./tmp_one_click/agencyA
+      - run:
           name: Download console
           command: |
-            cd ./one_click/agencyA/generator-agency
+            cd ./tmp_one_click/agencyA/generator-agency
             ./generator --download_console ./
             ls ./console/
             cat ./console/conf/ca.crt
