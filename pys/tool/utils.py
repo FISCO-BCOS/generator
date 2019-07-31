@@ -13,7 +13,8 @@ from pys.error.exp import MCError
 from pys.log import LOGGER, CONSOLER
 from pys import path
 if sys.version > '3':
-    import urllib.request, urllib.error
+    import urllib.request
+    import urllib.error
 else:
     import urllib
     import urllib2
@@ -29,6 +30,7 @@ class Status(object):
     gm_option = False
     unit_time = False
     allow_unsecure_cfg = False
+    use_cdn = False
 
     def __init__(self):
         """[init]
@@ -58,6 +60,21 @@ class Status(object):
         """
 
         self.allow_unsecure_cfg = True
+
+    def get_cnd_staus(self):
+        """[get gm_option]
+
+
+        Returns:
+            [string] -- [gm]
+        """
+        return self.use_cdn
+
+def set_cdn():
+    """[summary]
+    """
+
+    Status.use_cdn = True
 
 
 def set_gm():
@@ -438,19 +455,32 @@ def download_fisco(_dir):
         version.strip('\n'), package_name.strip('\n'))
     cnd_link = 'https://www.fisco.com.cn/cdn/fisco-bcos/releases/download/v{}/{}'.format(
         version.strip('\n'), package_name.strip('\n'))
-    if valid_url(cnd_link):
-        LOGGER.info("Downloading fisco-bcos binary from %s", cnd_link)
-        CONSOLER.info("Downloading fisco-bcos binary from %s", cnd_link)
-        download_bin(cnd_link, package_name)
-    elif valid_url(download_link):
-        LOGGER.info("Downloading fisco-bcos binary from %s", download_link)
-        CONSOLER.info("Downloading fisco-bcos binary from %s", download_link)
-        download_bin(download_link, package_name)
+    if Status.use_cdn:
+        if valid_url(cnd_link):
+            LOGGER.info("Downloading fisco-bcos binary from %s", cnd_link)
+            CONSOLER.info("Downloading fisco-bcos binary from %s", cnd_link)
+            download_bin(cnd_link, package_name)
+        elif valid_url(download_link):
+            LOGGER.info("Downloading fisco-bcos binary from %s", download_link)
+            CONSOLER.info(
+                "Downloading fisco-bcos binary from %s", download_link)
+            download_bin(download_link, package_name)
+        else:
+            LOGGER.error(
+                ' Download fisco-bcos failed, Please check your network!')
+            raise MCError(
+                ' Download fisco-bcos failed, Please check your network!')
     else:
-        LOGGER.error(
-            ' Download fisco-bcos failed, Please check your network!')
-        raise MCError(
-            ' Download fisco-bcos failed, Please check your network!')
+        if valid_url(download_link):
+            LOGGER.info("Downloading fisco-bcos binary from %s", download_link)
+            CONSOLER.info(
+                "Downloading fisco-bcos binary from %s", download_link)
+            download_bin(download_link, package_name)
+        else:
+            LOGGER.error(
+                ' Download fisco-bcos failed, Please check your network!')
+            raise MCError(
+                ' Download fisco-bcos failed, Please check your network!')
     (status, result)\
         = getstatusoutput('tar -zxf {} -C {} && rm {}'.format(package_name,
                                                               bin_path,
@@ -501,19 +531,30 @@ def download_console(_dir):
         version.strip('\n'), package_name.strip('\n'))
     cnd_link = 'https://www.fisco.com.cn/cdn/console/releases/download/v{}/{}'.format(
         version.strip('\n'), package_name.strip('\n'))
-    if valid_url(cnd_link):
-        LOGGER.info("Downloading console binary from %s", cnd_link)
-        CONSOLER.info("Downloading console binary from %s", cnd_link)
-        download_bin(cnd_link, package_name)
-    elif valid_url(download_link):
-        LOGGER.info("Downloading console binary from %s", download_link)
-        CONSOLER.info("Downloading console binary from %s", download_link)
-        download_bin(download_link, package_name)
+    if Status.use_cdn:
+        if valid_url(cnd_link):
+            LOGGER.info("Downloading console binary from %s", cnd_link)
+            CONSOLER.info("Downloading console binary from %s", cnd_link)
+            download_bin(cnd_link, package_name)
+        elif valid_url(download_link):
+            LOGGER.info("Downloading console binary from %s", download_link)
+            CONSOLER.info("Downloading console binary from %s", download_link)
+            download_bin(download_link, package_name)
+        else:
+            LOGGER.error(
+                ' Download console failed, Please check your network!')
+            raise MCError(
+                ' Download console failed, Please check your network!')
     else:
-        LOGGER.error(
-            ' Download console failed, Please check your network!')
-        raise MCError(
-            ' Download console failed, Please check your network!')
+        if valid_url(download_link):
+            LOGGER.info("Downloading console binary from %s", download_link)
+            CONSOLER.info("Downloading console binary from %s", download_link)
+            download_bin(download_link, package_name)
+        else:
+            LOGGER.error(
+                ' Download console failed, Please check your network!')
+            raise MCError(
+                ' Download console failed, Please check your network!')
     (status, result)\
         = getstatusoutput('tar -zxf {} -C {} && '
                           'rm {}'.format(package_name,
@@ -656,7 +697,7 @@ def valid_url(_url):
     """check valid url
     """
     baseURL = _url
-    #print fullURL
+    # print fullURL
     try:
         if sys.version > '3':
             try:
@@ -686,5 +727,6 @@ def valid_url(_url):
             baseURL, resp.getcode()))
         return True
     except Exception as download_err:
-        LOGGER.error("Could not connect to URL: %s ,err is %s",baseURL, download_err)
+        LOGGER.error("Could not connect to URL: %s ,err is %s",
+                     baseURL, download_err)
         return False

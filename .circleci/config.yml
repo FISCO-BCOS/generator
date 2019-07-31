@@ -2,18 +2,20 @@ version: 2
 jobs:
   one_click:  # required for runs that don't use workflows
     working_directory: ~/generator
-    docker:
-      - image: circleci/python:2.7  # primary container for the build job
+    machine:
+      image: ubuntu-1604:201903-01  # primary container for the build job
     steps:
       - checkout
       - run:
-          name: Test demo
+          name: Test build
           command: |
             sudo apt-get -y install curl
-            bash ./one_click_generator.sh ./one_click
-            bash ./one_click/agencyA/node/start_all.sh
-            bash ./one_click/agencyB/node/start_all.sh
-            ls ./one_click/agencyA
+            bash ./scripts/install.sh
+            cp -r ./tmp_one_click ./tmp_one_click_expand
+            bash ./one_click_generator.sh -b ./tmp_one_click
+            bash ./tmp_one_click/agencyA/node/start_all.sh
+            bash ./tmp_one_click/agencyB/node/start_all.sh
+            ls ./tmp_one_click/agencyA
       - run:
           name: Test transaction
           command: |
@@ -37,16 +39,21 @@ jobs:
             fi
             echo "send transaction succeed"
       - run:
+          name: Test expand
+          command: |
+            cp ./tmp_one_click/group.* ./tmp_one_click_expand
+            cp ./tmp_one_click/peers* ./tmp_one_click_expand
+            cp ./tmp_one_click/ca.* ./tmp_one_click_expand
+            bash ./one_click_generator.sh -e ./tmp_one_click_expand
+            ls ./tmp_one_click/agencyA
+      - run:
           name: Download console
           command: |
+            cd ./tmp_one_click/agencyA/generator-agency
             ./generator --download_console ./
-            cp -rf ./console ./one_click/agencyA/console
-            cp ./one_click/agencyA/sdk/* ./one_click/agencyA/console/conf
-            ls ./one_click/agencyA/console/
-            ls ./one_click/agencyA/sdk
-            cat ./one_click/agencyA/sdk/ca.crt
-            cat ./one_click/agencyA/console/conf/ca.crt
-            cat ./one_click/agencyA/console/conf/applicationContext.xml
+            ls ./console/
+            cat ./console/conf/ca.crt
+            cat ./console/conf/applicationContext.xml
   build:  # required for runs that don't use workflows
     working_directory: ~/generator
     docker:
@@ -413,8 +420,8 @@ jobs:
             bash ./monitor.sh -m statistics -f ~/generator-A/nodeA/node_127.0.0.1_30300/log/log* -g 1
   build_gm:  # required for runs that don't use workflows
     working_directory: ~/generator
-    docker:
-      - image: circleci/python:2.7  # primary container for the build job
+    machine:
+      image: ubuntu-1604:201903-01 # primary container for the build job
     steps:
       - checkout
       - run:

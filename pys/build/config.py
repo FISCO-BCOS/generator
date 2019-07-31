@@ -81,16 +81,17 @@ def build_config_ini(_data_dir):
             ' open config.ini file failed, exception is %s', build_exp)
         raise MCError(
             ' open config.ini file failed, exception is %s' % build_exp)
+    fin_p2p_ip = []
     if not peers:
         LOGGER.warning('section peers not existed!')
         CONSOLER.warn('section peers not existed!')
     else:
-        for node_id, peer in enumerate(peers):
-            default_cfg.set("p2p", "node.{}".format(node_id + len(p2p_listen_port)),
-                            peer)
-        with open('{}/.config.ini'.format(conf_dir), 'w') as config_file:
-            default_cfg.write(config_file)
-
+        for _, peer in enumerate(peers):
+            fin_p2p_ip.append(peer)
+        #     default_cfg.set("p2p", "node.{}".format(node_id + len(p2p_listen_port)),
+        #                     peer)
+        # with open('{}/.config.ini'.format(conf_dir), 'w') as config_file:
+        #     default_cfg.write(config_file)
     # init config.ini & node package
     for my_node_index, node_ip in enumerate(p2p_ip):
         LOGGER.info("p2p_ip -> %s", node_ip)
@@ -189,15 +190,15 @@ def build_config_ini(_data_dir):
             utils.delete_data(package_dir)
             raise MCError(
                 ' open config.ini file failed, exception is %s' % build_exp)
+        # write p2pip:port into config.ini 
         for ip_idx, set_item in enumerate(p2p_ip):
-            node_cfg.set("p2p", "node.{}".format(ip_idx),
-                         '{}:{}'.format(set_item, p2p_listen_port[ip_idx]))
+            fin_p2p_ip.append("{}:{}".format(set_item, p2p_listen_port[ip_idx]))
+        fin_p2p_ip = list(set(fin_p2p_ip))
+        for index, p2p_section in enumerate(fin_p2p_ip):
+            node_cfg.set("p2p", "node.{}".format(index),
+                         '{}'.format(p2p_section))
         with open('{}/config.ini'.format(node_dir), 'w') as config_file:
             node_cfg.write(config_file)
-    # shutil.copy('{}/node_{}_{}/config.ini'.format(package_dir,
-    #                                               p2p_ip[0],
-    #                                               p2p_listen_port[0]),
-    #             '{}/config.ini'.format(package_dir))
     os.mkdir(package_dir + '/scripts/')
     shutil.copy('{}/scripts/install.sh'.format(path.get_path()),
                 package_dir + '/scripts/')

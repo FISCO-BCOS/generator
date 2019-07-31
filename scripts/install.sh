@@ -97,6 +97,7 @@ get_platform() {
             esac
         else
             LOG_ERROR "Unsupported Platform"
+            exit 1
         fi
         ;;
     esac
@@ -123,15 +124,17 @@ install_all_deps() {
 }
 
 install_deps() {
-    sudo_permission_check
+    # sudo_permission_check
     install_all_deps
 }
 
 install_all() {
+    sudo_permission_check
     install_deps
     export LC_ALL=C && pip install configparser --user
     python_env=$(which python)
     py_version=$($python_env -V 2>&1 | awk {'print $2'} | awk -F. {' print $1 '})
+
     py_pip=$(pip -V 2>&1 | awk 'END {print $6}' | sed 's/)$//' | awk -F. '{print $1}')
 
     # params check
@@ -162,10 +165,22 @@ install_all() {
         fi
     fi
 
+    if [ ${platform} -eq ${Ubuntu_Platform} ]; then
+        ubuntu_version=$(< /etc/os-release grep VERSION_ID )
+        case ${ubuntu_version} in
+        *10*)
+            if [[ "${py_pip}" != "3" ]]; then
+                echo "Ubuntu 18.10 should use python3!"
+                exit 1
+            fi
+            ;;
+        esac
+    fi
 }
 
 if [ "$1" == "deps" ]; then
     install_deps
+    exit 0
 else
     install_all
 fi
