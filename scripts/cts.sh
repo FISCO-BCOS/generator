@@ -1,8 +1,12 @@
 #!/bin/bash
 
-EXIT_CODE=-1
+EXIT_CODE=1
 # mypass=""
 
+SHELL_FOLDER=$(
+    cd $(dirname $0)
+    pwd
+)
 
 usage() {
 printf "%s\n" \
@@ -72,7 +76,6 @@ gen_chain_cert() {
     mkdir -p $chaindir
     openssl genrsa -out $chaindir/ca.key 2048
     openssl req -new -x509 -days 3650 -subj "/CN=$name/O=fisco-bcos/OU=chain" -key $chaindir/ca.key -out $chaindir/ca.crt
-    cp cert.cnf $chaindir
 
     if [ $? -eq 0 ]; then
         echo "build chain ca succussful!"
@@ -94,11 +97,11 @@ gen_agency_cert() {
     mkdir -p $agencydir
 
     openssl genrsa -out $agencydir/agency.key 2048
-    openssl req -new -sha256 -subj "/CN=$name/O=fisco-bcos/OU=agency" -key $agencydir/agency.key -config $chain/cert.cnf -out $agencydir/agency.csr
+    openssl req -new -sha256 -subj "/CN=$name/O=fisco-bcos/OU=agency" -key $agencydir/agency.key -config ${SHELL_FOLDER}/cert.cnf -out $agencydir/agency.csr
     openssl x509 -req -days 3650 -sha256 -CA $chain/ca.crt -CAkey $chain/ca.key -CAcreateserial\
-        -in $agencydir/agency.csr -out $agencydir/agency.crt  -extensions v4_req -extfile $chain/cert.cnf
+        -in $agencydir/agency.csr -out $agencydir/agency.crt  -extensions v4_req -extfile ${SHELL_FOLDER}/cert.cnf
     
-    cp $chain/ca.crt $chain/cert.cnf $agencydir/
+    cp $chain/ca.crt $agencydir/
     rm -f $agencydir/agency.csr
 
     echo "build $name agency cert successful!"
@@ -125,9 +128,9 @@ gen_cert_secp256k1() {
         break;
     done
     openssl pkey -in $certpath/${type}.key -pubout -out $certpath/${type}.pubkey
-    openssl req -new -sha256 -subj "/CN=${name}/O=fisco-bcos/OU=${type}" -key $certpath/${type}.key -config $capath/cert.cnf -out $certpath/${type}.csr
+    openssl req -new -sha256 -subj "/CN=${name}/O=fisco-bcos/OU=${type}" -key $certpath/${type}.key -config ${SHELL_FOLDER}/cert.cnf -out $certpath/${type}.csr
     openssl x509 -req -days 3650 -sha256 -in $certpath/${type}.csr -CAkey $capath/agency.key -CA $capath/agency.crt\
-        -out $certpath/${type}.crt -CAcreateserial -extensions v3_req -extfile $capath/cert.cnf
+        -out $certpath/${type}.crt -CAcreateserial -extensions v3_req -extfile ${SHELL_FOLDER}/cert.cnf
     openssl ec -in $certpath/${type}.key -outform DER | tail -c +8 | head -c 32 | xxd -p -c 32 | cat >$certpath/${type}.private
     rm -f $certpath/${type}.csr
 }

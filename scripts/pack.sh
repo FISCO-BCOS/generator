@@ -72,6 +72,17 @@ function clean()
         return
     fi
 
+    # copy fisco-bcos first
+    for configfile in  ${workdir}/node*/config.ini
+    do
+        if [ ! -f ${configfile} ];then
+            continue
+        fi
+        nodedir=$(dirname ${configfile})
+        cp ${fiscopath} ${nodedir} 2> /dev/null
+    done
+
+    # copy fisco-bcos first
     for configfile in  ${workdir}/node*/config.ini
     do
         if [ ! -f ${configfile} ];then
@@ -80,10 +91,9 @@ function clean()
         nodedir=$(dirname ${configfile})
         node=$(basename ${nodedir})
         if [[ ${node} =~ ${ip} ]];then
-            # copy fisco-bcos to nodedir
-            cp ${fiscopath} ${nodedir} 2> /dev/null
             continue
         fi
+        
         echo " remove ${node}, server is ${ip}"
         rm -rf ${nodedir}
     done

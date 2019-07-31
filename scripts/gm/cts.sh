@@ -1,11 +1,12 @@
 #!/bin/bash
-dirpath="$(cd "$(dirname "$0")" && pwd)"
-cd $dirpath
 
-export cert_conf_path=${dirpath}/cert.cnf
+SHELL_FOLDER=$(
+    cd $(dirname $0)
+    pwd
+)
 
 export TASSL_CMD="${HOME}"/.tassl
-export EXIT_CODE=-1
+export EXIT_CODE=1
 
 # TASSL env
 check_and_install_tassl()
@@ -106,20 +107,12 @@ gen_chain_cert() {
     chaindir=$path
     mkdir -p $chaindir
 
-    generate_gmsm2_param "gmsm2.param"
-	$TASSL_CMD genpkey -paramfile gmsm2.param -out $chaindir/gmca.key
-	$TASSL_CMD req -config gmcert.cnf -x509 -days 3650 -subj "/CN=$name/O=fiscobcos/OU=chain" -key $chaindir/gmca.key -extensions v3_ca -out $chaindir/gmca.crt
+	$TASSL_CMD genpkey -paramfile ${SHELL_FOLDER}/gmsm2.param -out $chaindir/gmca.key
+	$TASSL_CMD req -config ${SHELL_FOLDER}/gmcert.cnf -x509 -days 3650 -subj "/CN=$name/O=fiscobcos/OU=chain" -key $chaindir/gmca.key -extensions v3_ca -out $chaindir/gmca.crt
 
     ls $chaindir
 
-    cp gmcert.cnf gmsm2.param $chaindir
-
-    if $(cp gmcert.cnf gmsm2.param $chaindir)
-    then
-        echo "build chain ca succussful!"
-    else
-        echo "please input at least Common Name!"
-    fi
+    echo "build chain ca succussful!"
 }
 
 gen_agency_cert() {
@@ -134,11 +127,11 @@ gen_agency_cert() {
     dir_must_not_exists "$agencydir"
     mkdir -p $agencydir
 
-    $TASSL_CMD genpkey -paramfile $chain/gmsm2.param -out $agencydir/gmagency.key
-    $TASSL_CMD req -new -subj "/CN=$name/O=fiscobcos/OU=agency" -key $agencydir/gmagency.key -config $chain/gmcert.cnf -out $agencydir/gmagency.csr
-    $TASSL_CMD x509 -req -CA $chain/gmca.crt -CAkey $chain/gmca.key -days 3650 -CAcreateserial -in $agencydir/gmagency.csr -out $agencydir/gmagency.crt -extfile $chain/gmcert.cnf -extensions v3_agency_root
+    $TASSL_CMD genpkey -paramfile ${SHELL_FOLDER}/gmsm2.param -out $agencydir/gmagency.key
+    $TASSL_CMD req -new -subj "/CN=$name/O=fiscobcos/OU=agency" -key $agencydir/gmagency.key -config ${SHELL_FOLDER}/gmcert.cnf -out $agencydir/gmagency.csr
+    $TASSL_CMD x509 -req -CA $chain/gmca.crt -CAkey $chain/gmca.key -days 3650 -CAcreateserial -in $agencydir/gmagency.csr -out $agencydir/gmagency.crt -extfile ${SHELL_FOLDER}/gmcert.cnf -extensions v3_agency_root
 
-    cp $chain/gmca.crt $chain/gmcert.cnf $chain/gmsm2.param $agencydir/
+    cp $chain/gmca.crt $agencydir/
     rm -f $agencydir/gmagency.csr
 
     echo "build $name agency cert successful!"
@@ -152,7 +145,7 @@ gen_node_cert_with_extensions_gm() {
     extensions="$5"
     while :
     do
-        $TASSL_CMD genpkey -paramfile $capath/gmsm2.param -out $certpath/gm${type}.key
+        $TASSL_CMD genpkey -paramfile ${SHELL_FOLDER}/gmsm2.param -out $certpath/gm${type}.key
         privateKey=$(${TASSL_CMD} ec -in "$certpath/gm${type}.key" -text 2> /dev/null| sed -n '3,5p' | sed 's/://g'| tr "\n" " "|sed 's/ //g')
         len=${#privateKey}
         head2=${privateKey:0:2}
@@ -162,8 +155,8 @@ gen_node_cert_with_extensions_gm() {
         fi
         break;
     done
-    $TASSL_CMD req -new -subj "/CN=$name/O=fiscobcos/OU=agency" -key $certpath/gm${type}.key -config $capath/gmcert.cnf -out $certpath/gm${type}.csr
-    $TASSL_CMD x509 -req -CA $capath/gmagency.crt -CAkey $capath/gmagency.key -days 3650 -CAcreateserial -in $certpath/gm${type}.csr -out $certpath/gm${type}.crt -extfile $capath/gmcert.cnf -extensions $extensions
+    $TASSL_CMD req -new -subj "/CN=$name/O=fiscobcos/OU=agency" -key $certpath/gm${type}.key -config ${SHELL_FOLDER}/gmcert.cnf -out $certpath/gm${type}.csr
+    $TASSL_CMD x509 -req -CA $capath/gmagency.crt -CAkey $capath/gmagency.key -days 3650 -CAcreateserial -in $certpath/gm${type}.csr -out $certpath/gm${type}.crt -extfile ${SHELL_FOLDER}/gmcert.cnf -extensions $extensions
 
     rm -f $certpath/gm${type}.csr
 }
