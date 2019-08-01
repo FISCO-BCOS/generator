@@ -1,15 +1,7 @@
 #!/bin/bash
 
-try_download_fisco() {
-    echo "download fisco in travis ci!"
-    ./generator --download_fisco ./meta
-    while [ ! -f "./meta/fisco-bcos" ]
-    do
-    ./generator --download_fisco ./meta
-    done
-}
+set -e
 
-try_download_fisco
 cd ..
 cp -r ./generator ~/generator-A
 cp -r ./generator ~/generator-B
@@ -126,7 +118,7 @@ then
 fi
 echo "send transaction succeed"
 cd ~/generator-A
-./generator --download_console ./meta
+bash .ci/download_bin.sh -c
 cat ./meta/console/conf/applicationContext.xml
 # sudo apt-get install openjdk-8-jdk
 cd ./meta/console/
