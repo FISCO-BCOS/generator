@@ -10,10 +10,13 @@ matrix:
     - name: "Python 3.5 on Xenial Linux"
       python: 3.5
       dist: xenial
-    - name: "Python 2.7 on Xenial Linux"
-      python: 2.7
-      dist: xenial
-      sudo: required
+    # - name: "Python 2.7 on Xenial Linux"
+    #   python: 2.7
+    #   dist: xenial
+    #   sudo: required
+    #   before_install:
+    #     - pip install virtualenv --upgrade --user
+    #     - export PATH=${HOME}/.local/bin:${PATH}
 
 addons:
   apt:

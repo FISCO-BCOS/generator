@@ -1,7 +1,9 @@
 #!/bin/bash
 
 try_download_fisco() {
-    while [ -f "./meta/fisco-bcos" ]
+    echo "download fisco in travis ci!"
+    ./generator --download_fisco ./meta
+    while [ ! -f "./meta/fisco-bcos" ]
     do
     ./generator --download_fisco ./meta
     done
@@ -73,7 +75,7 @@ cat ./peersA.txt >> ./peersB.txt
 ./generator --build_install_package ./peersB.txt ./nodeC
 bash ./nodeC/start_all.sh
 ps aux| grep fisco-bcos |grep -v grep
-result=`ps aux| grep fisco-bcos |grep -v grep`
+result=$(ps aux| grep fisco-bcos |grep -v grep)
 if [ -z "$result" ]
 then
     echo "start build nodes failed"
@@ -83,7 +85,7 @@ echo "start succeed"
 curl -X POST --data '{"jsonrpc":"2.0","method":"sendRawTransaction","params":[1, "0xf8d3a003922ee720bb7445e3a914d8ab8f507d1a647296d563100e49548d83fd98865c8411e1a3008411e1a3008201f894d6c8a04b8826b0a37c6d4aa0eaa8644d8e35b79f80a466c9913900000000000000000000000000000000000000000000000000000000000000040101a466c9913900000000000000000000000000000000000000000000000000000000000000041ba08e0d3fae10412c584c977721aeda88df932b2a019f084feda1e0a42d199ea979a016c387f79eb85078be5db40abe1670b8b480a12c7eab719bedee212b7972f775"],"id":83}' http://127.0.0.1:8545 > code.txt
 cat ./code.txt
 echo "transaction get code is "
-tx_result=`cat ./code.txt | grep result | grep -v grep`
+tx_result=$(cat ./code.txt | grep result | grep -v grep)
 echo $tx_result
 if [ -z "$tx_result" ]
 then
@@ -105,7 +107,7 @@ ls ~/generator-C/nodeC/node_127.0.0.1_30305/conf
 bash ~/generator-C/nodeC/start_all.sh
 ps aux| grep fisco-bcos |grep -v grep
 ps aux| grep fisco-bcos |grep -v grep
-result=`ps aux| grep fisco-bcos |grep -v grep`
+result=$(ps aux| grep fisco-bcos |grep -v grep)
 if [ -z "$result" ]
 then
     echo "start build nodes failed"
@@ -115,7 +117,7 @@ echo "start succeed"
 curl -X POST --data '{"jsonrpc":"2.0","method":"sendRawTransaction","params":[2, "0xf8d3a003922ee720bb7445e3a914d8ab8f507d1a647296d563100e49548d83fd98865c8411e1a3008411e1a3008201f894d6c8a04b8826b0a37c6d4aa0eaa8644d8e35b79f80a466c9913900000000000000000000000000000000000000000000000000000000000000040102a466c9913900000000000000000000000000000000000000000000000000000000000000041ba08e0d3fae10412c584c977721aeda88df932b2a019f084feda1e0a42d199ea979a016c387f79eb85078be5db40abe1670b8b480a12c7eab719bedee212b7972f775"],"id":83}' http://127.0.0.1:8550 > code.txt
 cat ./code.txt
 echo "transaction get code is "
-tx_result=`cat ./code.txt | grep result | grep -v grep`
+tx_result=$(cat ./code.txt | grep result | grep -v grep)
 echo $tx_result
 if [ -z "$tx_result" ]
 then

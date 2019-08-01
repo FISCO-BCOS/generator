@@ -21,11 +21,8 @@ Centos_Platform=1
 
 # check sudo permission
 sudo_permission_check() {
-    # sudo echo -n " "
-    # if [ $? -ne 0 ]; then
-    # sudo permission, please add yourself in sudoers"
     if ! sudo echo -n " "; then
-        echo "no"
+        echo "no sudo permission, please add yourself in the sudoers"
         exit 1
     fi
 }
@@ -133,8 +130,8 @@ install_all() {
     sudo_permission_check
     install_deps
     # pip install configparser --user
-    # export LC_ALL=C && pip install --user -r requirements.txt
-    export LC_ALL=C && pip install -r requirements.txt
+    export LC_ALL=C && pip install --user -r requirements.txt
+    # export LC_ALL=C && pip install -r requirements.txt
     python_env=$(which python)
     py_version=$($python_env -V 2>&1 | awk {'print $2'} | awk -F. {' print $1 '})
 
