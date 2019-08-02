@@ -2,8 +2,9 @@
 
 [English](../README.md) / 中文
 
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/be1e9f1c699e4275a97d202cec9ae1e0)](https://www.codacy.com/app/fisco/generator?utm_source=github.com&utm_medium=referral&utm_content=FISCO-BCOS/generator&utm_campaign=Badge_Grade) [![CodeFactor](https://www.codefactor.io/repository/github/fisco-bcos/generator/badge)](https://www.codefactor.io/repository/github/fisco-bcos/generator) 
-[![CircleCI](https://circleci.com/gh/FISCO-BCOS/generator.svg?style=shield)](https://circleci.com/gh/FISCO-BCOS/generator)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/be1e9f1c699e4275a97d202cec9ae1e0)](https://www.codacy.com/app/fisco/generator?utm_source=github.com&utm_medium=referral&utm_content=FISCO-BCOS/generator&utm_campaign=Badge_Grade) [![CodeFactor](https://www.codefactor.io/repository/github/fisco-bcos/generator/badge)](https://www.codefactor.io/repository/github/fisco-bcos/generator)
+[![CircleCI](https://circleci.com/gh/FISCO-BCOS/generator.svg?style=shield)](https://circleci.com/gh/FISCO-BCOS/generator)[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
+[![Build Status](https://travis-ci.org/FISCO-BCOS/generator.svg?branch=master)](https://travis-ci.org/FISCO-BCOS/generator)
 ---
 
 **FISCO BCOS generator** 是针对多机构组网，适用于多机构部署，维护多群组联盟链的企业区块链部署工具。**此版本只支持**[FISCO BCOS 2.0](https://fisco-bcos-documentation.readthedocs.io/zh_CN/latest/)。

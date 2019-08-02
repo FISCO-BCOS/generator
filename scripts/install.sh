@@ -18,13 +18,11 @@ Ubuntu_Platform=0
 Centos_Platform=1
 # Macos_Platform=2
 
+
 # check sudo permission
 sudo_permission_check() {
-    # sudo echo -n " "
-
-    # if [ $? -ne 0 ]; then
     if ! sudo echo -n " "; then
-        echo "no sudo permission, please add youself in the sudoers"
+        echo "no sudo permission, please add yourself in the sudoers"
         exit 1
     fi
 }
@@ -115,7 +113,7 @@ install_all_deps() {
     elif [ ${platform} -eq ${Centos_Platform} ]; then
         sudo yum install -y python-pip
         sudo yum -y install openssl
-        # sudo yum -y install nc
+        sudo yum -y install which
         sudo yum -y install curl
     else
         LOG_ERROR "Unsupported Platform"
@@ -131,7 +129,9 @@ install_deps() {
 install_all() {
     sudo_permission_check
     install_deps
-    export LC_ALL=C && pip install configparser --user
+    # pip install configparser --user
+    export LC_ALL=C && pip install --user -r requirements.txt
+    # export LC_ALL=C && pip install -r requirements.txt
     python_env=$(which python)
     py_version=$($python_env -V 2>&1 | awk {'print $2'} | awk -F. {' print $1 '})
 
@@ -146,9 +146,9 @@ install_all() {
     if [[ "${py_version}" != "${py_pip}" ]]; then
         LOG_ERROR "python and pip is not same version"
         LOG_ERROR "python -V, get version => ${py_version}"
-        python -V
+        ${python_env} -V
         LOG_ERROR "pip -V, get version => ${py_pip}"
-        pip -V
+        ${py_pip} -V
 
         exit 1
     fi

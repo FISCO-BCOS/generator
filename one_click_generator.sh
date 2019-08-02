@@ -6,6 +6,8 @@
 # @ file     : one_click_generator.sh
 # @ date     : 2019
 
+set -e
+
 branch_name=$(git symbolic-ref --short -q HEAD)
 
 SHELL_FOLDER=$(
