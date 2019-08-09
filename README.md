@@ -3,7 +3,7 @@
 English / [中文](doc/README_CN.md)
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/be1e9f1c699e4275a97d202cec9ae1e0)](https://www.codacy.com/app/fisco/generator?utm_source=github.com&utm_medium=referral&utm_content=FISCO-BCOS/generator&utm_campaign=Badge_Grade) [![CodeFactor](https://www.codefactor.io/repository/github/fisco-bcos/generator/badge)](https://www.codefactor.io/repository/github/fisco-bcos/generator)
-[![CircleCI](https://circleci.com/gh/FISCO-BCOS/generator.svg?style=shield)](https://circleci.com/gh/FISCO-BCOS/generator)[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
+[![CircleCI](https://circleci.com/gh/FISCO-BCOS/generator.svg?style=shield)](https://circleci.com/gh/FISCO-BCOS/generator) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 [![Build Status](https://travis-ci.org/FISCO-BCOS/generator.svg?branch=master)](https://travis-ci.org/FISCO-BCOS/generator)
 ---
 
