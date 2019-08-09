@@ -97,19 +97,18 @@ check_generator_status () {
     file_must_not_exists ${SHELL_FOLDER}/meta/agency.*
     file_must_not_exists ${SHELL_FOLDER}/meta/cert_*
     dir_must_not_exists ${SHELL_FOLDER}/meta/node_*
-    if [ ! -f "${SHELL_FOLDER}/meta/fisco-bcos" ]; then
-        LOG_INFO "doanloading fisco-bcos..."
-        ./generator --download_fisco ./meta
-        check_result
-    fi
-    if [ ! -d "${SHELL_FOLDER}/tpl/generator.bak" ]; then
+    if [ ! -d "${SHELL_FOLDER}/tpl/generator-bak" ]; then
         LOG_INFO "copy generator..."
         cp -r ${SHELL_FOLDER} ~/.genrator
-        mv ~/.genrator ${SHELL_FOLDER}/tpl/generator.bak
+        mv ~/.genrator ${SHELL_FOLDER}/tpl/generator-bak
         check_result
         cd ${SHELL_FOLDER}
     fi
-
+    if [ ! -f "${SHELL_FOLDER}/meta/fisco-bcos" ]; then
+        LOG_INFO "downloading fisco-bcos..."
+        ./generator --download_fisco ./meta
+        check_result
+    fi
 }
 
 get_time_stamp() {
@@ -160,7 +159,7 @@ init_agency() {
     for agency in ${dir_name[*]}; do
         cd ${SHELL_FOLDER}
         if [ ! -d ${agency}/generator-agency ]; then
-            cp ${SHELL_FOLDER}/tpl/generator.bak ${agency}/generator-agency
+            cp -r ${SHELL_FOLDER}/tpl/generator-bak ${agency}/generator-agency
             cp ${SHELL_FOLDER}/meta/fisco-bcos ${agency}/generator-agency/meta/fisco-bcos
         fi
         if [ -f "${agency}/agency_cert/agency.crt" ]; then
@@ -183,7 +182,7 @@ init_node_cert() {
     fi
     for agency in ${dir_name[*]}; do
         cd ${agency}/generator-agency
-        cp -r ../node_deployment.ini ./conf/
+        cp ../node_deployment.ini ./conf/
         LOG_INFO "${agency} generate node now..."
         check_rename ./node_send
         ./generator --generate_all_certificates ./node_send
