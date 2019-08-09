@@ -8,7 +8,7 @@
 
 set -e
 
-branch_name=$(git symbolic-ref --short -q HEAD)
+# branch_name=$(git symbolic-ref --short -q HEAD)
 
 SHELL_FOLDER=$(
     cd $(dirname $0)
@@ -102,6 +102,14 @@ check_generator_status () {
         ./generator --download_fisco ./meta
         check_result
     fi
+    if [ ! -d "${SHELL_FOLDER}/tpl/generator.bak" ]; then
+        LOG_INFO "copy generator..."
+        cp -r ${SHELL_FOLDER} ~/.genrator
+        mv ~/.genrator ${SHELL_FOLDER}/tpl/generator.bak
+        check_result
+        cd ${SHELL_FOLDER}
+    fi
+
 }
 
 get_time_stamp() {
@@ -152,7 +160,7 @@ init_agency() {
     for agency in ${dir_name[*]}; do
         cd ${SHELL_FOLDER}
         if [ ! -d ${agency}/generator-agency ]; then
-            git clone https://github.com/FISCO-BCOS/generator.git ${agency}/generator-agency -b ${branch_name}
+            cp ${SHELL_FOLDER}/tpl/generator.bak ${agency}/generator-agency
             cp ${SHELL_FOLDER}/meta/fisco-bcos ${agency}/generator-agency/meta/fisco-bcos
         fi
         if [ -f "${agency}/agency_cert/agency.crt" ]; then
