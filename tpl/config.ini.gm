@@ -21,6 +21,11 @@
     ; crl.0 should be nodeid, nodeid's length is 128
     ;crl.0=
 
+;certificate whitelist list
+[certificate_whitelist]		
+    ; cal.0 should be nodeid, nodeid's length is 128 
+    ;cal.0=
+
 ;group configurations
 ;WARNING: group 0 is forbided
 [group]
