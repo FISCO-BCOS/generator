@@ -2,6 +2,7 @@
 
 set -e
 
+bash .ci/download_bin.sh -g
 cd ..
 cp -r ./generator ~/generator-A
 cp -r ./generator ~/generator-B
