@@ -23,6 +23,7 @@ EXIT_CODE=1
 help() {
     echo "bash one_click_generator.sh -b ./tmp_onc_click"
     echo "bash one_click_generator.sh -e ./tmp_onc_click_expand"
+    echo "bash one_click_generator.sh -clean"
     echo "View at https://fisco-bcos-documentation.readthedocs.io/zh_CN/release-2.0/docs/enterprise_tools/enterprise_quick_start.html"
 }
 
@@ -77,20 +78,33 @@ dir_must_not_exists() {
     fi
 }
 
-# check_rename() {
-#     if [ -d "$1" ]; then
-#         echo "$1 exists, Want to rename it?(y/n)"
-#         read status
-#         if [ "${status}" == "y" ]; then
-#             LOG_INFO "input name at local path"
-#             read name
-#             mv $1 ${name}
-#         else
-#             LOG_ERROR "$1 exist, break!"
-#             exit $EXIT_CODE
-#         fi
-#     fi
-# }
+delete_dir() {
+    if [ -d "$1" ]; then
+        echo "$1 exists, delete it?(y/n)"
+        read -r status
+        if [ "${status}" == "y" ]; then
+            echo "delete $1..."
+            rm -rf $1
+        else
+            LOG_ERROR "$1 exist, please delete or rename it!"
+            exit $EXIT_CODE
+        fi
+    fi
+}
+
+delete_file() {
+    if [ -f "$1" ]; then
+        echo "$1 exists, delete it?(y/n)"
+        read -r status
+        if [ "${status}" == "y" ]; then
+            echo "delete $1..."
+            rm $1
+        else
+            LOG_ERROR "$1 exist, please delete or rename it!"
+            exit $EXIT_CODE
+        fi
+    fi
+}
 
 check_generator_status () {
     file_must_not_exists ${SHELL_FOLDER}/meta/ca.*
@@ -319,6 +333,14 @@ expand_node_ini() {
     done
 }
 
+clean_data() {
+    # clean dictionary in meta
+    delete_dir ${SHELL_FOLDER}/meta/node_*
+    delete_file ${SHELL_FOLDER}/meta/*.crt
+    delete_file ${SHELL_FOLDER}/meta/*.key
+    
+}
+
 if [ -z "$1" ]; then
     LOG_ERROR "not input found!"
     help
@@ -336,6 +358,12 @@ case "$1" in
     ;;
 -expand)
     expand_init $2
+    ;;
+-clean)
+    clean_data
+    ;;
+clean)
+    clean_data
     ;;
 help)
     help
