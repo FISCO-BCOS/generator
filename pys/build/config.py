@@ -112,6 +112,7 @@ def build_config_ini(_data_dir):
         node_dir = '{}/node_{}_{}'.format(package_dir,
                                           node_ip, p2p_listen_port[my_node_index])
         os.mkdir(node_dir)
+        os.mkdir('{}/scripts'.format(node_dir))
         shutil.copy('{}/tpl/start.sh'.format(path.get_path()),
                     '{}/start.sh'.format(node_dir))
         shutil.copy('{}/tpl/stop.sh'.format(path.get_path()),
