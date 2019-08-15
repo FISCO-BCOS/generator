@@ -117,9 +117,9 @@ def build_config_ini(_data_dir):
         shutil.copy('{}/tpl/stop.sh'.format(path.get_path()),
                     '{}/stop.sh'.format(node_dir))
         shutil.copy('{}/tpl/load_new_groups.sh'.format(path.get_path()),
-                    '{}/load_new_groups.sh'.format(node_dir))
-        shutil.copy('{}/tpl/reset_certificate_whitelist.sh'.format(path.get_path()),
-                    '{}/reset_certificate_whitelist.sh'.format(node_dir))
+                    '{}/scripts/load_new_groups.sh'.format(node_dir))
+        shutil.copy('{}/tpl/reload_whitelist.sh'.format(path.get_path()),
+                    '{}/scripts/reload_whitelist.sh'.format(node_dir))
         shutil.copy('{}/fisco-bcos'.format(meta_dir),
                     '{}/fisco-bcos'.format(node_dir))
 
