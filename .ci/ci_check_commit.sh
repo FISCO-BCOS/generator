@@ -1,11 +1,10 @@
+#!/bin/bash
 # "Copyright [2019]"
 # @ function: Scan code with cobra 
 # @ require : Make sure your machine is linux (centos/ubuntu), yum or apt is ready
 # @ author  : asherli
 # @ file    : ci_check_commit.sh
 # @ date    : 2019
-
-# !/bin/bash
 
 set -e
 
