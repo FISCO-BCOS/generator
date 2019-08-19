@@ -1,6 +1,13 @@
 language: python
 matrix:
   include:
+    - name: "Scan code on Xenial Linux"
+      python: 3.6
+      dist: xenial
+      install:
+        - sudo apt-get -y install jq
+      script: |
+        bash .ci/ci_check_commit.sh
     - name: "Python 3.7 on Xenial Linux"
       python: 3.7           # this works for Linux but is ignored on macOS or Windows
       dist: xenial          # required for Python >= 3.7
