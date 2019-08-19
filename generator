@@ -187,9 +187,12 @@ def main():
     try:
         init()
     except Exception as main_exp:
-        console_error(' Generator init fault , %s \033[0m' % main_exp)
+        console_error(' Generator init fault , %s' % main_exp)
     else:
-        usage()
+        try:
+            usage()
+        except Exception as usage_exp:
+            console_error('%s' % usage_exp)
 
 
 if __name__ == '__main__':
