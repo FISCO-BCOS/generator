@@ -3,7 +3,7 @@ SHELL_FOLDER=$(cd $(dirname $0);pwd)
 
 cd ${SHELL_FOLDER}/../
 NODE_FOLDER=$(pwd)
-fisco_bcos=${NODE_FOLDER}/../fisco-bcos
+fisco_bcos=${NODE_FOLDER}/fisco-bcos
 node=$(basename ${NODE_FOLDER})
 node_pid=$(ps aux|grep ${fisco_bcos}|grep -v grep|awk '{print $2}')
 if [ ! -z ${node_pid} ];then
