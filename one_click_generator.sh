@@ -284,7 +284,6 @@ chain_must_exist() {
     file_must_exists ${output_dir}/ca.crt
     file_must_exists ${output_dir}/ca.key
     file_must_exists ${output_dir}/peers.txt
-
 }
 
 copy_genesis() {
