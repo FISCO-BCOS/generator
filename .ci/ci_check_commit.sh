@@ -8,7 +8,7 @@
 
 set -e
 
-scan_code_script=$(echo "python ~/cobra/cobra.py -t ")
+scan_code_script="python ~/cobra/cobra.py -t "
 
 LOG_ERROR() {
     content=${1}
