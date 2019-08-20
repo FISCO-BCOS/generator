@@ -77,7 +77,8 @@ function verfy_certificate()
         exit 1
     fi
     sed -n "${agency_start},${agency_end}p" ${node_cert} > ./.agency.crt
-    result=$(openssl verify -CAfile ${ca_cert} ./.agency.crt)
+    sed -n "1,${agency_start}p" ${node_cert} > ./.node.crt
+    result=$(openssl verify -CAfile ${ca_cert} -untrusted ./.agency.crt ./.node.crt)
     ret=$?
     if [ $ret -ne 0 ];then
         echo_red "use ${ca_cert} verify ${node_cert} failed"
@@ -85,6 +86,7 @@ function verfy_certificate()
         exit 1
     fi
     rm ./.agency.crt
+    rm ./.node.crt
     echo "use ${ca_cert} verify ${node_name} successful"
 }
 
