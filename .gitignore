@@ -9,3 +9,4 @@ conf/*
 .vscode/*
 .DS_Store
 .srl
+tmp*/*
