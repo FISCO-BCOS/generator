@@ -58,8 +58,6 @@ scan_code()
             exit 1
         fi
     done
-
-    
 }
 
 install_cobra() {
