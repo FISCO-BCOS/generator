@@ -137,8 +137,6 @@ def valid_peer(peer):
         if valid_port(peer[1]):
             return True
         return False
-    except ValueError as utils_exp:
-        LOGGER.error('%s is not a valid peer', utils_exp)
     except Exception as utils_exp:
         LOGGER.error('%s is not a valid peer', utils_exp)
         raise MCError(
