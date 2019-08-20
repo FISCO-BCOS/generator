@@ -65,7 +65,7 @@ def build_config_ini(_data_dir):
         raise MCError(' %s existed, maybe u had created it!' % package_dir)
     os.mkdir(package_dir)
 
-    default_cfg = configparser.ConfigParser()
+    default_cfg = configparser.ConfigParser(allow_no_value=True)
     if gm_opr:
         shutil.copy('{}/tpl/config.ini.gm'.format(path.get_path()),
                     '{}/.config.ini'.format(conf_dir))
@@ -153,7 +153,7 @@ def build_config_ini(_data_dir):
             LOGGER.error(' get node.crt failed ! exception is %s', build_exp)
             utils.delete_data(package_dir)
             raise MCError(' get node.crt failed! exception is %s' % build_exp)
-        node_cfg = configparser.ConfigParser()
+        node_cfg = configparser.ConfigParser(allow_no_value=True)
         try:
             with codecs.open('{}/config.ini'.format(node_dir),
                              'r', encoding='utf-8') as config_file:
@@ -176,7 +176,7 @@ def build_config_ini(_data_dir):
     config_file.close()
     # set p2p ip in config.ini
     for my_node_index, ip_item in enumerate(p2p_ip):
-        node_cfg = configparser.ConfigParser()
+        node_cfg = configparser.ConfigParser(allow_no_value=True)
         if not utils.valid_ip(ip_item):
             LOGGER.error(
                 ' init config.ini file failed, found ip => %s', ip_item)
@@ -371,7 +371,7 @@ def concatenate_cfg(cfg_file, cfg_file_get):
     p2p_get_ip = []
     p2p_send = []
     p2p_send_ip = []
-    p2p_cfg = configparser.ConfigParser()
+    p2p_cfg = configparser.ConfigParser(allow_no_value=True)
     try:
         with codecs.open(meta, 'r', encoding='utf-8') as config_file:
             p2p_cfg.readfp(config_file)
@@ -428,7 +428,7 @@ def merge_cfg(p2p_list, cfg_file):
     utils.file_must_exists(data)
     p2p_get = p2p_list
     p2p_send = []
-    p2p_cfg = configparser.ConfigParser()
+    p2p_cfg = configparser.ConfigParser(allow_no_value=True)
     try:
         with codecs.open(data, 'r', encoding='utf-8') as config_file:
             p2p_cfg.readfp(config_file)

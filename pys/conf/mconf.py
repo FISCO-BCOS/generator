@@ -139,7 +139,7 @@ def parser(mchain):
             ' node_installation.ini not invalid path, node_installation.ini is %s' % mchain)
 
     # read and parser config file
-    config_parser = configparser.ConfigParser()
+    config_parser = configparser.ConfigParser(allow_no_value=True)
     try:
         with codecs.open(mchain, 'r', encoding='utf-8') as file_mchain:
             config_parser.readfp(file_mchain)
