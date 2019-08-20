@@ -24,7 +24,12 @@ sed -i 's/jsonrpc_listen_port=8545/jsonrpc_listen_port=8547/g' ./conf/node_deplo
 sed -i 's/jsonrpc_listen_port=8546/jsonrpc_listen_port=8548/g' ./conf/node_deployment.ini
 ./generator --generate_all_certificates ./agencyB_send
 cp -r ./agencyB_send ~/generator-A/
-cp -r ./agencyB_send/peers.txt ~/generator-C/peerB.txt
+echo "" >> ~/generator-C/peerB.txt
+echo "\n" >> ~/generator-C/peerB.txt
+echo "\r" >> ~/generator-C/peerB.txt
+cat ./agencyB_send/peers.txt >> ~/generator-C/peerB.txt
+echo "=======this is pre peersB.txt======"
+cat ~/generator-C/peerB.txt
 pwd
 cd ~/generator-B
 ls ./meta
@@ -65,7 +70,15 @@ cat ./peersA.txt >> ./peersC.txt
 bash ./nodeB/start_all.sh
 cd ~/generator-C
 cat ./peersA.txt >> ./peersB.txt
+echo "" >> ~/generator-C/peerB.txt
+echo "\n" >> ~/generator-C/peerB.txt
+echo "\r" >> ~/generator-C/peerB.txt
+echo "=======this is peersB.txt======"
+cat peersB.txt
 ./generator --build_install_package ./peersB.txt ./nodeC
+echo "=======this is nodeC's config.ini======"
+cat ./nodeC/node_127.0.0.1_30304/config.ini
+cat ./nodeC/node_127.0.0.1_30305/config.ini
 bash ./nodeC/start_all.sh
 ps aux| grep fisco-bcos |grep -v grep
 result=$(ps aux| grep fisco-bcos |grep -v grep)
