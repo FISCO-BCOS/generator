@@ -232,8 +232,8 @@ def read_peers(data_path):
     try:
         for line in open(data_path):
             peer = line.strip('\n')
-            utils.valid_peer(peer)
-            MchainConf.peers.append(peer)
+            if utils.valid_peer(peer):
+                MchainConf.peers.append(peer)
     except Exception as ini_exp:
         LOGGER.error(
             ' open %s file failed, exception is %s', data_path, ini_exp)
