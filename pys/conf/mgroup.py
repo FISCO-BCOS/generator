@@ -78,7 +78,7 @@ def parser(mgroup):
             ' group_genesis.ini not invalid path, group_genesis.ini is %s' % mgroup)
 
     # read and parser config file
-    config_parser = configparser.ConfigParser()
+    config_parser = configparser.ConfigParser(allow_no_value=True)
     try:
         with codecs.open(mgroup, 'r', encoding='utf-8') as file_mchain:
             config_parser.readfp(file_mchain)

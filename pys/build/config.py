@@ -65,22 +65,12 @@ def build_config_ini(_data_dir):
         raise MCError(' %s existed, maybe u had created it!' % package_dir)
     os.mkdir(package_dir)
 
-    default_cfg = configparser.ConfigParser()
     if gm_opr:
         shutil.copy('{}/tpl/config.ini.gm'.format(path.get_path()),
                     '{}/.config.ini'.format(conf_dir))
     else:
         shutil.copy('{}/tpl/config.ini'.format(path.get_path()),
                     '{}/.config.ini'.format(conf_dir))
-    try:
-        with codecs.open('{}/.config.ini'.format(conf_dir),
-                         'r', encoding='utf-8') as config_file:
-            default_cfg.readfp(config_file)
-    except Exception as build_exp:
-        LOGGER.error(
-            ' open config.ini file failed, exception is %s', build_exp)
-        raise MCError(
-            ' open config.ini file failed, exception is %s' % build_exp)
     fin_p2p_ip = []
     if not peers:
         LOGGER.warning('section peers not existed!')
@@ -88,10 +78,6 @@ def build_config_ini(_data_dir):
     else:
         for _, peer in enumerate(peers):
             fin_p2p_ip.append(peer)
-        #     default_cfg.set("p2p", "node.{}".format(node_id + len(p2p_listen_port)),
-        #                     peer)
-        # with open('{}/.config.ini'.format(conf_dir), 'w') as config_file:
-        #     default_cfg.write(config_file)
     # init config.ini & node package
     for my_node_index, node_ip in enumerate(p2p_ip):
         LOGGER.info("p2p_ip -> %s", node_ip)
@@ -137,23 +123,19 @@ def build_config_ini(_data_dir):
                 get_node_cert('{}/gmcert_{}_{}.crt'.format(meta_dir, node_ip,
                                                            p2p_listen_port[my_node_index]),
                               '{}/conf/gmnode.crt'.format(node_dir))
-                # get_nodeid('{}/conf/gmnode.crt'.format(node_dir),
-                #            '{}/conf/gmnode.nodeid'.format(node_dir))
                 shutil.copyfile('{}/gmca.crt'.format(meta_dir),
                                 '{}/conf/gmca.crt'.format(node_dir))
             else:
                 get_node_cert('{}/cert_{}_{}.crt'.format(meta_dir, node_ip,
                                                          p2p_listen_port[my_node_index]),
                               '{}/conf/node.crt'.format(node_dir))
-                # get_nodeid('{}/conf/node.crt'.format(node_dir),
-                #            '{}/conf/node.nodeid'.format(node_dir))
                 shutil.copyfile('{}/ca.crt'.format(meta_dir),
                                 '{}/conf/ca.crt'.format(node_dir))
         except Exception as build_exp:
             LOGGER.error(' get node.crt failed ! exception is %s', build_exp)
             utils.delete_data(package_dir)
             raise MCError(' get node.crt failed! exception is %s' % build_exp)
-        node_cfg = configparser.ConfigParser()
+        node_cfg = configparser.ConfigParser(allow_no_value=True)
         try:
             with codecs.open('{}/config.ini'.format(node_dir),
                              'r', encoding='utf-8') as config_file:
@@ -176,7 +158,7 @@ def build_config_ini(_data_dir):
     config_file.close()
     # set p2p ip in config.ini
     for my_node_index, ip_item in enumerate(p2p_ip):
-        node_cfg = configparser.ConfigParser()
+        node_cfg = configparser.ConfigParser(allow_no_value=True)
         if not utils.valid_ip(ip_item):
             LOGGER.error(
                 ' init config.ini file failed, found ip => %s', ip_item)
@@ -202,6 +184,10 @@ def build_config_ini(_data_dir):
         for index, p2p_section in enumerate(fin_p2p_ip):
             node_cfg.set("p2p", "node.{}".format(index),
                          '{}'.format(p2p_section))
+            node_cfg.set('certificate_whitelist', '; cal.0 should be nodeid, nodeid\'s length is 128')
+            node_cfg.set('certificate_whitelist', ';cal.0=')
+            node_cfg.set('certificate_blacklist', '; crl.0 should be nodeid, nodeid\'s length is 128')
+            node_cfg.set('certificate_blacklist', ';crl.0=')
         with open('{}/config.ini'.format(node_dir), 'w') as config_file:
             node_cfg.write(config_file)
     os.mkdir(package_dir + '/scripts/')
@@ -371,7 +357,7 @@ def concatenate_cfg(cfg_file, cfg_file_get):
     p2p_get_ip = []
     p2p_send = []
     p2p_send_ip = []
-    p2p_cfg = configparser.ConfigParser()
+    p2p_cfg = configparser.ConfigParser(allow_no_value=True)
     try:
         with codecs.open(meta, 'r', encoding='utf-8') as config_file:
             p2p_cfg.readfp(config_file)
@@ -406,6 +392,10 @@ def concatenate_cfg(cfg_file, cfg_file_get):
     LOGGER.info("final node ip is %s!", p2p_send_ip)
     for ip_idx, p2p_ip in enumerate(p2p_send_ip):
         p2p_cfg.set("p2p", "node.{}".format(ip_idx), p2p_ip)
+    p2p_cfg.set('certificate_whitelist', '; cal.0 should be nodeid, nodeid\'s length is 128')
+    p2p_cfg.set('certificate_whitelist', ';cal.0=')
+    p2p_cfg.set('certificate_blacklist', '; crl.0 should be nodeid, nodeid\'s length is 128')
+    p2p_cfg.set('certificate_blacklist', ';crl.0=')
     with open(data, 'w') as config_file:
         p2p_cfg.write(config_file)
     LOGGER.info(
@@ -428,7 +418,7 @@ def merge_cfg(p2p_list, cfg_file):
     utils.file_must_exists(data)
     p2p_get = p2p_list
     p2p_send = []
-    p2p_cfg = configparser.ConfigParser()
+    p2p_cfg = configparser.ConfigParser(allow_no_value=True)
     try:
         with codecs.open(data, 'r', encoding='utf-8') as config_file:
             p2p_cfg.readfp(config_file)
@@ -457,6 +447,10 @@ def merge_cfg(p2p_list, cfg_file):
     LOGGER.info("final node ip is %s!", p2p_send)
     for ip_idx, p2p_ip in enumerate(p2p_send):
         p2p_cfg.set("p2p", "node.{}".format(ip_idx), p2p_ip)
+    p2p_cfg.set('certificate_whitelist', '; cal.0 should be nodeid, nodeid\'s length is 128')
+    p2p_cfg.set('certificate_whitelist', ';cal.0=')
+    p2p_cfg.set('certificate_blacklist', '; crl.0 should be nodeid, nodeid\'s length is 128')
+    p2p_cfg.set('certificate_blacklist', ';crl.0=')
     with open(data, 'w') as config_file:
         p2p_cfg.write(config_file)
     LOGGER.info(
