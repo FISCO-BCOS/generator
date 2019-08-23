@@ -55,7 +55,7 @@ def create_group_genesis(data_dir='{}/meta'.format(path.get_path())):
             ' Generate %s/group.%s.genesis failed, timestamp is %s! Please check your network.'
             % (package_dir, group_id, time_stamp))
     # CONSOLER.info('generate %s/group.%s.ini', package_dir, group_id)
-    group_cfg = configparser.ConfigParser()
+    group_cfg = configparser.ConfigParser(allow_no_value=True)
     with open('{}/group.{}.genesis'.format(package_dir, group_id), 'r') as config_file:
         group_cfg.readfp(config_file)
     for node_idx, _in in enumerate(p2p_ip):
