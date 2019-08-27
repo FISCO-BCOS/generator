@@ -137,7 +137,7 @@ def usage():
         CONSOLER.info(' SDK cert begin.')
         sdk_dir = args.generate_sdk_certificate[0]
         agency_dir = args.generate_sdk_certificate[1]
-        ca.generator_node_ca(sdk_dir, agency_dir, 'sdk')
+        ca.generator_sdk_ca(sdk_dir, agency_dir)
         CONSOLER.info(' SDK cert end.')
     elif args.generate_all_certificates:
         cert_dir = args.generate_all_certificates[0]

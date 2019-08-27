@@ -16,10 +16,6 @@ printf "%s\n" \
               gen_agency_cert chaindir agencydir|
               sign_agency_cert chaindir reqfile|
               gen_node_cert agencydir nodedir|
-              sign_node_cert agencydir reqfile|
-              gen_sdk_cert agencydir sdkdir|
-              sign_sdk_cert agencydir reqfile|
-              merge_sdk_cert mergedir|
               help"
 }
 
@@ -199,18 +195,6 @@ sign_agency_cert)
     ;;
 gen_node_cert)
     gen_node_cert "$2" "$3" "$4" "$5" "$6" "$7" "$8" "$9"
-    ;;
-sign_node_cert)
-    sign_node_cert "$2" "$3" "$4" "$5" "$6" "$7" "$8" "$9"
-    ;;
-gen_sdk_cert)
-    gen_sdk_cert "$2" "$3" "$4" "$5" "$6" "$7" "$8" "$9"
-    ;;
-sign_sdk_cert)
-    sign_sdk_cert "$2" "$3" "$4" "$5" "$6" "$7" "$8" "$9"
-    ;;
-merge_sdk_cert)
-    merge_sdk_cert "$2" "$3" "$4" "$5" "$6" "$7" "$8" "$9"
     ;;
 help)
     usage

@@ -137,6 +137,9 @@ cat ./meta/console/conf/applicationContext.xml
 # sudo apt-get install openjdk-8-jdk
 cd ./meta/console/
 ls
+ls ./conf
+cat ./conf/sdk.crt
+cat ./conf/node.crt
 # bash start.sh
 # getPeers
 # deploy HelloWorld.sol

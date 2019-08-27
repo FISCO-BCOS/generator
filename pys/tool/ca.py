@@ -8,6 +8,7 @@ Raises:
 """
 
 import os
+import shutil
 from pys.tool import utils
 from pys import path
 from pys.log import LOGGER, CONSOLER, console_error
@@ -159,3 +160,21 @@ def generator_node_ca(_dir, agent, node):
         LOGGER.error('  Generate node cert failed! Result is %s', result)
         raise MCError(
             'Generate node failed! Result is %s' % gen_cert_exp)
+
+
+def generator_sdk_ca(_dir, agent):
+    """[generate sdk cert]
+
+    Arguments:
+        _dir {[path]} -- [node cert path]
+        _agent {[path]} -- [agency cert path]
+    """
+
+    sdk_dir = os.path.abspath(_dir)
+    agency_dir = os.path.abspath(agent)
+    generator_node_ca(sdk_dir, agency_dir, 'sdk')
+    os.remove('{}/sdk/node.nodeid'.format(sdk_dir))
+    shutil.copyfile('{}/sdk/node.crt'.format(sdk_dir),
+              '{}/sdk/sdk.crt'.format(sdk_dir))
+    shutil.copyfile('{}/sdk/node.key'.format(sdk_dir),
+              '{}/sdk/sdk.key'.format(sdk_dir))

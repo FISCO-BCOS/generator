@@ -1,14 +1,9 @@
 #!/bin/bash
-# "Copyright [2019]"
-# @ function: Scan code with cobra 
-# @ require : Make sure your machine is linux (centos/ubuntu), yum or apt is ready
-# @ author  : asherli
-# @ file    : ci_check_commit.sh
-# @ date    : 2019
 
 set -e
 
 scan_code_script="python ~/cobra/cobra.py -t "
+ignore_files=(code_security_audit.sh .travis.yml ci_check.sh ci_check_gm.sh)
 
 LOG_ERROR() {
     content=${1}
@@ -32,23 +27,26 @@ execute_cmd() {
     fi
 }
 
-init()
+should_ignore()
 {
-    if git rev-parse --verify HEAD >/dev/null 2>&1;then
-        against=HEAD^
-    else
-        # diff against an empty tree object
-        LOG_ERROR "Scan failed! Please init your repo first!"
-        exit 1
-    fi
-    LOG_INFO "against: ${against}"
+    local file=${1}
+    for ignore in ${ignore_files[*]}; do
+        if echo ${file} | grep ${ignore} &>/dev/null; then
+            echo "ignore ${file} ${ignore}"
+            return 0
+        fi
+    done
+    return 1
 }
 
 scan_code()
 {
     # Redirect output to stderr.
     exec 1>&2
-    for file in $(git diff-index --name-status ${against} | grep -v .ci | awk '{print $2}'); do
+    for file in $(git diff-index --name-status HEAD^ | awk '{print $2}'); do
+        if should_ignore ${file}; then continue; fi
+        if [ ! -f ${file} ];then continue; fi
+        LOG_INFO "check file ${file}"
         execute_cmd "${scan_code_script} $file -f json -o /tmp/report.json"
         trigger_rules=$(jq -r '.' /tmp/report.json | grep 'trigger_rules' | awk '{print $2}' | sed 's/,//g')
         echo "trigger_rules is ${trigger_rules}"
@@ -67,5 +65,4 @@ install_cobra() {
 }
 
 install_cobra
-init
 scan_code
