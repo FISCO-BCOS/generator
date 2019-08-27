@@ -185,6 +185,10 @@ def get_console_cert(_dir):
                     '{}/node.key'.format(data))
     shutil.copyfile('{}/sdk/node.crt'.format(meta),
                     '{}/node.crt'.format(data))
+    shutil.copyfile('{}/sdk/node.key'.format(meta),
+                    '{}/sdk.key'.format(data))
+    shutil.copyfile('{}/sdk/node.crt'.format(meta),
+                    '{}/sdk.crt'.format(data))
 
 
 def get_sdk_cert():
