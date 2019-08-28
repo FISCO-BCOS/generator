@@ -3,12 +3,12 @@ SHELL_FOLDER=$(cd $(dirname $0);pwd)
 
 LOG_ERROR() {
     content=${1}
-    echo -e "\033[31m${content}\033[0m"
+    echo -e "\033[31m[ERROR] ${content}\033[0m"
 }
 
 LOG_INFO() {
     content=${1}
-    echo -e "\033[32m${content}\033[0m"
+    echo -e "\033[32m[INFO] ${content}\033[0m"
 }
 
 check_cal_line()
@@ -54,9 +54,7 @@ check_duplicate_key()
 check_whitelist()
 {
     config_file=$1
-
     check_cal_lines $config_file
-
     check_duplicate_key $config_file
 }
 
