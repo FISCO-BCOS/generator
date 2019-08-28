@@ -28,13 +28,13 @@ check_cal_lines()
     error="false"
     for line in $(grep -v "^[ ]*[;]" $config_file | grep "cal\."); do
         if [[ "true" != $(check_cal_line $line) ]]; then
-            LOG_ERROR "ERROR: Illigal whitelist line: $line"
+            LOG_ERROR "Illigal whitelist line: $line"
             error="true"
         fi
     done 
 
     if [[ "true" == $error ]]; then
-        LOG_ERROR "ERROR: [certificate_whitelist] reload error for illigal lines"
+        LOG_ERROR "[certificate_whitelist] reload error for illigal lines"
         exit 1
     fi
 }
@@ -45,7 +45,7 @@ check_duplicate_key()
     dup_key=$(grep -v '^[ ]*[;]' $config_file |grep "cal\."|awk -F"=" '{print $1}'|awk '{print $1}' |sort |uniq -d)
 
     if [[ "" != $dup_key ]]; then
-        LOG_ERROR "ERROR: [certificate_whitelist] has duplicate keys:"
+        LOG_ERROR "[certificate_whitelist] has duplicate keys:"
         LOG_ERROR "$dup_key"
         exit 1
     fi
