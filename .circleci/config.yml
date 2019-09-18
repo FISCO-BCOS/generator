@@ -9,7 +9,7 @@ jobs:
       - run:
           name: Test build
           command: |
-            sudo apt-get -y install curl
+            # sudo apt-get -y install curl
             bash ./scripts/install.sh
             cp -r ./tmp_one_click ./tmp_one_click_expand
             bash ./one_click_generator.sh -b ./tmp_one_click
