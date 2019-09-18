@@ -3,7 +3,7 @@
 set -e
 
 scan_code_script="python ~/cobra/cobra.py -t "
-ignore_files=(code_security_audit.sh .travis.yml ci_check.sh ci_check_gm.sh)
+ignore_files=(code_security_audit.sh .travis.yml ci_check.sh ci_check_gm.sh .circleci/config.yml)
 
 LOG_ERROR() {
     content=${1}
