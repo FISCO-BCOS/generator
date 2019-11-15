@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 SHELL_FOLDER=$(
     cd $(dirname $0)
     pwd
@@ -13,7 +15,7 @@ check_and_install_tassl()
 {
     if [ ! -f "${HOME}/.tassl" ];then
         curl -LO https://github.com/FISCO-BCOS/LargeFiles/raw/master/tools/tassl.tar.gz
-        LOG_INFO "Downloading tassl binary ..."
+        echo "Downloading tassl binary ..."
         tar zxvf tassl.tar.gz
         chmod u+x tassl
         mv tassl ${HOME}/.tassl

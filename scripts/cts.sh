@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 EXIT_CODE=1
 # mypass=""
 
