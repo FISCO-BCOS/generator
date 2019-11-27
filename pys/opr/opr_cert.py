@@ -141,8 +141,8 @@ def deploy_key(_get_dir, _send_dir):
         if utils.Status.gm_option:
             utils.file_must_exists(
                 '{}/{}/gmnode.key'.format(meta_path, node_dir))
-            utils.file_must_exists(
-                '{}/{}/gmnode.nodeid'.format(meta_path, node_dir))
+            # utils.file_must_exists(
+            #     '{}/{}/gmnode.nodeid'.format(meta_path, node_dir))
             if os.path.exists('{}/{}/conf'.format(data_path, node_dir)):
                 LOGGER.info("send cert from %s to %s", data_path, node_dir)
                 shutil.copyfile('{}/{}/gmnode.key'.format(meta_path, node_dir),
@@ -158,8 +158,8 @@ def deploy_key(_get_dir, _send_dir):
         else:
             utils.file_must_exists(
                 '{}/{}/node.key'.format(meta_path, node_dir))
-            utils.file_must_exists(
-                '{}/{}/node.nodeid'.format(meta_path, node_dir))
+            # utils.file_must_exists(
+            #     '{}/{}/node.nodeid'.format(meta_path, node_dir))
             if os.path.exists('{}/{}/conf'.format(data_path, node_dir)):
                 LOGGER.info("send cert from %s to %s", data_path, node_dir)
                 shutil.copyfile('{}/{}/node.key'.format(meta_path, node_dir),
