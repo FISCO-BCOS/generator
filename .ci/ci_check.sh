@@ -140,7 +140,9 @@ ls
 ls ./conf
 cat ./conf/sdk.crt
 cat ./conf/node.crt
-# bash start.sh
+nohup java -Djdk.tls.namedGroups="secp256k1" -cp "apps/*:conf/:lib/*:classes/:accounts/" console.ConsoleClient $@ > myout.file 2>&1 &
+cat myout.file
+ps -ef | grep java
 # getPeers
 # deploy HelloWorld.sol
 # q
