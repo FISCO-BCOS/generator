@@ -106,15 +106,10 @@ install_all_deps() {
     platform=$(echo $?)
     # platform=$(get_platform)
     if [ ${platform} -eq ${Ubuntu_Platform} ]; then
-        sudo apt-get -y install python-pip
-        sudo apt-get -y install curl
-        sudo apt-get -y install openssl
+        sudo apt-get -y install python-pip curl openssl
         # sudo apt-get -y install nc
     elif [ ${platform} -eq ${Centos_Platform} ]; then
-        sudo yum install -y python-pip
-        sudo yum -y install openssl
-        sudo yum -y install which
-        sudo yum -y install curl
+        sudo yum install -y python-pip openssl curl which
     else
         LOG_ERROR "Unsupported Platform"
         exit 1

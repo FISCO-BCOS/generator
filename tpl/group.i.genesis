@@ -2,17 +2,14 @@
 id=${index}
 timestamp=${time_stamp}
 
-; consensus configuration
 [consensus]
     ; consensus algorithm type, now support PBFT(consensus_type=pbft) and Raft(consensus_type=raft)
     consensus_type=pbft
     ; the max number of transactions of a block
     max_trans_num=1000
-    ; the node id of leaders
     node.0=
 
 [state]
-    ; support mpt/storage
     type=storage
 
 ; tx gas limit
