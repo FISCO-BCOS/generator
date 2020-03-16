@@ -51,6 +51,7 @@ def build_config_ini(_data_dir):
     channel_listen_port = mconf.MchainConf.channel_listen_port
     p2p_ip = mconf.MchainConf.p2p_ip
     rpc_ip = mconf.MchainConf.rpc_ip
+    channel_ip = mconf.MchainConf.channel_ip
     peers = mconf.MchainConf.peers
     meta_dir = '{}/meta'.format(path.get_path())
     conf_dir = meta_dir
@@ -146,7 +147,16 @@ def build_config_ini(_data_dir):
             utils.delete_data(package_dir)
             raise MCError(
                 ' open config.ini file failed, exception is %s' % build_exp)
-        node_cfg.set("rpc", "listen_ip", rpc_ip[my_node_index])
+        if len(rpc_ip) > my_node_index:
+            node_cfg.set("rpc", "jsonrpc_listen_ip", rpc_ip[my_node_index])
+        else:
+            node_cfg.set("rpc", "jsonrpc_listen_ip", "127.0.0.1")
+
+        if len(channel_ip) > my_node_index:
+            node_cfg.set("rpc", "channel_listen_ip", channel_ip[my_node_index])
+        else:
+            node_cfg.set("rpc", "channel_listen_ip", "0.0.0.0")
+
         node_cfg.set("rpc", "channel_listen_port",
                      channel_listen_port[my_node_index])
         node_cfg.set("rpc", "jsonrpc_listen_port",
@@ -528,6 +538,7 @@ def get_console_file(_file):
     """
     data = _file
     utils.file_must_exists(data)
+    # Note: the default ip the console connects to is 127.0.0.1
     rpc_ip = mconf.MchainConf.rpc_ip
     channel_listen_port = mconf.MchainConf.channel_listen_port
     channel_addr = []

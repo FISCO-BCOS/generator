@@ -27,6 +27,7 @@ class MchainConf(object):
     channel_listen_port = []
     jsonrpc_listen_port = []
     rpc_ip = []
+    channel_ip = []
     p2p_ip = []
     peers = []
     # fisco_path = ''
@@ -69,6 +70,14 @@ class MchainConf(object):
             [string] -- [rpc_ip]
         """
         return self.rpc_ip
+
+    def get_channel_ip(self):
+        """[get channel_ip]
+
+        Returns:
+            [string] -- [channel_ip]
+        """
+        return self.channel_ip
 
     def get_p2p_ip(self):
         """[get p2p_ip]
@@ -161,6 +170,7 @@ def parser(mchain):
         if config_parser.has_section(node_index):
             p2p_ip = config_parser.get(node_index, 'p2p_ip')
             rpc_ip = config_parser.get(node_index, 'rpc_ip')
+            channel_ip = config_parser.get(node_index, 'channel_ip')
             if not utils.valid_ip(p2p_ip):
                 LOGGER.error(
                     ' invalid node_installation.ini format, p2p_ip is %s',
@@ -199,6 +209,7 @@ def parser(mchain):
                     % (p2p_listen_port, jsonrpc_listen_port, channel_listen_port))
             MchainConf.p2p_ip.append(p2p_ip)
             MchainConf.rpc_ip.append(rpc_ip)
+            MchainConf.channel_ip.append(channel_ip)
             MchainConf.p2p_listen_port.append(p2p_listen_port)
             MchainConf.jsonrpc_listen_port.append(jsonrpc_listen_port)
             MchainConf.channel_listen_port.append(channel_listen_port)
@@ -214,6 +225,7 @@ def parser(mchain):
     LOGGER.info('group_id is %s', MchainConf.group_id)
     LOGGER.info('p2p_ip is %s', MchainConf.p2p_ip)
     LOGGER.info('rpc_ip is %s', MchainConf.rpc_ip)
+    LOGGER.info('channel_ip is %s', MchainConf.channel_ip)
     LOGGER.info('p2p_listen_port is %s', MchainConf.p2p_listen_port)
     LOGGER.info('jsonrpc_listen_port is %s', MchainConf.jsonrpc_listen_port)
     LOGGER.info('channel_listen_port is %s', MchainConf.channel_listen_port)
