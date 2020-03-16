@@ -1,49 +1,49 @@
 [rpc]
-    ; channel listen ip
-    channel_listen_ip=0.0.0.0
-    ; rpc listen ip
-    jsonrpc_listen_ip=127.0.0.1
-    ; channelserver listen port
-    channel_listen_port=20200
-    ; jsonrpc listen port
-    jsonrpc_listen_port=8545
-[p2p]
-    ; p2p listen ip
-    listen_ip=0.0.0.0
-    ; p2p listen port
-    listen_port=30300
-    ; nodes to connect
-    node.0=
+; channel listen ip
+channel_listen_ip=0.0.0.0
+; rpc listen ip
+jsonrpc_listen_ip=127.0.0.1
+; channelserver listen port
+channel_listen_port=20200
+; jsonrpc listen port
+jsonrpc_listen_port=8545
 
-    ;enable/disable network compress
-    ;enable_compress=true
+[p2p]
+; p2p listen ip
+listen_ip=0.0.0.0
+; p2p listen port
+listen_port=30300
+; nodes to connect
+node.0=
+;enable/disable network compress
+;enable_compress=true
     
 ;certificate rejected list
 [certificate_blacklist]
-    ; crl.0 should be nodeid, nodeid's length is 128
-    ;crl.0=
+; crl.0 should be nodeid, nodeid's length is 128
+;crl.0=
 
 ;certificate whitelist list
 [certificate_whitelist]		
-    ; cal.0 should be nodeid, nodeid's length is 128 
-    ;cal.0=
+; cal.0 should be nodeid, nodeid's length is 128 
+;cal.0=
 
 ;group configurations
 ;WARNING: group 0 is forbided
 [group]
-    group_data_path=data/
-    group_config_path=conf/
+group_data_path=data/
+group_config_path=conf/
 
 ;certificate configuration
 [network_security]
-    ; directory the certificates located in
-    data_path=conf/
-    ; the node private key file
-    key=gmnode.key
-    ; the node certificate file
-    cert=gmnode.crt
-    ; the ca certificate file
-    ca_cert=gmca.crt
+; directory the certificates located in
+data_path=conf/
+; the node private key file
+key=gmnode.key
+; the node certificate file
+cert=gmnode.crt
+; the ca certificate file
+ca_cert=gmca.crt
 
 ; storage security releated configurations
 [storage_security]
@@ -55,20 +55,22 @@ key_manager_port=
 cipher_data_key=
 
 [chain]
-    id=1
+id=1
+
 [compatibility]
-    supported_version=2.2.0
+supported_version=2.2.0
+
 ;log configurations
 [log]
-    enable=true
-    ; the directory of the log
-    log_path=./log
-    ; info debug trace 
-    level=info
-    ; MB
-    max_log_file_size=200
-    ; control log auto_flush
-    flush=true
-    ; easylog config
-    log_flush_threshold=100
+enable=true
+; the directory of the log
+log_path=./log
+; info debug trace 
+level=info
+; MB
+max_log_file_size=200
+; control log auto_flush
+flush=true
+; easylog config
+log_flush_threshold=100
     

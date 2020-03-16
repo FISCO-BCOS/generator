@@ -9,7 +9,10 @@ Returns:
     [bool] -- [true or false]
 """
 
-import configparser
+try:
+    import configparser
+except Exception:
+    from six.moves import configparser
 import codecs
 from pys.tool import utils
 # from pys import path

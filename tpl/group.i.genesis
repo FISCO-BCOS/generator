@@ -3,21 +3,21 @@ id=${index}
 timestamp=${time_stamp}
 
 [consensus]
-    ; consensus algorithm now support PBFT(consensus_type=pbft), Raft(consensus_type=raft)
-    ; and rpbft(consensus_type=rpbft)
-    consensus_type=pbft
-    ; the max number of transactions of a block
-    max_trans_num=1000
-    ; rpbft related configuration
-    ; the sealers num of each consensus epoch
-    epoch_sealer_num=${sealer_size}
-    ; the number of generated blocks each epoch
-    epoch_block_num=1000
-    node.0=
+; consensus algorithm now support PBFT(consensus_type=pbft), Raft(consensus_type=raft)
+; and rpbft(consensus_type=rpbft)
+consensus_type=pbft
+; the max number of transactions of a block
+max_trans_num=1000
+; rpbft related configuration
+; the sealers num of each consensus epoch
+epoch_sealer_num=${sealer_size}
+; the number of generated blocks each epoch
+epoch_block_num=1000
+node.0=
 
 [state]
-    type=storage
+type=storage
 
 ; tx gas limit
 [tx]
-    gas_limit=300000000
+gas_limit=300000000
