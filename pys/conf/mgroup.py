@@ -10,8 +10,10 @@ Raises:
 Returns:
     [bool] -- [true or false]
 """
-
-import configparser
+try:
+    import configparser
+except Exception:
+    from six.moves import configparser
 import codecs
 from pys.tool import utils
 from pys.log import LOGGER
@@ -73,7 +75,8 @@ def parser(mgroup):
     LOGGER.info('group_genesis.ini is %s', mgroup)
     # resolve configuration
     if not utils.valid_string(mgroup):
-        LOGGER.error(' group_genesis.ini not invalid path, group_genesis.ini is %s', mgroup)
+        LOGGER.error(
+            ' group_genesis.ini not invalid path, group_genesis.ini is %s', mgroup)
         raise MCError(
             ' group_genesis.ini not invalid path, group_genesis.ini is %s' % mgroup)
 
