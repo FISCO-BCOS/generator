@@ -397,7 +397,7 @@ function check_node_work_properly()
     # config.ini for this node
     configini=$1/config.ini
     
-    config_ip=$(read_ini ${configini} rpc listen_ip)
+    config_ip=$(read_ini ${configini} rpc jsonrpc_listen_ip)
     #obtain rpc ip according to config_ip
     LOG_INFO "=== config_ip:"${config_ip}
     rpc_ip=$(obtain_rpc_ip "${config_ip}")
