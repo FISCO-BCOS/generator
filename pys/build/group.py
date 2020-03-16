@@ -13,8 +13,10 @@ Raises:
 """
 import os
 import shutil
-import configparser
-
+try:
+    import configparser
+except Exception:
+    from six.moves import configparser
 from pys import path
 from pys.log import LOGGER, CONSOLER
 from pys.error.exp import MCError
@@ -56,6 +58,7 @@ def create_group_genesis(data_dir='{}/meta'.format(path.get_path())):
             % (package_dir, group_id, time_stamp))
     # CONSOLER.info('generate %s/group.%s.ini', package_dir, group_id)
     group_cfg = configparser.ConfigParser(allow_no_value=True)
+    sealersNum = 0
     with open('{}/group.{}.genesis'.format(package_dir, group_id), 'r') as config_file:
         group_cfg.readfp(config_file)
     for node_idx, _in in enumerate(p2p_ip):
@@ -81,13 +84,15 @@ def create_group_genesis(data_dir='{}/meta'.format(path.get_path())):
                             p2p_listen_port[node_idx])
                 LOGGER.info("nodeid -> %s", node_id)
                 group_cfg.set("consensus", "node.{}".format(node_idx), node_id)
+            sealersNum += 1
         except Exception as group_exp:
             LOGGER.error(
                 'create group genesis failed! exception is %s', group_exp)
             raise MCError(
                 'create group genesis failed! exception is %s' % group_exp)
         group_cfg.set("group", "id", group_id)
-        group_cfg.set("group", "timestamp", time_stamp)
+        group_cfg.set("group", "timestamp", str(time_stamp))
+        group_cfg.set("consensus", "epoch_sealer_num", str(sealersNum))
     with open('{}/group.{}.genesis'.format(package_dir, group_id), 'w') as config_file:
         group_cfg.write(config_file)
     shutil.copy('{}/group.{}.genesis'.format(package_dir, group_id),

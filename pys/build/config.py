@@ -22,7 +22,10 @@ Returns:
 """
 import os
 import shutil
-import configparser
+try:
+    import configparser
+except Exception:
+    from six.moves import configparser
 import codecs
 from pys.tool import utils
 from pys import path
@@ -187,16 +190,19 @@ def build_config_ini(_data_dir):
             utils.delete_data(package_dir)
             raise MCError(
                 ' open config.ini file failed, exception is %s' % build_exp)
-        # write p2pip:port into config.ini 
+        # write p2pip:port into config.ini
         for ip_idx, set_item in enumerate(p2p_ip):
-            fin_p2p_ip.append("{}:{}".format(set_item, p2p_listen_port[ip_idx]))
+            fin_p2p_ip.append("{}:{}".format(
+                set_item, p2p_listen_port[ip_idx]))
         fin_p2p_ip = list(set(fin_p2p_ip))
         for index, p2p_section in enumerate(fin_p2p_ip):
             node_cfg.set("p2p", "node.{}".format(index),
                          '{}'.format(p2p_section))
-            node_cfg.set('certificate_whitelist', '; cal.0 should be nodeid, nodeid\'s length is 128')
+            node_cfg.set('certificate_whitelist',
+                         '; cal.0 should be nodeid, nodeid\'s length is 128')
             node_cfg.set('certificate_whitelist', ';cal.0=')
-            node_cfg.set('certificate_blacklist', '; crl.0 should be nodeid, nodeid\'s length is 128')
+            node_cfg.set('certificate_blacklist',
+                         '; crl.0 should be nodeid, nodeid\'s length is 128')
             node_cfg.set('certificate_blacklist', ';crl.0=')
         with open('{}/config.ini'.format(node_dir), 'w') as config_file:
             node_cfg.write(config_file)
@@ -402,9 +408,11 @@ def concatenate_cfg(cfg_file, cfg_file_get):
     LOGGER.info("final node ip is %s!", p2p_send_ip)
     for ip_idx, p2p_ip in enumerate(p2p_send_ip):
         p2p_cfg.set("p2p", "node.{}".format(ip_idx), p2p_ip)
-    p2p_cfg.set('certificate_whitelist', '; cal.0 should be nodeid, nodeid\'s length is 128')
+    p2p_cfg.set('certificate_whitelist',
+                '; cal.0 should be nodeid, nodeid\'s length is 128')
     p2p_cfg.set('certificate_whitelist', ';cal.0=')
-    p2p_cfg.set('certificate_blacklist', '; crl.0 should be nodeid, nodeid\'s length is 128')
+    p2p_cfg.set('certificate_blacklist',
+                '; crl.0 should be nodeid, nodeid\'s length is 128')
     p2p_cfg.set('certificate_blacklist', ';crl.0=')
     with open(data, 'w') as config_file:
         p2p_cfg.write(config_file)
@@ -457,9 +465,11 @@ def merge_cfg(p2p_list, cfg_file):
     LOGGER.info("final node ip is %s!", p2p_send)
     for ip_idx, p2p_ip in enumerate(p2p_send):
         p2p_cfg.set("p2p", "node.{}".format(ip_idx), p2p_ip)
-    p2p_cfg.set('certificate_whitelist', '; cal.0 should be nodeid, nodeid\'s length is 128')
+    p2p_cfg.set('certificate_whitelist',
+                '; cal.0 should be nodeid, nodeid\'s length is 128')
     p2p_cfg.set('certificate_whitelist', ';cal.0=')
-    p2p_cfg.set('certificate_blacklist', '; crl.0 should be nodeid, nodeid\'s length is 128')
+    p2p_cfg.set('certificate_blacklist',
+                '; crl.0 should be nodeid, nodeid\'s length is 128')
     p2p_cfg.set('certificate_blacklist', ';crl.0=')
     with open(data, 'w') as config_file:
         p2p_cfg.write(config_file)
@@ -520,14 +530,16 @@ def add_group(_group, _node):
         utils.file_must_not_exists('{}/conf/{}'.format(_node, file_name))
         shutil.copyfile(data_path, '{}/conf/{}'.format(_node, file_name))
         shutil.copyfile('{}/tpl/group.i.ini'.format(path.get_path()),
-                    '{}/conf/group.{}.ini'.format(_node, group_id))
+                        '{}/conf/group.{}.ini'.format(_node, group_id))
     else:
         node_send = utils.get_all_nodes_dir(_node)
         for node_file in node_send:
-            utils.file_must_not_exists('{}/conf/{}'.format(node_file, file_name))
-            shutil.copyfile(data_path, '{}/conf/{}'.format(node_file, file_name))
+            utils.file_must_not_exists(
+                '{}/conf/{}'.format(node_file, file_name))
+            shutil.copyfile(
+                data_path, '{}/conf/{}'.format(node_file, file_name))
             shutil.copyfile('{}/tpl/group.i.ini'.format(path.get_path()),
-                        '{}/conf/group.{}.ini'.format(node_file, group_id))
+                            '{}/conf/group.{}.ini'.format(node_file, group_id))
 
 
 def get_console_file(_file):
