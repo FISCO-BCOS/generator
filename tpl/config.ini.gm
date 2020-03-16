@@ -1,6 +1,8 @@
 [rpc]
+    ; channel listen ip
+    channel_listen_ip=0.0.0.0
     ; rpc listen ip
-    listen_ip=127.0.0.1
+    jsonrpc_listen_ip=127.0.0.1
     ; channelserver listen port
     channel_listen_port=20200
     ; jsonrpc listen port
