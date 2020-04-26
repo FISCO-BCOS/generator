@@ -33,6 +33,7 @@ from pys.log import LOGGER, CONSOLER
 from pys.error.exp import MCError
 from pys.conf import mconf
 
+
 def build_package_only(_data_dir):
     """[-- build create config_ini]
 
@@ -59,7 +60,6 @@ def build_package_only(_data_dir):
     conf_dir = meta_dir
     package_dir = _data_dir
     gm_opr = utils.Status.gm_option
-    group_id = mconf.MchainConf.group_id
 
     if os.path.exists(package_dir):
         LOGGER.error(' %s existed, maybe u had created it!', package_dir)
@@ -184,7 +184,6 @@ def build_package_only(_data_dir):
     shutil.copytree('{}/scripts/monitor'.format((path.get_path())),
                     '{}/monitor'.format(package_dir))
     LOGGER.info("build_package_only end!")
-
 
 
 def build_config_ini(_data_dir):
@@ -312,7 +311,6 @@ def build_config_ini(_data_dir):
             node_cfg.set("rpc", "channel_listen_ip", channel_ip[my_node_index])
         else:
             node_cfg.set("rpc", "channel_listen_ip", "0.0.0.0")
-
         node_cfg.set("rpc", "channel_listen_port",
                      channel_listen_port[my_node_index])
         node_cfg.set("rpc", "jsonrpc_listen_port",
@@ -505,6 +503,7 @@ def get_nodeid_str(get_path):
     LOGGER.info("get_nodeid success! get path is %s", get_path)
     return result
 
+
 def get_nodeid_str_from_nodeid(get_path):
     """[get nodeid string]
 
@@ -525,7 +524,8 @@ def get_nodeid_str_from_nodeid(get_path):
         LOGGER.error(' node cert doesn\'t existed! Need %s', get_path)
         raise MCError(' node cert doesn\'t existed! Need %s' % get_path)
     try:
-        (status, result) = utils.getstatusoutput('cat {} | head -n 1'.format(get_path))
+        (status, result) = utils.getstatusoutput(
+            'cat {} | head -n 1'.format(get_path))
         if status != 0:
             LOGGER.error(
                 ' create nodeid failed! status is %d, output is %s, dir is %s.',
