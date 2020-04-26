@@ -55,8 +55,12 @@ def usage():
 
     pkg_group.add_argument('-b', '--build_install_package', nargs=2, metavar=('peers', 'data'),
                            help=' build chain packages with node_deployment.ini')
+    pkg_group.add_argument('--build_package_only', nargs=2, metavar=('data', 'peers',),
+                           help=' build chain packages with node_deployment.ini, without any certificates')
     pkg_group.add_argument('-c', '--create_group_genesis', nargs=1, metavar=('data_dir'),
                            help='create group genesis with group_genesis.ini.')
+    pkg_group.add_argument('--create_group_genesis_with_nodeid', nargs=1, metavar=('data_dir'),
+                           help='create group genesis with group_genesis.ini using node.nodeid.')
 
     tools_group = parser.add_argument_group(
         ' Other Tools Options ')
@@ -110,10 +114,19 @@ def usage():
         build.build(
             args.build_install_package[0], args.build_install_package[1])
         CONSOLER.info(' Build operation end.')
+    elif args.build_package_only:
+        CONSOLER.info(' Build operation begin.')
+        build.package(
+            args.build_package_only[0], args.build_package_only[1])
+        CONSOLER.info(' Build operation end.')
     elif args.create_group_genesis:
-        CONSOLER.info(' Expand operation begin.')
+        CONSOLER.info(' Build operation begin.')
         create_group.create_group(args.create_group_genesis[0])
-        CONSOLER.info(' Expand operation end.')
+        CONSOLER.info(' Build operation end.')
+    elif args.create_group_genesis_with_nodeid:
+        CONSOLER.info(' Build operation begin.')
+        create_group.create_group_with_nodeid(args.create_group_genesis_with_nodeid[0])
+        CONSOLER.info(' Build operation end.')
     elif args.generate_chain_certificate:
         CONSOLER.info(' Chain cert begin.')
         chain_dir = args.generate_chain_certificate[0]
