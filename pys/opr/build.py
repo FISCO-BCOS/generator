@@ -23,6 +23,15 @@ def build(peer_path, data_path):
     config.build_config_ini(data_path)
     opr_cert.deploy_key('{}/meta'.format(path.get_path()), data_path)
 
+def package(data_path, peer_path):
+    utils.file_must_exists('{}/meta/fisco-bcos'.format(path.get_path()))
+    utils.check_fisco('{}/meta/fisco-bcos'.format(path.get_path()))
+    if (os.path.exists(peer_path) and os.path.isfile(peer_path)):
+        mconf.read_peers(peer_path)
+    else:
+        mconf.default_peers()
+    config.build_package_only(data_path)
+
 
 def build_console(_console_dir):
     """[download console]
