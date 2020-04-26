@@ -100,6 +100,7 @@ def create_group_genesis(data_dir='{}/meta'.format(path.get_path())):
 
     LOGGER.info('create_group_genesis end')
 
+
 def create_group_genesis_with_nodeid(data_dir='{}/meta'.format(path.get_path())):
     '''
     create group in meta
@@ -141,7 +142,7 @@ def create_group_genesis_with_nodeid(data_dir='{}/meta'.format(path.get_path()))
             if gm_opr:
                 node_id = config.get_nodeid_str_from_nodeid(
                     '{}/meta/gmnode_{}_{}.nodeid'.format(path.get_path(),
-                                                      p2p_ip[node_idx], p2p_listen_port[node_idx]))
+                                                         p2p_ip[node_idx], p2p_listen_port[node_idx]))
                 node_id.strip('\n').strip(
                     'WARNING: can\'t open config file: /home/asherli/TASSL/ssl/openssl.cnf')
                 LOGGER.info('resolve %s/meta/gmnode_%s_%s.nodeid',
@@ -152,7 +153,7 @@ def create_group_genesis_with_nodeid(data_dir='{}/meta'.format(path.get_path()))
             else:
                 node_id = config.get_nodeid_str_from_nodeid(
                     '{}/meta/node_{}_{}.nodeid'.format(path.get_path(),
-                                                    p2p_ip[node_idx], p2p_listen_port[node_idx]))
+                                                       p2p_ip[node_idx], p2p_listen_port[node_idx]))
                 LOGGER.info('resolve %s/meta/node_%s_%s.nodeid',
                             path.get_path(),
                             p2p_ip[node_idx],
