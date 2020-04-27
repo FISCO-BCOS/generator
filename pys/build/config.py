@@ -426,7 +426,7 @@ def get_nodeid(get_path, send_path):
         raise MCError(' node cert doesn\'t existed! Need %s' % get_path)
     try:
         if utils.Status.gm_option:
-            (status, result) = utils.getstatusoutput('~/.tassl x509  -text -in {}'
+            (status, result) = utils.getstatusoutput('~/.fisco/tassl x509  -text -in {}'
                                                      ' | sed -n "15,20p" |  sed '
                                                      '"s/://g" | sed "s/pub//g" |'
                                                      ' tr "\n" " " | sed "s/ //g"'
@@ -475,7 +475,7 @@ def get_nodeid_str(get_path):
         raise MCError(' node cert doesn\'t existed! Need %s' % get_path)
     try:
         if utils.Status.gm_option:
-            (status, result) = utils.getstatusoutput('~/.tassl x509  -text -in {}'
+            (status, result) = utils.getstatusoutput('~/.fisco/tassl x509  -text -in {}'
                                                      ' | sed -n "15,20p" |  sed '
                                                      '"s/://g" | sed "s/pub//g" |'
                                                      ' tr "\n" " " | sed "s/ //g"'
