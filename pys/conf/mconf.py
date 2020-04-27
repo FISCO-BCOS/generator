@@ -256,3 +256,7 @@ def read_peers(data_path):
             ' open %s file failed, exception is %s' % (data_path, ini_exp))
     MchainConf.peers = list(set(MchainConf.peers))
     LOGGER.info('peers is %s', MchainConf.peers)
+
+def default_peers():
+    MchainConf.peers = list()
+    LOGGER.info('default peers is %s', MchainConf.peers)

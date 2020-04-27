@@ -34,6 +34,158 @@ from pys.error.exp import MCError
 from pys.conf import mconf
 
 
+def build_package_only(_data_dir):
+    """[-- build create config_ini]
+
+    Keyword Arguments:
+        _meta_dir {[PATH]} -- [input dir] (default: {meta})
+        _data_dir {[PATH]} -- [output dir] (default: {data})
+
+    Raises:
+        MCError -- [description]
+        MCError -- [description]
+        MCError -- [description]
+        MCError -- [description]
+    """
+
+    LOGGER.info("build_package_only start ")
+    p2p_listen_port = mconf.MchainConf.p2p_listen_port
+    jsonrpc_listen_port = mconf.MchainConf.jsonrpc_listen_port
+    channel_listen_port = mconf.MchainConf.channel_listen_port
+    p2p_ip = mconf.MchainConf.p2p_ip
+    rpc_ip = mconf.MchainConf.rpc_ip
+    channel_ip = mconf.MchainConf.channel_ip
+    peers = mconf.MchainConf.peers
+    meta_dir = '{}/meta'.format(path.get_path())
+    conf_dir = meta_dir
+    package_dir = _data_dir
+    gm_opr = utils.Status.gm_option
+
+    if os.path.exists(package_dir):
+        LOGGER.error(' %s existed, maybe u had created it!', package_dir)
+        raise MCError(' %s existed, maybe u had created it!' % package_dir)
+    os.mkdir(package_dir)
+
+    if gm_opr:
+        shutil.copy('{}/tpl/config.ini.gm'.format(path.get_path()),
+                    '{}/.config.ini'.format(conf_dir))
+    else:
+        shutil.copy('{}/tpl/config.ini'.format(path.get_path()),
+                    '{}/.config.ini'.format(conf_dir))
+    fin_p2p_ip = []
+    if not peers:
+        LOGGER.warning('section peers not existed!')
+        CONSOLER.warn('section peers not existed!')
+    else:
+        for _, peer in enumerate(peers):
+            fin_p2p_ip.append(peer)
+    # init config.ini & node package
+    for my_node_index, node_ip in enumerate(p2p_ip):
+        LOGGER.info("p2p_ip -> %s", node_ip)
+        CONSOLER.info(' Generate %s/node_%s_%s ',
+                      package_dir, node_ip, p2p_listen_port[my_node_index])
+        node_dir = '{}/node_{}_{}'.format(package_dir,
+                                          node_ip, p2p_listen_port[my_node_index])
+        os.mkdir(node_dir)
+        os.mkdir('{}/scripts'.format(node_dir))
+        shutil.copy('{}/tpl/start.sh'.format(path.get_path()),
+                    '{}/start.sh'.format(node_dir))
+        shutil.copy('{}/tpl/stop.sh'.format(path.get_path()),
+                    '{}/stop.sh'.format(node_dir))
+        shutil.copy('{}/tpl/load_new_groups.sh'.format(path.get_path()),
+                    '{}/scripts/load_new_groups.sh'.format(node_dir))
+        shutil.copy('{}/tpl/reload_whitelist.sh'.format(path.get_path()),
+                    '{}/scripts/reload_whitelist.sh'.format(node_dir))
+        shutil.copy('{}/fisco-bcos'.format(meta_dir),
+                    '{}/fisco-bcos'.format(node_dir))
+
+        os.mkdir('{}/conf'.format(node_dir))
+        try:
+            # cp config.ini
+            shutil.copy('{}/.config.ini'.format(conf_dir),
+                        '{}/config.ini'.format(node_dir))
+        except Exception as build_exp:
+            LOGGER.error(' exception is %s', build_exp)
+            utils.delete_data(package_dir)
+            raise MCError(' exception is %s' % build_exp)
+        node_cfg = configparser.ConfigParser(allow_no_value=True)
+        try:
+            with codecs.open('{}/config.ini'.format(node_dir),
+                             'r', encoding='utf-8') as config_file:
+                node_cfg.readfp(config_file)
+        except Exception as build_exp:
+            LOGGER.error(
+                ' open config.ini file failed, exception is %s', build_exp)
+            utils.delete_data(package_dir)
+            raise MCError(
+                ' open config.ini file failed, exception is %s' % build_exp)
+        if len(rpc_ip) > my_node_index:
+            node_cfg.set("rpc", "jsonrpc_listen_ip", rpc_ip[my_node_index])
+        else:
+            node_cfg.set("rpc", "jsonrpc_listen_ip", "127.0.0.1")
+
+        if len(channel_ip) > my_node_index:
+            node_cfg.set("rpc", "channel_listen_ip", channel_ip[my_node_index])
+        else:
+            node_cfg.set("rpc", "channel_listen_ip", "0.0.0.0")
+
+        node_cfg.set("rpc", "channel_listen_port",
+                     channel_listen_port[my_node_index])
+        node_cfg.set("rpc", "jsonrpc_listen_port",
+                     jsonrpc_listen_port[my_node_index])
+        node_cfg.set("p2p", "listen_port", p2p_listen_port[my_node_index])
+        with open('{}/config.ini'.format(node_dir), 'w') as config_file:
+            node_cfg.write(config_file)
+    config_file.close()
+    # set p2p ip in config.ini
+    for my_node_index, ip_item in enumerate(p2p_ip):
+        node_cfg = configparser.ConfigParser(allow_no_value=True)
+        if not utils.valid_ip(ip_item):
+            LOGGER.error(
+                ' init config.ini file failed, found ip => %s', ip_item)
+            utils.delete_data(package_dir)
+            raise MCError(
+                ' init config.ini file failed, found ip => %s' % ip_item)
+        node_dir = '{}/node_{}_{}'.format(package_dir,
+                                          ip_item, p2p_listen_port[my_node_index])
+        try:
+            with codecs.open('{}/config.ini'.format(node_dir),
+                             'r', encoding='utf-8') as config_file:
+                node_cfg.readfp(config_file)
+        except Exception as build_exp:
+            LOGGER.error(
+                ' open config.ini file failed, exception is %s', build_exp)
+            utils.delete_data(package_dir)
+            raise MCError(
+                ' open config.ini file failed, exception is %s' % build_exp)
+        # write p2pip:port into config.ini
+        for ip_idx, set_item in enumerate(p2p_ip):
+            fin_p2p_ip.append("{}:{}".format(
+                set_item, p2p_listen_port[ip_idx]))
+        fin_p2p_ip = list(set(fin_p2p_ip))
+        for index, p2p_section in enumerate(fin_p2p_ip):
+            node_cfg.set("p2p", "node.{}".format(index),
+                         '{}'.format(p2p_section))
+            node_cfg.set('certificate_whitelist',
+                         '; cal.0 should be nodeid, nodeid\'s length is 128')
+            node_cfg.set('certificate_whitelist', ';cal.0=')
+            node_cfg.set('certificate_blacklist',
+                         '; crl.0 should be nodeid, nodeid\'s length is 128')
+            node_cfg.set('certificate_blacklist', ';crl.0=')
+        with open('{}/config.ini'.format(node_dir), 'w') as config_file:
+            node_cfg.write(config_file)
+    os.mkdir(package_dir + '/scripts/')
+    shutil.copy('{}/scripts/install.sh'.format(path.get_path()),
+                package_dir + '/scripts/')
+    shutil.copy('{}/scripts/pack.sh'.format(path.get_path()),
+                package_dir + '/scripts/')
+    shutil.copy('{}/tpl/start_all.sh'.format(path.get_path()), package_dir)
+    shutil.copy('{}/tpl/stop_all.sh'.format(path.get_path()), package_dir)
+    shutil.copytree('{}/scripts/monitor'.format((path.get_path())),
+                    '{}/monitor'.format(package_dir))
+    LOGGER.info("build_package_only end!")
+
+
 def build_config_ini(_data_dir):
     """[-- build create config_ini]
 
@@ -159,7 +311,6 @@ def build_config_ini(_data_dir):
             node_cfg.set("rpc", "channel_listen_ip", channel_ip[my_node_index])
         else:
             node_cfg.set("rpc", "channel_listen_ip", "0.0.0.0")
-
         node_cfg.set("rpc", "channel_listen_port",
                      channel_listen_port[my_node_index])
         node_cfg.set("rpc", "jsonrpc_listen_port",
@@ -337,6 +488,44 @@ def get_nodeid_str(get_path):
                                                      ' tr "\n" " " | sed "s/ //g"'
                                                      ' | cut -c 3-130'.format(get_path))
 
+        if status != 0:
+            LOGGER.error(
+                ' create nodeid failed! status is %d, output is %s, dir is %s.',
+                status, result, get_path)
+        LOGGER.info(
+            ' create nodeid success! status is %d, output is %s, dir is %s.',
+            status, result, get_path)
+    except Exception as node_id_exp:
+        LOGGER.error(
+            ' create nodeid failed! status is %d, output is %s, dir is %s.',
+            status, result, get_path)
+        raise MCError(' create nodeid failed! excepion is %s.' % node_id_exp)
+    LOGGER.info("get_nodeid success! get path is %s", get_path)
+    return result
+
+
+def get_nodeid_str_from_nodeid(get_path):
+    """[get nodeid string]
+
+    Arguments:
+        get_path {[file]} -- [description]
+
+    Raises:
+        MCError -- [description]
+
+    Returns:
+        [string] -- [nodeid]
+    """
+
+    # openssl x509  -text -in ./node.crt |  sed -n '15,20p' |  sed 's/://g' |
+    #  tr "\n" " " | sed 's/ //g' | sed 's/pub//g' | cut -c 3-130
+    LOGGER.info("get_nodeid start! get path is %s", get_path)
+    if not os.path.isfile(get_path):
+        LOGGER.error(' node cert doesn\'t existed! Need %s', get_path)
+        raise MCError(' node cert doesn\'t existed! Need %s' % get_path)
+    try:
+        (status, result) = utils.getstatusoutput(
+            'cat {} | head -n 1'.format(get_path))
         if status != 0:
             LOGGER.error(
                 ' create nodeid failed! status is %d, output is %s, dir is %s.',
