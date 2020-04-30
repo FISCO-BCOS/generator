@@ -7,18 +7,22 @@ SHELL_FOLDER=$(
     pwd
 )
 
-export TASSL_CMD="${HOME}"/.tassl
+export TASSL_CMD="${HOME}"/.fisco/tassl
 export EXIT_CODE=1
 
 # TASSL env
 check_and_install_tassl()
 {
-    if [ ! -f "${HOME}/.tassl" ];then
-        curl -LO https://github.com/FISCO-BCOS/LargeFiles/raw/master/tools/tassl.tar.gz
+    if [ ! -d "${HOME}/.fisco" ]; then
+        echo "${HOME}/.fisco does not exist, make directory for it!"
+        mkdir "${HOME}/.fisco"
+    fi
+    if [ ! -f "${HOME}/.fisco/tassl" ];then
+        curl -LO https://www.fisco.com.cn/cdn/deps/tools/tassl.tar.gz
         echo "Downloading tassl binary ..."
         tar zxvf tassl.tar.gz
         chmod u+x tassl
-        mv tassl ${HOME}/.tassl
+        mv "./tassl" "${HOME}/.fisco/tassl"
     fi
 }
 

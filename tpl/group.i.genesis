@@ -21,3 +21,6 @@ type=storage
 ; tx gas limit
 [tx]
 gas_limit=300000000
+
+[evm]
+enable_free_storage=false
