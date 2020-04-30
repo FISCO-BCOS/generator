@@ -100,7 +100,7 @@ def usage():
     args = parser.parse_args()
     if args.use_guomi:
         CONSOLER.info('======= BUILD_GM ============= ON =======')
-        if not os.path.isfile('{}/.tassl'.format(os.environ['HOME'])):
+        if not os.path.isfile('{}/.fisco/tassl'.format(os.environ['HOME'])):
             LOGGER.info('download gm tassl...')
             build.download_tassl()
         utils.set_gm()

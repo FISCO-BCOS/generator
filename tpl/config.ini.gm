@@ -58,13 +58,17 @@ cipher_data_key=
 id=1
 
 [compatibility]
-supported_version=2.3.0
+supported_version=2.4.0
 
 ;log configurations
 [log]
 enable=true
 ; the directory of the log
 log_path=./log
+; enable/disable the statistics function
+enable_statistic=false
+; network statistics interval, unit is second, default is 60s
+stat_flush_interval=60
 ; info debug trace 
 level=info
 ; MB
