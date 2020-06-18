@@ -436,19 +436,17 @@ def download_fisco(_dir):
     """
     dir_must_exists(_dir)
     bin_path = _dir
-    # bcos_bin_name = 'fisco-bcos'
-    if Status.gm_option:
-        package_name = "fisco-bcos-gm.tar.gz"
-    else:
-        package_name = "fisco-bcos.tar.gz"
-    (status, version)\
-        = getstatusoutput(r'curl -s https://api.github.com/repos/FISCO-BCOS/FISCO-BCOS/releases '
-                          r'| grep "tag_name" | grep "\"v2\.[0-9]\.[0-9]\""'
-                          r' | sort -u | tail -n 1 | cut -d \" -f 4 | sed "s/^[vV]//"')
-    if bool(status):
-        LOGGER.error(
-            ' get fisco-bcos verion failed, result is %s.', version)
-        raise MCError(' get fisco-bcos verion failed, result is %s.' % version)
+
+    package_name = "fisco-bcos.tar.gz"
+    # (status, version)\
+    #     = getstatusoutput(r'curl -s https://api.github.com/repos/FISCO-BCOS/FISCO-BCOS/releases '
+    #                       r'| grep "tag_name" | grep "\"v2\.[0-9]\.[0-9]\""'
+    #                       r' | sort -u | tail -n 1 | cut -d \" -f 4 | sed "s/^[vV]//"')
+    # if bool(status):
+    #     LOGGER.error(
+    #         ' get fisco-bcos verion failed, result is %s.', version)
+    #     raise MCError(' get fisco-bcos verion failed, result is %s.' % version)
+    version = "2.5.0"
     download_link = 'https://github.com/FISCO-BCOS/FISCO-BCOS/releases/download/v{}/{}'.format(
         version.strip('\n'), package_name.strip('\n'))
     cnd_link = 'https://www.fisco.com.cn/cdn/fisco-bcos/releases/download/v{}/{}'.format(
@@ -518,13 +516,14 @@ def download_console(_dir):
     file_must_exists('{}/agency.key'.format(meta))
     package_name = "console.tar.gz"
     dir_must_not_exists('{}/console'.format(bin_path))
-    (status, version) = getstatusoutput('curl -s https://api.github.com/repos/FISCO-BCOS/'
-                                        'console/releases | grep "tag_name" '
-                                        '| sort -u | tail -n 1 | cut -d \\" -f 4 | sed "s/^[vV]//"')
-    if bool(status):
-        LOGGER.error(
-            ' get fisco-bcos verion failed, result is %s.', version)
-        raise MCError(' get fisco-bcos verion failed, result is %s.' % version)
+    # (status, version) = getstatusoutput('curl -s https://api.github.com/repos/FISCO-BCOS/'
+    #                                     'console/releases | grep "tag_name" '
+    #                                     '| sort -u | tail -n 1 | cut -d \\" -f 4 | sed "s/^[vV]//"')
+    # if bool(status):
+    #     LOGGER.error(
+    #         ' get fisco-bcos verion failed, result is %s.', version)
+    #     raise MCError(' get fisco-bcos verion failed, result is %s.' % version)
+    version = "1.0.10"
     download_link = 'https://github.com/FISCO-BCOS/console/releases/download/v{}/{}'.format(
         version.strip('\n'), package_name.strip('\n'))
     cnd_link = 'https://www.fisco.com.cn/cdn/console/releases/download/v{}/{}'.format(
@@ -671,22 +670,22 @@ def check_fisco(_file):
             "%s is wrong. Please correct it and try again.", bin_fisco)
         raise Exception(
             "%s is wrong. Please correct it and try again." % bin_fisco)
-    if Status.gm_option:
-        if not 'gm' in bin_version:
-            LOGGER.error(
-                'Checking fisco-bcos failed! %s isn\'t '
-                'gm version. Please correct it and try again.', bin_fisco)
-            raise MCError(
-                'Checking fisco-bcos failed! %s isn\'t '
-                'gm version. Please correct it and try again' % bin_version)
-    else:
-        if 'gm' in bin_version:
-            LOGGER.error(
-                'Checking fisco-bcos failed! %s isn\'t '
-                'standard version. Please correct it and try again.', bin_fisco)
-            raise MCError(
-                'Checking fisco-bcos failed! %s isn\'t '
-                'standard version. Please correct it and try again.' % bin_version)
+    # if Status.gm_option:
+    #     if not 'gm' in bin_version:
+    #         LOGGER.error(
+    #             'Checking fisco-bcos failed! %s isn\'t '
+    #             'gm version. Please correct it and try again.', bin_fisco)
+    #         raise MCError(
+    #             'Checking fisco-bcos failed! %s isn\'t '
+    #             'gm version. Please correct it and try again' % bin_version)
+    # else:
+    #     if 'gm' in bin_version:
+    #         LOGGER.error(
+    #             'Checking fisco-bcos failed! %s isn\'t '
+    #             'standard version. Please correct it and try again.', bin_fisco)
+    #         raise MCError(
+    #             'Checking fisco-bcos failed! %s isn\'t '
+    #             'standard version. Please correct it and try again.' % bin_version)
     CONSOLER.info(' Binary check passed.')
     LOGGER.info(' Binary check passed.')
 

@@ -10,3 +10,4 @@ conf/*
 .DS_Store
 .srl
 tmp*/*
+dir_*

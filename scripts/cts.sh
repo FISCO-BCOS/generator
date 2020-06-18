@@ -69,11 +69,13 @@ gen_chain_cert() {
     echo "$path --- $name"
     dir_must_not_exists "$path"
     check_name chain "$name"
-    
+
     chaindir=$path
     mkdir -p $chaindir
-    openssl genrsa -out $chaindir/ca.key 2048
-    openssl req -new -x509 -days 3650 -subj "/CN=$name/O=fisco-bcos/OU=chain" -key $chaindir/ca.key -out $chaindir/ca.crt
+    openssl ecparam -out "$chaindir/secp256k1.param" -name secp256k1 2> /dev/null
+    openssl genpkey -paramfile "$chaindir/secp256k1.param" -out "$chaindir/ca.key" 2> /dev/null
+    openssl req -new -x509 -days "${days}" -subj "/CN=$name/O=fisco-bcos/OU=chain" -key "$chaindir/ca.key" -out "$chaindir/ca.crt"
+    rm -f "$chaindir/secp256k1.param"
 
     if [ $? -eq 0 ]; then
         echo "build chain ca succussful!"
@@ -94,13 +96,14 @@ gen_agency_cert() {
     dir_must_not_exists "$agencydir"
     mkdir -p $agencydir
 
-    openssl genrsa -out $agencydir/agency.key 2048
-    openssl req -new -sha256 -subj "/CN=$name/O=fisco-bcos/OU=agency" -key $agencydir/agency.key -config ${SHELL_FOLDER}/cert.cnf -out $agencydir/agency.csr
-    openssl x509 -req -days 3650 -sha256 -CA $chain/ca.crt -CAkey $chain/ca.key -CAcreateserial\
-        -in $agencydir/agency.csr -out $agencydir/agency.crt  -extensions v4_req -extfile ${SHELL_FOLDER}/cert.cnf
-    
-    cp $chain/ca.crt $agencydir/
-    rm -f $agencydir/agency.csr
+    openssl ecparam -out "$agencydir/secp256k1.param" -name secp256k1 2> /dev/null
+    openssl genpkey -paramfile "$agencydir/secp256k1.param" -out "$agencydir/agency.key" 2> /dev/null
+    openssl req -new -sha256 -subj "/CN=$name/O=fisco-bcos/OU=agency" -key "$agencydir/agency.key" -config "$chain/cert.cnf" -out "$agencydir/agency.csr" 2> /dev/null
+    openssl x509 -req -days 3650 -sha256 -CA "$chain/ca.crt" -CAkey "$chain/ca.key" -CAcreateserial\
+        -in "$agencydir/agency.csr" -out "$agencydir/agency.crt"  -extensions v4_req -extfile "$chain/cert.cnf" 2> /dev/null
+    # cat "$chain/ca.crt" >> "$agencydir/agency.crt"
+    cp $chain/ca.crt $chain/cert.cnf $agencydir/
+    rm -f "$agencydir/agency.csr" "$agencydir/secp256k1.param"
 
     echo "build $name agency cert successful!"
 }
@@ -146,7 +149,7 @@ gen_node_cert() {
     dir_must_exists "$agpath"
     file_must_exists "$agpath/agency.key"
     check_name agency "$agency"
-    dir_must_not_exists "$ndpath"	
+    dir_must_not_exists "$ndpath"
     check_name node "$node"
 
     mkdir -p $ndpath
