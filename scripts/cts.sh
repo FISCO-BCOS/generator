@@ -98,11 +98,11 @@ gen_agency_cert() {
 
     openssl ecparam -out "$agencydir/secp256k1.param" -name secp256k1 2> /dev/null
     openssl genpkey -paramfile "$agencydir/secp256k1.param" -out "$agencydir/agency.key" 2> /dev/null
-    openssl req -new -sha256 -subj "/CN=$name/O=fisco-bcos/OU=agency" -key "$agencydir/agency.key" -config "$chain/cert.cnf" -out "$agencydir/agency.csr" 2> /dev/null
+    openssl req -new -sha256 -subj "/CN=$name/O=fisco-bcos/OU=agency" -key "$agencydir/agency.key" -config "${SHELL_FOLDER}/cert.cnf" -out "$agencydir/agency.csr" 2> /dev/null
     openssl x509 -req -days 3650 -sha256 -CA "$chain/ca.crt" -CAkey "$chain/ca.key" -CAcreateserial\
-        -in "$agencydir/agency.csr" -out "$agencydir/agency.crt"  -extensions v4_req -extfile "$chain/cert.cnf" 2> /dev/null
+        -in "$agencydir/agency.csr" -out "$agencydir/agency.crt"  -extensions v4_req -extfile "${SHELL_FOLDER}/cert.cnf" 2> /dev/null
     # cat "$chain/ca.crt" >> "$agencydir/agency.crt"
-    cp $chain/ca.crt $chain/cert.cnf $agencydir/
+    cp $chain/ca.crt $agencydir/
     rm -f "$agencydir/agency.csr" "$agencydir/secp256k1.param"
 
     echo "build $name agency cert successful!"
