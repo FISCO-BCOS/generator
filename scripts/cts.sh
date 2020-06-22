@@ -74,7 +74,7 @@ gen_chain_cert() {
     mkdir -p $chaindir
     openssl ecparam -out "$chaindir/secp256k1.param" -name secp256k1 2> /dev/null
     openssl genpkey -paramfile "$chaindir/secp256k1.param" -out "$chaindir/ca.key" 2> /dev/null
-    openssl req -new -x509 -days "${days}" -subj "/CN=$name/O=fisco-bcos/OU=chain" -key "$chaindir/ca.key" -out "$chaindir/ca.crt"
+    openssl req -new -x509 -days 3650 -subj "/CN=$name/O=fisco-bcos/OU=chain" -key "$chaindir/ca.key" -out "$chaindir/ca.crt"
     rm -f "$chaindir/secp256k1.param"
 
     if [ $? -eq 0 ]; then
