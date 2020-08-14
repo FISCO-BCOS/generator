@@ -8,6 +8,8 @@ timestamp=${time_stamp}
 consensus_type=pbft
 ; the max number of transactions of a block
 max_trans_num=1000
+; in seconds, block consensus timeout, at least 3s
+consensus_timeout=3
 ; rpbft related configuration
 ; the sealers num of each consensus epoch
 epoch_sealer_num=${sealer_size}
