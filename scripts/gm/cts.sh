@@ -18,7 +18,7 @@ check_and_install_tassl()
         mkdir "${HOME}/.fisco"
     fi
     if [ ! -f "${HOME}/.fisco/tassl" ];then
-        curl -LO https://www.fisco.com.cn/cdn/deps/tools/tassl.tar.gz
+        curl -LO https://osp-1257653870.cos.ap-guangzhou.myqcloud.com/FISCO-BCOS/FISCO-BCOS/tools/tassl-1.0.2/tassl.tar.gz
         echo "Downloading tassl binary ..."
         tar zxvf tassl.tar.gz
         chmod u+x tassl
@@ -95,7 +95,7 @@ dir_must_not_exists() {
 generate_gmsm2_param()
 {
     local output=$1
-    cat << EOF > ${output} 
+    cat << EOF > ${output}
 -----BEGIN EC PARAMETERS-----
 BggqgRzPVQGCLQ==
 -----END EC PARAMETERS-----

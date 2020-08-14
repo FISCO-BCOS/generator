@@ -446,10 +446,10 @@ def download_fisco(_dir):
     #     LOGGER.error(
     #         ' get fisco-bcos verion failed, result is %s.', version)
     #     raise MCError(' get fisco-bcos verion failed, result is %s.' % version)
-    version = "2.5.0"
+    version = "2.6.0"
     download_link = 'https://github.com/FISCO-BCOS/FISCO-BCOS/releases/download/v{}/{}'.format(
         version.strip('\n'), package_name.strip('\n'))
-    cnd_link = 'https://www.fisco.com.cn/cdn/fisco-bcos/releases/download/v{}/{}'.format(
+    cnd_link = 'https://osp-1257653870.cos.ap-guangzhou.myqcloud.com/FISCO-BCOS/FISCO-BCOS/releases/v{}/{}'.format(
         version.strip('\n'), package_name.strip('\n'))
     if Status.use_cdn:
         if valid_url(cnd_link):
@@ -526,7 +526,7 @@ def download_console(_dir):
     version = "1.0.10"
     download_link = 'https://github.com/FISCO-BCOS/console/releases/download/v{}/{}'.format(
         version.strip('\n'), package_name.strip('\n'))
-    cnd_link = 'https://www.fisco.com.cn/cdn/console/releases/download/v{}/{}'.format(
+    cnd_link = 'https://osp-1257653870.cos.ap-guangzhou.myqcloud.com/FISCO-BCOS/console/releases/v{}/{}'.format(
         version.strip('\n'), package_name.strip('\n'))
     if Status.use_cdn:
         if valid_url(cnd_link):
