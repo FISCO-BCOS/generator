@@ -124,7 +124,7 @@ fi
 echo "send transaction succeed"
 cd ~/generator-A
 bash .ci/download_bin.sh -c
-cat ./meta/console/conf/applicationContext.xml
+cat ./meta/console/conf/config.toml
 # sudo apt-get install openjdk-8-jdk
 cd ./meta/console/
 ls

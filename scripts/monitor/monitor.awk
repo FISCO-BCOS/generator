@@ -6,19 +6,21 @@ BEGIN {
 {
     if( $0 ~ /error/ )
         err[0]++ ;
-    else if($0 ~ /Host is gone/)
+    if($0 ~ /Host is gone/)
         err[1]++ ;
-    else if( $0 ~ /Get leader failed/ && match($0, group_id)) 
+    if( $0 ~ /TCP Connection refused by node/) 
         err[2]++ ;
-    else if( $0 ~ /ViewChangeWarning/ && match($0, group_id))
+    if( $0 ~ /ViewChangeWarning/ && match($0, group_id))
         err[3]++ ;
-    else if( $0 ~ /.*ssl socket.*close/ )
+    if( $0 ~ /.*ssl socket.*close/ )
         err[4]++ ;
-    else if ( $0 ~ /p:.*Report.*Idx/ && match($0, group_id)) {
+    if( $0 ~ /Find disconnectedNode/ )
+        err[5]++ ;
+    if ( $0 ~ /.*Report.*Idx/ && match($0, group_id)) {
         match($0,/Idx=([0-9]+)/,idx);
         report[idx[1]]++;
     }
-    else if ( $0 ~ /p:.*handleViewChangeMsg Succ/ && match($0, group_id)) {
+    if ( $0 ~ /.*handleViewChangeMsg Succ/ && match($0, group_id)) {
         match($0,/GenIdx=([0-9]+)/,idx);
         view_total[idx[1]]++
         if ( idx_view == from ) {
@@ -27,7 +29,7 @@ BEGIN {
             view_f[idx[1]]++
         }
     }
-    else if ( $0 ~ /p:.*handleSignMsg Succ/ && match($0, group_id)) {
+    if ( $0 ~ /.*handleSignMsg Succ/ && match($0, group_id)) {
         match($0,/GenIdx=([0-9]+)/,idx);
         sign_total[idx[1]]++
         if ( idx_sig == from ) {
@@ -36,7 +38,7 @@ BEGIN {
             sign_f[idx[1]]++
         }
     }
-    else if ( $0 ~ /p:.*handlePrepareMsg Succ/ && match($0, group_id)) {
+    if ( $0 ~ /.*handlePrepareMsg Succ/ && match($0, group_id)) {
         match($0,/nodeIdx=([0-9]+)/,idx);
         pre_total[idx[1]]++
         if ( idx[1] == from ) {
@@ -45,7 +47,7 @@ BEGIN {
             pre_f[idx[1]]++
         }
     }
-    else if ( $0 ~ /p.*handleCommitMsg Succ/ && match($0, group_id)) {
+    if ( $0 ~ /*handleCommitMsg Succ/ && match($0, group_id)) {
         match($0,/GenIdx=([0-9]+)/,idx);
         commit_total[idx[1]]++
         if ( idx[1] == from ) {
@@ -54,7 +56,7 @@ BEGIN {
             commit_f[idx[1]]++
         }
     }
-    else if ( $0 ~ /warning/ && match($0, group_id)) {
+    if ( $0 ~ /warning/ && match($0, group_id)) {
         warning[0]++
 } 
 }

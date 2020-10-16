@@ -31,6 +31,12 @@ class Status(object):
     unit_time = False
     allow_unsecure_cfg = False
     use_cdn = False
+    download_console_shell_script = "download_console.sh"
+    default_console_version = "2.6.0"
+    download_console_version = default_console_version
+    download_console_version_specified = False
+    solidity_version = ""
+    solidity_version_specified = False
 
     def __init__(self):
         """[init]
@@ -70,11 +76,48 @@ class Status(object):
         """
         return self.use_cdn
 
+
 def set_cdn():
     """[summary]
     """
 
     Status.use_cdn = True
+
+
+def console_use_xml_configuration():
+    """
+    determine to use toml or xml configuration
+    (console use toml configuration since v2.6.0)
+    """
+    version_list = Status.download_console_version.split(".")
+    if len(version_list) < 3:
+        raise MCError(
+            '%s invalid download_console_version' % Status.download_console_version)
+    # check the major version
+    major_version = version_list[0]
+    if int(major_version) >= 2:
+        return False
+    else:
+        return True
+
+
+def set_download_console_version(version):
+    """
+    set download_console_version
+    """
+    Status.download_console_version = version
+    Status.download_console_version_specified = True
+    CONSOLER.debug("expect to download console %s",
+                   Status.download_console_version)
+
+
+def set_solidity_version(version):
+    """
+    set the solidity version, now support 0.5 and 0.6
+    """
+    Status.solidity_version = version
+    Status.solidity_version_specified = True
+    LOGGER.debug('expected solidity version is %s', Status.solidity_version)
 
 
 def set_gm():
@@ -514,56 +557,30 @@ def download_console(_dir):
     file_must_exists('{}/ca.crt'.format(meta))
     file_must_exists('{}/agency.crt'.format(meta))
     file_must_exists('{}/agency.key'.format(meta))
-    package_name = "console.tar.gz"
     dir_must_not_exists('{}/console'.format(bin_path))
-    # (status, version) = getstatusoutput('curl -s https://api.github.com/repos/FISCO-BCOS/'
-    #                                     'console/releases | grep "tag_name" '
-    #                                     '| sort -u | tail -n 1 | cut -d \\" -f 4 | sed "s/^[vV]//"')
-    # if bool(status):
-    #     LOGGER.error(
-    #         ' get fisco-bcos verion failed, result is %s.', version)
-    #     raise MCError(' get fisco-bcos verion failed, result is %s.' % version)
-    version = "1.0.10"
-    download_link = 'https://github.com/FISCO-BCOS/console/releases/download/v{}/{}'.format(
-        version.strip('\n'), package_name.strip('\n'))
-    cnd_link = 'https://osp-1257653870.cos.ap-guangzhou.myqcloud.com/FISCO-BCOS/console/releases/v{}/{}'.format(
-        version.strip('\n'), package_name.strip('\n'))
-    if Status.use_cdn:
-        if valid_url(cnd_link):
-            LOGGER.info("Downloading console binary from %s", cnd_link)
-            CONSOLER.info("Downloading console binary from %s", cnd_link)
-            download_bin(cnd_link, package_name)
-        elif valid_url(download_link):
-            LOGGER.info("Downloading console binary from %s", download_link)
-            CONSOLER.info("Downloading console binary from %s", download_link)
-            download_bin(download_link, package_name)
-        else:
-            LOGGER.error(
-                ' Download console failed, Please check your network!')
-            raise MCError(
-                ' Download console failed, Please check your network!')
-    else:
-        if valid_url(download_link):
-            LOGGER.info("Downloading console binary from %s", download_link)
-            CONSOLER.info("Downloading console binary from %s", download_link)
-            download_bin(download_link, package_name)
-        else:
-            LOGGER.error(
-                ' Download console failed, Please check your network!')
-            raise MCError(
-                ' Download console failed, Please check your network!')
-    (status, result)\
-        = getstatusoutput('tar -zxf {} -C {} && '
-                          'rm {}'.format(package_name,
-                                         bin_path,
-                                         package_name))
+    download_console_command = "bash {}/tpl/{}".format(
+        path.get_path(), Status.download_console_shell_script)
+
+    if(Status.download_console_version_specified is True):
+        download_console_command = "{} -c {}".format(
+            download_console_command, Status.download_console_version)
+
+    if(Status.solidity_version_specified is True):
+        download_console_command = "{} -v {}".format(
+            download_console_command, Status.solidity_version)
+    CONSOLER.info("The download_console_command is %s",
+                  download_console_command)
+    # execute the download_console_command
+    (status, result) = getstatusoutput(download_console_command)
     if bool(status):
         LOGGER.error(
-            ' Decompress console failed, result is %s.', result)
+            ' download console failed, result is %s.', result)
         raise MCError(
-            ' Decompress console failed, result is %s.' % result)
-    (status, result) = getstatusoutput(
-        'chmod a+x {}/console/start.sh'.format(bin_path))
+            ' download console failed, result is %s.' % result)
+    chmod_command = 'chmod a+x console/start.sh'
+    if bin_path != "." and bin_path != "./":
+        chmod_command = "{} && mv console {}".format(chmod_command, bin_path)
+    (status, result) = getstatusoutput(chmod_command)
     if bool(status):
         LOGGER.error(
             'chmod console failed! status is %d,'

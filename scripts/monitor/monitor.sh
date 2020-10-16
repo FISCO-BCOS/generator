@@ -440,10 +440,11 @@ function get_err_type()
         case $1 in
         "0")ret="[log_output_error]";;
         "1")ret="[get_host_failed]";;
-        "2")ret="[get_leader_failed]";;
+        "2")ret="[TCP_Connection_refused_by_other_node]";;
         "3")ret="[non_emptyBlockcaused_viewchange]";;
         "4")ret="[socket_closed]";;
-        *) ret="[UNKNOWN]";;
+        "5")ret="[Find_disconnectedNode]";;
+         *)ret="[UNKNOWN]";;
         esac
         echo "$ret"
 }
@@ -644,9 +645,9 @@ function show_log_analyze_result()
 
         # forward prepare
         if [ ${#pre_f[@]} -gt 0 ];then
-            LOG_INFO "[group: ${group}] forwad prepare message info:"
+            LOG_INFO "[group: ${group}] forward prepare message info:"
         else
-            LOG_INFO "[group: ${group}] forwad prepare message = 0"
+            LOG_INFO "[group: ${group}] forward prepare message = 0"
         fi
         for i in ${!pre_f[*]}
         do
