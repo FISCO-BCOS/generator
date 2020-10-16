@@ -37,4 +37,4 @@ bash .ci/download_bin.sh -c
 mv ./meta/console ./console
 ls ./console/
 cat ./console/conf/ca.crt
-cat ./console/conf/applicationContext.xml
+cat ./console/conf/config.toml

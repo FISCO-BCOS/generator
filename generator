@@ -5,7 +5,6 @@
 Returns:
     [cmd] -- [cmd description]
 """
-import argparse
 import os
 import sys
 from pys import path
@@ -15,18 +14,17 @@ sys.path.append('{}/pys'.format(GEN_DIR))
 path.set_path(GEN_DIR)
 # init end
 
-from pys.build import config
-from pys.conf import mconf, mgroup
-from pys.tool import ca, utils
-from pys import version
-from pys.log import CONSOLER
-from pys.log import console_error
-from pys.opr import opr_cert
-from pys.opr import create_group
-from pys.opr import build
 from pys.log import LOGGER
-
-
+from pys.opr import build
+from pys.opr import create_group
+from pys.opr import opr_cert
+from pys.log import console_error
+from pys.log import CONSOLER
+from pys import version
+from pys.tool import ca, utils
+from pys.conf import mconf, mgroup
+from pys.build import config
+import argparse
 def init():
     """[init function]
     """
@@ -48,8 +46,8 @@ def usage():
         ' and manage the chain  package with ansible. ')
 
     parser.add_argument('-v', '--version',
-                        action='store_true', help='show generator\'s version. ') 
-                            
+                        action='store_true', help='show generator\'s version. ')
+
     pkg_group = parser.add_argument_group(
         ' Build, Expand, Export, List Chain Package Options ')
 
@@ -97,6 +95,8 @@ def usage():
                              help='download console')
     tools_group.add_argument('--get_sdk_file', nargs=1, metavar=('data_dir'),
                              help='get sdk file')
+    tools_group.add_argument('--console_version', nargs=1,
+                             help='specify the downloaded console version')
     args = parser.parse_args()
     if args.use_guomi:
         CONSOLER.info('======= BUILD_GM ============= ON =======')
@@ -125,7 +125,8 @@ def usage():
         CONSOLER.info(' Build operation end.')
     elif args.create_group_genesis_with_nodeid:
         CONSOLER.info(' Build operation begin.')
-        create_group.create_group_with_nodeid(args.create_group_genesis_with_nodeid[0])
+        create_group.create_group_with_nodeid(
+            args.create_group_genesis_with_nodeid[0])
         CONSOLER.info(' Build operation end.')
     elif args.generate_chain_certificate:
         CONSOLER.info(' Chain cert begin.')
@@ -184,6 +185,10 @@ def usage():
     elif args.download_fisco:
         utils.download_fisco(args.download_fisco[0])
     elif args.download_console:
+        if args.console_version:
+            utils.set_download_console_version(args.console_version[0])
+            CONSOLER.info(" Specified console version is %s",
+                          args.console_version[0])
         build.build_console(args.download_console[0])
     elif args.get_sdk_file:
         build.get_sdk(args.get_sdk_file[0])

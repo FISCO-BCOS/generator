@@ -32,6 +32,7 @@ from pys import path
 from pys.log import LOGGER, CONSOLER
 from pys.error.exp import MCError
 from pys.conf import mconf
+import toml
 
 
 def build_package_only(_data_dir):
@@ -729,6 +730,30 @@ def add_group(_group, _node):
                 data_path, '{}/conf/{}'.format(node_file, file_name))
             shutil.copyfile('{}/tpl/group.i.ini'.format(path.get_path()),
                             '{}/conf/group.{}.ini'.format(node_file, group_id))
+
+
+def config_console_toml_file(_file):
+    """
+    config config.toml of the console
+    """
+    utils.file_must_exists(_file)
+    # Note: the default ip the console connects to is 127.0.0.1
+    rpc_ip = mconf.MchainConf.rpc_ip
+    channel_listen_port = mconf.MchainConf.channel_listen_port
+
+    with open(_file, mode='rb') as fp:
+        content = fp.read()
+    if content.startswith(b'\xef\xbb\xbf'):
+        content = content[3:]
+    config = toml.loads(content.decode('utf8'))
+    for ip_idx, rpc_get in enumerate(rpc_ip):
+        config["network"]["peers"][ip_idx] = "{}:{}".format(
+            rpc_get, channel_listen_port[ip_idx])
+    CONSOLER.info("configure the channel connections to %s",
+                  config["network"]["peers"])
+    with open(_file, 'w') as fd:
+        toml.dump(config, fd)
+    CONSOLER.info("config_console_toml_file success")
 
 
 def get_console_file(_file):

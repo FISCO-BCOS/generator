@@ -1,7 +1,9 @@
 #!/bin/bash
 
 set -e
-
+echo "======= ci_check ============"
+pip install -r requirements.txt
+mkdir -p log
 bash .ci/download_bin.sh
 cd ..
 cp -r ./generator ~/generator-A
@@ -133,16 +135,23 @@ fi
 echo "send transaction succeed"
 cd ~/generator-A
 bash .ci/download_bin.sh -c
-cat ./meta/console/conf/applicationContext.xml
+cat ./meta/console/conf/config.toml
 # sudo apt-get install openjdk-8-jdk
 cd ./meta/console/
 ls
 ls ./conf
 cat ./conf/sdk.crt
 cat ./conf/node.crt
-nohup java -Djdk.tls.namedGroups="secp256k1" -cp "apps/*:conf/:lib/*:classes/:accounts/" console.ConsoleClient $@ > myout.file 2>&1 &
-cat myout.file
+nohup java -Djdk.tls.namedGroups="secp256k1" -cp "apps/*:conf/:lib/*:classes/:accounts/" console.Console $@ > myout1.file 2>&1 &
+cat myout1.file
 ps -ef | grep java
+# download the 1.2.0 console
+cd ../..
+rm -rf ./meta/console
+./generator --download_console meta --console_version 1.2.0
+cat ./meta/console/conf/applicationContext.xml
+cd ./meta/console/
+nohup java -Djdk.tls.namedGroups="secp256k1" -cp "apps/*:conf/:lib/*:classes/:accounts/" console.ConsoleClient $@ > myout.file 2>&1 &
 # getPeers
 # deploy HelloWorld.sol
 # q

@@ -53,6 +53,11 @@ jobs:
             ./generator --download_console ./
             ls ./console/
             cat ./console/conf/ca.crt
+            cat ./console/conf/config.toml
+            rm -rf ./console/
+            ./generator --download_console ./ --console_version 1.2.0
+            ls ./console/
+            cat ./console/conf/ca.crt
             cat ./console/conf/applicationContext.xml
   build:  # required for runs that don't use workflows
     working_directory: ~/generator
@@ -229,7 +234,7 @@ jobs:
           command: |
             cd ~/generator-A
             ./generator --download_console ./meta
-            cat ./meta/console/conf/applicationContext.xml
+            cat ./meta/console/conf/config.toml
             # sudo apt-get install openjdk-8-jdk
             cd ./meta/console/
             ls
@@ -409,7 +414,7 @@ jobs:
           command: |
             cd ~/generator-A
             ./generator --download_console ./meta
-            cat ./meta/console/conf/applicationContext.xml
+            cat ./meta/console/conf/config.toml
       - run:
           name: Test monitor.sh
           command: |
@@ -590,7 +595,7 @@ jobs:
           command: |
             cd ~/generator-A
             ./generator --download_console ./meta
-            cat ./meta/console/conf/applicationContext.xml
+            cat ./meta/console/conf/config.toml
             # sudo apt-get install openjdk-8-jdk
             cd ./meta/console/
             ls
