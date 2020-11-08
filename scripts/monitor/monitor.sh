@@ -1,6 +1,6 @@
 #!/bin/bash
-dirpath="$(cd "$(dirname "$0")" && pwd)"
-cd $dirpath
+#dirpath="$(cd "$(dirname "$0")" && pwd)"
+dirpath=""
 g_debug="false"
 rpc_ip=
 rpc_port=
@@ -886,7 +886,11 @@ while getopts "s:m:f:d:o:g:p:r:c:Rh" option;do
     h) help;;
     esac
 done
-
+if [ "${dirpath}" == "" ];then
+    LOG_ERROR "Must specify the node path with -o option"
+    help
+fi 
+cd $dirpath
 case $mode in
  monitor)
         check_all_node_work_properly
