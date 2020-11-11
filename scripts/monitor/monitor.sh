@@ -1,5 +1,6 @@
 #!/bin/bash
-#dirpath="$(cd "$(dirname "$0")" && pwd)"
+dirpath_parent="$(cd "$(dirname "$0")" && pwd)"
+cd $dirpath_parent
 dirpath=""
 g_debug="false"
 rpc_ip=
@@ -890,7 +891,6 @@ if [ "${dirpath}" == "" ];then
     LOG_ERROR "Must specify the node path with -o option"
     help
 fi 
-cd $dirpath
 case $mode in
  monitor)
         check_all_node_work_properly
