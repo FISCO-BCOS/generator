@@ -1,6 +1,7 @@
 #!/bin/bash
-dirpath="$(cd "$(dirname "$0")" && pwd)"
-cd $dirpath
+dirpath_parent="$(cd "$(dirname "$0")" && pwd)"
+cd $dirpath_parent
+dirpath=""
 g_debug="false"
 rpc_ip=
 rpc_port=
@@ -440,10 +441,11 @@ function get_err_type()
         case $1 in
         "0")ret="[log_output_error]";;
         "1")ret="[get_host_failed]";;
-        "2")ret="[get_leader_failed]";;
+        "2")ret="[TCP_Connection_refused_by_other_node]";;
         "3")ret="[non_emptyBlockcaused_viewchange]";;
         "4")ret="[socket_closed]";;
-        *) ret="[UNKNOWN]";;
+        "5")ret="[Find_disconnectedNode]";;
+         *)ret="[UNKNOWN]";;
         esac
         echo "$ret"
 }
@@ -644,9 +646,9 @@ function show_log_analyze_result()
 
         # forward prepare
         if [ ${#pre_f[@]} -gt 0 ];then
-            LOG_INFO "[group: ${group}] forwad prepare message info:"
+            LOG_INFO "[group: ${group}] forward prepare message info:"
         else
-            LOG_INFO "[group: ${group}] forwad prepare message = 0"
+            LOG_INFO "[group: ${group}] forward prepare message = 0"
         fi
         for i in ${!pre_f[*]}
         do
@@ -885,7 +887,10 @@ while getopts "s:m:f:d:o:g:p:r:c:Rh" option;do
     h) help;;
     esac
 done
-
+if [ "${dirpath}" == "" ];then
+    LOG_ERROR "Must specify the node path with -o option"
+    help
+fi 
 case $mode in
  monitor)
         check_all_node_work_properly

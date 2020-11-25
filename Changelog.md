@@ -1,5 +1,16 @@
 # changelog
 
+## v1.7.0
+
+(2020-11-20)
+
+Add:
+
+1. 适配FISCO BCOS节点2.7.0版本
+2. 修复监控脚本monitor.sh的bug
+3. 添加--console_version选项，支持下载指定版本的控制台
+
+
 ## v1.6.0
 
 (2020-11-20)
