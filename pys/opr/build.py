@@ -74,7 +74,10 @@ def get_sdk(_dir):
     data = _dir
     utils.dir_must_not_exists(_dir)
     os.mkdir(_dir)
-    opr_cert.get_console_cert(_dir)
+    if utils.Status.gm_ssl:
+        opr_cert.get_console_cert_gmssl(_dir)
+    else:
+        opr_cert.get_console_cert(_dir)
     shutil.copyfile('{}/tpl/applicationContext.xml'.format(path.get_path()),
                     '{}/applicationContext.xml'.format(data))
     config.get_console_file(

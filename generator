@@ -77,6 +77,8 @@ def usage():
                              help='generate sdk cert')
     tools_group.add_argument('-g', '--use_guomi', action='store_true',
                              help='follow gm operation.')
+    tools_group.add_argument('-G', '--gmssl', action='store_true',
+                             help='follow gm ssl operation.')
     tools_group.add_argument('--cdn', action='store_true',
                              help='use cdn to download binary.')
     tools_group.add_argument('--generate_all_certificates', nargs=1, metavar=('cert_dir'),
@@ -104,6 +106,9 @@ def usage():
             LOGGER.info('download gm tassl...')
             build.download_tassl()
         utils.set_gm()
+    if args.gmssl:
+        CONSOLER.info('======= GM_SSL ============= ON =======')
+        utils.set_gmssl()
     if args.cdn:
         CONSOLER.info('======= USE_CDN ============= ON =======')
         utils.set_cdn()

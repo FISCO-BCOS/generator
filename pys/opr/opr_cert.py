@@ -70,14 +70,15 @@ def gen_build_cert(_dir):
         ca.generator_node_ca(data_path, '{}/'.format(meta_path),
                              'node_{}_{}'.format(node_ip, p2p_listen_port[my_node_index]))
         if utils.Status.gm_option:
-            utils.off_gm()
-            if os.path.isdir('./.origin_cert'):
+            if not utils.Status.gm_ssl:
+                utils.off_gm()
+                if os.path.isdir('./.origin_cert'):
+                    shutil.rmtree('./.origin_cert')
+                ca.generator_node_ca('./', meta_path, '.origin_cert')
+                shutil.copytree('./.origin_cert', '{}/node_{}_{}/origin_cert'.format(
+                    data_path, node_ip, p2p_listen_port[my_node_index]))
                 shutil.rmtree('./.origin_cert')
-            ca.generator_node_ca('./', meta_path, '.origin_cert')
-            shutil.copytree('./.origin_cert', '{}/node_{}_{}/origin_cert'.format(
-                data_path, node_ip, p2p_listen_port[my_node_index]))
-            shutil.rmtree('./.origin_cert')
-            utils.set_gm()
+                utils.set_gm()
             shutil.copyfile('{}/node_{}_{}/gmnode.crt'.format(data_path,
                                                               node_ip,
                                                               p2p_listen_port[my_node_index]),
@@ -153,8 +154,9 @@ def deploy_key(_get_dir, _send_dir):
                                 '{}/{}/conf/gmennode.key'.format(data_path, node_dir))
                 shutil.copyfile('{}/{}/gmennode.crt'.format(meta_path, node_dir),
                                 '{}/{}/conf/gmennode.crt'.format(data_path, node_dir))
-                shutil.copytree('{}/{}/origin_cert'.format(meta_path, node_dir),
-                                '{}/{}/conf/origin_cert'.format(data_path, node_dir))
+                if not utils.Status.gm_ssl:
+                    shutil.copytree('{}/{}/origin_cert'.format(meta_path, node_dir),
+                                    '{}/{}/conf/origin_cert'.format(data_path, node_dir))
         else:
             utils.file_must_exists(
                 '{}/{}/node.key'.format(meta_path, node_dir))
@@ -190,6 +192,29 @@ def get_console_cert(_dir):
     shutil.copyfile('{}/sdk/node.crt'.format(meta),
                     '{}/sdk.crt'.format(data))
 
+def get_console_cert_gmssl(_dir):
+    """get console certs
+
+    Arguments:
+        _dir {[type]} -- [description]
+    """
+    LOGGER.info("get console in  %s!", _dir)
+    CONSOLER.info("get console in  %s!", _dir)
+    meta = '{}/meta'.format(path.get_path())
+    data = _dir
+    get_sdk_cert_gmssl()
+    utils.dir_must_exists(data)
+    shutil.copyfile('{}/gmca.crt'.format(meta),
+                    '{}/gmca.crt'.format(data))
+    shutil.copyfile('{}/sdk/gmnode.key'.format(meta),
+                    '{}/gmnode.key'.format(data))
+    shutil.copyfile('{}/sdk/gmnode.crt'.format(meta),
+                    '{}/node.crt'.format(data))
+    shutil.copyfile('{}/sdk/gmnode.key'.format(meta),
+                    '{}/gmsdk.key'.format(data))
+    shutil.copyfile('{}/sdk/gmnode.crt'.format(meta),
+                    '{}/gmsdk.crt'.format(data))
+
 
 def get_sdk_cert():
     """[summary]
@@ -209,6 +234,29 @@ def get_sdk_cert():
         utils.file_must_exists('{}/sdk/node.key'.format(meta))
         LOGGER.info("sdk cert existed!")
         CONSOLER.info("sdk cert existed!")
+    else:
+        LOGGER.info("generate console cert!")
+        CONSOLER.info("generate console cert!")
+        ca.generator_node_ca(meta, meta, 'sdk')
+
+def get_sdk_cert_gmssl():
+    """[summary]
+
+    Arguments:
+        _dir {[type]} -- [description]
+    """
+    LOGGER.info("get sdk cert in meta!")
+    CONSOLER.info("get sdk cert in meta!")
+    meta = '{}/meta'.format(path.get_path())
+    utils.file_must_exists('{}/gmca.crt'.format(meta))
+    utils.file_must_exists('{}/gmagency.crt'.format(meta))
+    utils.file_must_exists('{}/gmagency.key'.format(meta))
+    if os.path.isdir('{}/sdk'.format(meta)):
+        utils.file_must_exists('{}/sdk/gmca.crt'.format(meta))
+        utils.file_must_exists('{}/sdk/gmnode.crt'.format(meta))
+        utils.file_must_exists('{}/sdk/gmnode.key'.format(meta))
+        LOGGER.info("gmssl sdk cert existed!")
+        CONSOLER.info("gmssl sdk cert existed!")
     else:
         LOGGER.info("generate console cert!")
         CONSOLER.info("generate console cert!")

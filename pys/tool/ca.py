@@ -173,14 +173,15 @@ def generator_sdk_ca(_dir, agent):
     sdk_dir = os.path.abspath(_dir)
     agency_dir = os.path.abspath(agent)
     if utils.Status.gm_option:
-        utils.off_gm()
-        generator_node_ca(sdk_dir, agency_dir, 'sdk')
-        os.remove('{}/sdk/node.nodeid'.format(sdk_dir))
-        shutil.copyfile('{}/sdk/node.crt'.format(sdk_dir),
-                '{}/sdk/sdk.crt'.format(sdk_dir))
-        shutil.copyfile('{}/sdk/node.key'.format(sdk_dir),
-                '{}/sdk/sdk.key'.format(sdk_dir))
-        utils.set_gm()
+        if not utils.Status.gm_ssl:
+            utils.off_gm()
+            generator_node_ca(sdk_dir, agency_dir, 'sdk')
+            os.remove('{}/sdk/node.nodeid'.format(sdk_dir))
+            shutil.copyfile('{}/sdk/node.crt'.format(sdk_dir),
+                    '{}/sdk/sdk.crt'.format(sdk_dir))
+            shutil.copyfile('{}/sdk/node.key'.format(sdk_dir),
+                    '{}/sdk/sdk.key'.format(sdk_dir))
+            utils.set_gm()
         generator_node_ca('{}/sdk'.format(sdk_dir), agency_dir, 'gm')
         os.remove('{}/sdk/gm/gmnode.nodeid'.format(sdk_dir))
         shutil.copyfile('{}/sdk/gm/gmnode.crt'.format(sdk_dir),

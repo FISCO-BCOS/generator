@@ -618,6 +618,25 @@ jobs:
           name: package
           command: |
             bash ./.ci/ci_deploy.sh
+  deploy_gmssl:  # required for runs that don't use workflows
+    working_directory: ~/generator
+    docker:
+      - image: centos:7
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: |
+            yum -y --enablerepo=extras install epel-release
+            yum -y install openssl
+            yum -y install nc
+            yum -y install curl
+            yum -y install sudo
+            bash ./scripts/install.sh
+      - run:
+          name: package
+          command: |
+            bash ./.ci/ci_check_gmssl.sh
 workflows:
   version: 2
   build:
@@ -625,3 +644,4 @@ workflows:
       - CentOS
       - one_click
       - deploy_package
+      - deploy_gmssl

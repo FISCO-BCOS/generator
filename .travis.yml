@@ -71,6 +71,13 @@ matrix:
         - bash ./scripts/install.sh
       script: |
         bash .ci/ci_one_click.sh
+    - name: "Python 3.6 gm ssl on Xenial Linux"
+      python: 3.6
+      dist: xenial
+      install:
+        - bash ./scripts/install.sh
+      script: |
+        bash .ci/ci_check_gm_ssl.sh
     # - name: "Python 2.7 on Xenial Linux"
     #   python: 2.7
     #   dist: xenial
