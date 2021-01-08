@@ -28,6 +28,7 @@ class Status(object):
     """
 
     gm_option = False
+    gm_ssl = False
     unit_time = False
     allow_unsecure_cfg = False
     use_cdn = False
@@ -44,7 +45,7 @@ class Status(object):
 
         self. gm_option = False
 
-    def get_gm_staus(self):
+    def get_gm_status(self):
         """[get gm_option]
 
 
@@ -52,6 +53,15 @@ class Status(object):
             [string] -- [gm]
         """
         return self.gm_option
+
+    def get_gmssl_status(self):
+        """[get gm_option]
+
+
+        Returns:
+            [string] -- [gm]
+        """
+        return self.gm_ssl
 
     def get_ut_status(self):
         """[get unit_time]
@@ -67,7 +77,7 @@ class Status(object):
 
         self.allow_unsecure_cfg = True
 
-    def get_cnd_staus(self):
+    def get_cnd_status(self):
         """[get gm_option]
 
 
@@ -126,12 +136,24 @@ def set_gm():
 
     Status.gm_option = True
 
+def set_gmssl():
+    """[set gm]
+    """
+
+    Status.gm_ssl = True
+
 
 def off_gm():
     """[off gm]
     """
 
     Status.gm_option = False
+
+def off_gmssl():
+    """[off gm]
+    """
+
+    Status.gm_ssl = False
 
 
 def get_status():

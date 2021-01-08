@@ -67,12 +67,17 @@ def build_package_only(_data_dir):
         raise MCError(' %s existed, maybe u had created it!' % package_dir)
     os.mkdir(package_dir)
 
+
     if gm_opr:
         shutil.copy('{}/tpl/config.ini.gm'.format(path.get_path()),
                     '{}/.config.ini'.format(conf_dir))
     else:
         shutil.copy('{}/tpl/config.ini'.format(path.get_path()),
                     '{}/.config.ini'.format(conf_dir))
+    if utils.Status.gm_ssl:
+        utils.replace('{}/.config.ini'.format(conf_dir),
+                  'sm_crypto_channel=false',
+                  'sm_crypto_channel=true')
     fin_p2p_ip = []
     if not peers:
         LOGGER.warning('section peers not existed!')
@@ -228,6 +233,10 @@ def build_config_ini(_data_dir):
     else:
         shutil.copy('{}/tpl/config.ini'.format(path.get_path()),
                     '{}/.config.ini'.format(conf_dir))
+    if utils.Status.gm_ssl:
+        utils.replace('{}/.config.ini'.format(conf_dir),
+                  'sm_crypto_channel=false',
+                  'sm_crypto_channel=true')
     fin_p2p_ip = []
     if not peers:
         LOGGER.warning('section peers not existed!')
@@ -392,18 +401,18 @@ def get_node_cert(get_path, send_path):
         LOGGER.error(' node.crt existed! path is %s', send_path)
         raise MCError(' node.crt existed! path is %s' % send_path)
 
-    with open(get_path) as cert_file:
-        node_crt = cert_file.read()
-        cert_begin = node_crt.count(
-            '-----BEGIN CERTIFICATE-----', 0, len(node_crt))
-        cert_end = node_crt.count(
-            '-----END CERTIFICATE-----', 0, len(node_crt))
-        if (cert_begin != 2) or (cert_end != 2):
-            LOGGER.error(
-                ' node cert format checked failed! path is %s', get_path)
-            raise MCError(
-                ' node cert format checked failed! path is %s' % get_path)
-        cert_file.close()
+    # with open(get_path) as cert_file:
+    #     node_crt = cert_file.read()
+    #     cert_begin = node_crt.count(
+    #         '-----BEGIN CERTIFICATE-----', 0, len(node_crt))
+    #     cert_end = node_crt.count(
+    #         '-----END CERTIFICATE-----', 0, len(node_crt))
+    #     if (cert_begin != 2) or (cert_end != 2):
+    #         LOGGER.error(
+    #             ' node cert format checked failed! path is %s', get_path)
+    #         raise MCError(
+    #             ' node cert format checked failed! path is %s' % get_path)
+    #     cert_file.close()
     shutil.copy(get_path, send_path)
     LOGGER.info("get_node_cert success! get path is %s", get_path)
     LOGGER.info("get_node_cert success! send path is %s", send_path)
