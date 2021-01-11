@@ -209,7 +209,7 @@ def get_console_cert_gmssl(_dir):
     shutil.copyfile('{}/sdk/gmnode.key'.format(meta),
                     '{}/gmnode.key'.format(data))
     shutil.copyfile('{}/sdk/gmnode.crt'.format(meta),
-                    '{}/node.crt'.format(data))
+                    '{}/gmnode.crt'.format(data))
     shutil.copyfile('{}/sdk/gmnode.key'.format(meta),
                     '{}/gmsdk.key'.format(data))
     shutil.copyfile('{}/sdk/gmnode.crt'.format(meta),

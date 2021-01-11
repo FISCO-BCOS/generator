@@ -45,7 +45,10 @@ def build_console(_console_dir):
     utils.download_console(data)
     CONSOLER.info(
         "download console success, obtain the sdk certificates now...")
-    opr_cert.get_console_cert('{}/console/conf'.format(data))
+    if utils.Status.gm_ssl:
+        opr_cert.get_console_cert_gmssl('{}/console/conf'.format(data))
+    else:
+        opr_cert.get_console_cert('{}/console/conf'.format(data))
     CONSOLER.info(
         "obtain the sdk certificates success, configure the console now")
     if utils.console_use_xml_configuration():
