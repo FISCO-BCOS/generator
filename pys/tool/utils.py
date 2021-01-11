@@ -576,10 +576,9 @@ def download_console(_dir):
     dir_must_exists(_dir)
     bin_path = _dir
     meta = '{}/meta'.format(path.get_path())
-    file_must_exists('{}/ca.crt'.format(meta))
-    file_must_exists('{}/agency.crt'.format(meta))
-    file_must_exists('{}/agency.key'.format(meta))
-    dir_must_not_exists('{}/console'.format(bin_path))
+    # file_must_exists('{}/ca.crt'.format(meta))
+    # file_must_exists('{}/agency.crt'.format(meta))
+    # file_must_exists('{}/agency.key'.format(meta))
     download_console_command = "bash {}/tpl/{}".format(
         path.get_path(), Status.download_console_shell_script)
 
