@@ -204,16 +204,17 @@ def get_console_cert_gmssl(_dir):
     data = _dir
     get_sdk_cert_gmssl()
     utils.dir_must_exists(data)
+    os.mkdir('{}/gm'.format(data))
     shutil.copyfile('{}/gmca.crt'.format(meta),
-                    '{}/gmca.crt'.format(data))
-    shutil.copyfile('{}/sdk/gmnode.key'.format(meta),
-                    '{}/gmnode.key'.format(data))
+                    '{}/gm/gmca.crt'.format(data))
+    shutil.copyfile('{}/sdk/gmennode.key'.format(meta),
+                    '{}/gm/gmensdk.key'.format(data))
     shutil.copyfile('{}/sdk/gmnode.crt'.format(meta),
-                    '{}/gmnode.crt'.format(data))
+                    '{}/gm/gmensdk.crt'.format(data))
     shutil.copyfile('{}/sdk/gmnode.key'.format(meta),
-                    '{}/gmsdk.key'.format(data))
+                    '{}/gm/gmsdk.key'.format(data))
     shutil.copyfile('{}/sdk/gmnode.crt'.format(meta),
-                    '{}/gmsdk.crt'.format(data))
+                    '{}/gm/gmsdk.crt'.format(data))
 
 
 def get_sdk_cert():
