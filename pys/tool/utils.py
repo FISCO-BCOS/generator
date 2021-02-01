@@ -511,7 +511,7 @@ def download_fisco(_dir):
     #     LOGGER.error(
     #         ' get fisco-bcos verion failed, result is %s.', version)
     #     raise MCError(' get fisco-bcos verion failed, result is %s.' % version)
-    version = "2.7.0"
+    version = "2.7.1"
     download_link = 'https://github.com/FISCO-BCOS/FISCO-BCOS/releases/download/v{}/{}'.format(
         version.strip('\n'), package_name.strip('\n'))
     cnd_link = 'https://osp-1257653870.cos.ap-guangzhou.myqcloud.com/FISCO-BCOS/FISCO-BCOS/releases/v{}/{}'.format(
