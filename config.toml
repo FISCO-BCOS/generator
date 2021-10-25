@@ -5,22 +5,41 @@ tars_pkg_dir = "/Users/chenyujie/open-source/cyjseagull/FB3.0/bcos-tars-services
 
 [chain]
 chain_id="chain0"
+#ca_cert_path = ""
+rpc_sm_ssl=false
+gateway_sm_ssl=false
 
-[rpc]
-#name="chain0"
+[[chain.rpc]]
+name="agencyARpcService"
 deploy_ip="192.168.192.168"
 listen_ip="0.0.0.0"
 listen_port=20200
-sm_ssl=false
 thread_count=4
+gateway_service_name = "agencyAGatewayService"
 
-[gateway]
-#name="chain0"
+[[chain.rpc]]
+name="agencyBRpcService"
+deploy_ip="192.168.192.168"
+listen_ip="0.0.0.0"
+listen_port=20201
+thread_count=4
+gateway_service_name = "agencyBGatewayService"
+
+[[chain.gateway]]
+name="agencyAGatewayService"
 deploy_ip="192.168.192.168"
 listen_ip="0.0.0.0"
 listen_port=30300
-sm_ssl=false
 peers=["127.0.0.1:30300", "127.0.0.1:30301"]
+rpc_service_name = "agencyARpcService"
+
+[[chain.gateway]]
+name="agencyBGatewayService"
+deploy_ip="192.168.192.168"
+listen_ip="0.0.0.0"
+listen_port=30301
+peers=["127.0.0.1:30300", "127.0.0.1:30301"]
+rpc_service_name = "agencyBRpcService"
 
 
 [group]
@@ -40,4 +59,15 @@ gas_limit = "300000000"
 microservice_node=false
 deploy_ip = "192.168.192.168"
 service_list='{"TxPoolService": "192.168.192.168", "FrontService": "192.168.192.168", "SchedulerService": "192.168.192.168", "PBFTService": "192.168.192.168"}'
-node_count=2
+node_count=1
+rpc_service_name = "agencyARpcService"
+gateway_service_name = "agencyAGatewayService"
+
+[[group.deploy_info]]
+# node_name = node0
+microservice_node=false
+deploy_ip = "192.168.192.168"
+service_list='{"TxPoolService": "192.168.192.168", "FrontService": "192.168.192.168", "SchedulerService": "192.168.192.168", "PBFTService": "192.168.192.168"}'
+node_count=1
+rpc_service_name = "agencyBRpcService"
+gateway_service_name = "agencyBGatewayService"
