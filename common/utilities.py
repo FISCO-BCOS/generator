@@ -105,15 +105,58 @@ def convert_bool_to_str(value):
     return "false"
 
 
-def generate_cert_with_command(sm_type, command, outputdir):
+def generate_cert_with_command(sm_type, command, outputdir, ca_cert_info):
     """
     generate cert for the network
     """
     sm_mode = ""
     if sm_type is True:
         sm_mode = " -s"
-    generate_cert_cmd = "bash %s -o %s -c %s %s" % (
-        ServiceInfo.cert_generationscript_path, outputdir, command, sm_mode)
+    generate_cert_cmd = "bash %s -o %s -c %s %s %s" % (
+        ServiceInfo.cert_generationscript_path, outputdir, command, sm_mode, ca_cert_info)
     if execute_command(generate_cert_cmd) is False:
         log_error("%s failed" % command)
         sys.exit(0)
+
+
+def generate_private_key(sm_type, outputdir):
+    generate_cert_with_command(sm_type, "generate_private_key", outputdir, "")
+
+
+def generate_cert(sm_type, outputdir):
+    generate_cert_with_command(sm_type, "generate_all_cert", outputdir, "")
+
+
+def generate_ca_cert(sm_type, outputdir):
+    command = "generate_ca_cert"
+    generate_cert_with_command(sm_type, command, outputdir, "")
+
+
+def generate_node_cert(sm_type, ca_cert_path, outputdir):
+    command = "generate_node_cert"
+    ca_cert_info = "-d %s" % ca_cert_path
+    generate_cert_with_command(sm_type, command, outputdir, ca_cert_info)
+
+
+def try_to_rename_tgz_package(tars_pkg_path, service_name, org_service_name):
+    org_package_name = org_service_name + ServiceInfo.tars_pkg_postfix
+    org_package_path = os.path.join(tars_pkg_path, org_package_name)
+    unzip_binary_path = os.path.join("./", org_service_name, org_service_name)
+    if service_name == org_service_name:
+        return (True, org_package_path)
+    renamed_package_name = service_name + ServiceInfo.tars_pkg_postfix
+    renamed_package_path = os.path.join("./", renamed_package_name)
+    renamed_binary_path = os.path.join("./", service_name, service_name)
+
+    mkdir_command = "mkdir -p %s" % os.path.join("./", service_name)
+    unzip_command = "tar -xvf %s" % org_package_path
+    mv_command = "mv %s %s" % (unzip_binary_path, renamed_binary_path)
+    zip_command = "tar -cvzf %s %s" % (renamed_package_path,
+                                       renamed_binary_path)
+    command = "%s && %s && %s && %s" % (
+        mkdir_command, unzip_command, mv_command, zip_command)
+    ret = execute_command(command)
+    if ret is False:
+        log_error("try_to_rename_tgz_package failed, service: %s" %
+                  service_name)
+    return (ret, renamed_package_path)

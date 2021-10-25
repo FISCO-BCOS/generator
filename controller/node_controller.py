@@ -140,36 +140,10 @@ class NodeController:
             return False
         return tars_service_obj.patch_tars(server_id, patch_id)
 
-    def try_to_rename_tgz_package(self, service_name, org_service_name):
-        org_package_name = org_service_name + ServiceInfo.tars_pkg_postfix
-        org_package_path = os.path.join(
-            self.config.tars_config.tars_pkg_dir, org_package_name)
-        unzip_binary_path = os.path.join(
-            "./", org_service_name, org_service_name)
-        if service_name == org_service_name:
-            return (True, org_package_path)
-
-        renamed_package_name = service_name + ServiceInfo.tars_pkg_postfix
-        renamed_package_path = os.path.join("./", renamed_package_name)
-        renamed_binary_path = os.path.join("./", service_name, service_name)
-
-        mkdir_command = "mkdir -p %s" % os.path.join("./", service_name)
-        unzip_command = "tar -xvf %s" % org_package_path
-        mv_command = "mv %s %s" % (unzip_binary_path, renamed_binary_path)
-        zip_command = "tar -cvzf %s %s" % (renamed_package_path,
-                                           renamed_binary_path)
-        command = "%s && %s && %s && %s" % (
-            mkdir_command, unzip_command, mv_command, zip_command)
-        ret = utilities.execute_command(command)
-        if ret is False:
-            utilities.log_error(
-                "try_to_rename_tgz_package failed, service: %s" % service_name)
-        return (ret, renamed_package_path)
-
     def upload_package(self, tars_service, service_name, org_service_name):
         # upload the package
-        (ret, package_path) = self.try_to_rename_tgz_package(
-            service_name, org_service_name)
+        (ret, package_path) = utilities.try_to_rename_tgz_package(
+            self.config.tars_config.tars_pkg_dir, service_name, org_service_name)
         if ret is False:
             utilities.log_error(
                 "upload package for service %s failed" % service_name)

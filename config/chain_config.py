@@ -17,38 +17,43 @@ class TarsConfig:
 
 
 class ServiceInfoConfig:
-    def __init__(self, config, chain_id, section):
+    def __init__(self, config, chain_id):
         self.config = config
-        self.name = utilities.get_value(self.config, section,
-                                        "name", chain_id, False)
-        self.deploy_ip = utilities.get_value(
-            self.config, section, "deploy_ip", None, True)
-        self.listen_ip = utilities.get_value(
-            self.config, section, "listen_ip", ServiceInfo.default_listen_ip, False)
-        self.listen_port = utilities.get_value(
-            self.config, section, "listen_port", 20200, False)
-        self.sm_ssl = utilities.get_value(
-            self.config, section, "sm_ssl", False, False)
-        self.thread_count = utilities.get_value(
-            self.config, section, "thread_count", 4, False)
+        self.name = utilities.get_item_value(self.config,
+                                             "name", chain_id, False)
+        self.deploy_ip = utilities.get_item_value(
+            self.config, "deploy_ip", None, True)
+        self.listen_ip = utilities.get_item_value(
+            self.config, "listen_ip", ServiceInfo.default_listen_ip, False)
+        self.listen_port = utilities.get_item_value(
+            self.config, "listen_port", 20200, False)
+        self.thread_count = utilities.get_item_value(
+            self.config, "thread_count", 4, False)
 
 
 class RpcServiceInfo(ServiceInfoConfig):
     def __init__(self, config, chain_id):
-        self.section = "rpc"
-        ServiceInfoConfig.__init__(self, config, chain_id, self.section)
+        ServiceInfoConfig.__init__(self, config, chain_id)
+        self.rpc_service_name = utilities.get_item_value(
+            self.config, "rpc_service_name", self.name, False)
+        self.gateway_service_name = utilities.get_item_value(
+            self.config, "gateway_service_name", None, True)
+        self.peers = []
 
 
 class GatewayServiceInfo(ServiceInfoConfig):
     def __init__(self, config, chain_id):
-        self.section = "gateway"
-        ServiceInfoConfig.__init__(self, config, chain_id, self.section)
-        self.peers = utilities.get_value(
-            self.config, self.section, "peers", [], False)
+        ServiceInfoConfig.__init__(self, config, chain_id)
+        self.peers = utilities.get_item_value(
+            self.config, "peers", [], False)
+        self.rpc_service_name = utilities.get_item_value(
+            self.config, "rpc_service_name", None, True)
+        self.gateway_service_name = utilities.get_item_value(
+            self.config, "gateway_service_name", self.name, False)
 
 
 class NodeConfig:
-    def __init__(self, config, group_id, chain_id, index, rpc_service_name, gateway_service_name):
+    def __init__(self, config, group_id, chain_id, index):
         self.config = config
         self.group_id = group_id
         self.chain_id = chain_id
@@ -56,8 +61,10 @@ class NodeConfig:
             self.config, "node_count", 1, False)
         self.deploy_ip = utilities.get_item_value(
             self.config, "deploy_ip", None, True)
-        self.rpc_service_name = rpc_service_name
-        self.gateway_service_name = gateway_service_name
+        self.rpc_service_name = utilities.get_item_value(
+            self.config, "rpc_service_name", None, True)
+        self.gateway_service_name = utilities.get_item_value(
+            self.config, "gateway_service_name", None, True)
         self.microservice_node = utilities.get_item_value(
             self.config, "microservice_node", False, False)
         self.obj_name_list = []
@@ -133,7 +140,7 @@ class GenesisConfig:
 
 
 class GroupConfig:
-    def __init__(self, config, chain_id, rpc_service_name, gateway_service_name):
+    def __init__(self, config, chain_id):
         self.config = config
         self.chain_id = chain_id
         self.section = "group"
@@ -144,16 +151,16 @@ class GroupConfig:
         self.sm_crypto = utilities.get_value(
             self.config, self.section, "sm_crypto", False, False)
         self.genesis_config = GenesisConfig(self.config)
-        self.parse_node_config(rpc_service_name, gateway_service_name)
+        self.parse_node_config()
 
-    def parse_node_config(self, rpc_service_name, gateway_service_name):
+    def parse_node_config(self):
         self.node_list = []
         node_config_list = utilities.get_value(
             self.config, self.section, "deploy_info", [], False)
         i = 0
         for item in node_config_list:
             self.node_list.append(NodeConfig(
-                item, self.group_id, self.chain_id, i, rpc_service_name, gateway_service_name))
+                item, self.group_id, self.chain_id, i))
             i = i + 1
 
 
@@ -162,8 +169,26 @@ class ChainConfig:
         self.config = config
         self.chain_id = utilities.get_value(
             self.config, "chain", "chain_id", "chain0", False)
+        self.ca_cert_path = utilities.get_value(
+            self.config, "chain", "ca_cert_path", "", False)
         self.tars_config = TarsConfig(config)
-        self.rpc_config = RpcServiceInfo(config, self.chain_id)
-        self.gateway_config = GatewayServiceInfo(config, self.chain_id)
+        self.rpc_config = self.parse_service_config(
+            "rpc", self.chain_id, "RpcServiceInfo")
+        self.gateway_config = self.parse_service_config(
+            "gateway", self.chain_id, "GatewayServiceInfo")
         self.group_config = GroupConfig(
-            config, self.chain_id, self.rpc_config.name, self.gateway_config.name)
+            config, self.chain_id)
+        self.rpc_sm_ssl = utilities.get_value(
+            self.config, "chain", "rpc_sm_ssl", False, False)
+        self.gateway_sm_ssl = utilities.get_value(
+            self.config, "chain", "gateway_sm_ssl", False, False)
+
+    def parse_service_config(self, section_name, chain_id, constructor):
+        service_list = utilities.get_value(
+            self.config, "chain", section_name, [], False)
+        result = {}
+        for item in service_list:
+            function = "%s(item, chain_id)" % constructor
+            service_object = eval(function)
+            result[service_object.name] = service_object
+        return result

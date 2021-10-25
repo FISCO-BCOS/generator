@@ -132,6 +132,7 @@ class TarsService:
         except OSError as reason:
             utilities.log_error(
                 "load the configuration failed, error: %s" % str(reason))
+            return False
 
         request_data = {"level": TarsService.get_level(server_name), "application": self.app_name,
                         "server_name": server_name, "filename": config_file_name, "config": content}

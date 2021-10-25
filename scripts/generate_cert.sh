@@ -385,7 +385,7 @@ EOF
     exit 0
 }
 
-generate_node_cert() {
+generate_single_node_cert() {
     local sm_mode="$1"
     local ca_cert_path="${2}"
     local node_cert_path="${3}"
@@ -476,7 +476,7 @@ help() {
     echo $1
     cat <<EOF
 Usage:
-    -c <commands>                       [Required] the operation command, support generate_cert and generate_private_key now
+    -c <commands>                       [Required] the operation command, support generate_all_cert/generate_ca_cert/generate_node_cert and generate_private_key now
     -o <output dir>                     [Optional] output directory, default ./nodes
     -s <SM model>                       [Optional] SM SSL connection or not, default no
     -h Help
@@ -505,15 +505,33 @@ parse_params() {
     done
 }
 
-generate_cert(){
-    LOG_INFO "generate cert"
+generate_all_cert(){
+    LOG_INFO "generate all cert"
     ca_dir="${output_dir}/ca"
     cert_dir="${output_dir}/ssl"
     mkdir -p "$ca_dir"
     mkdir -p "$cert_dir"
     generate_chain_cert "${sm_mode}" "${ca_dir}"
-    generate_node_cert "${sm_mode}" "${ca_dir}" "${cert_dir}"
-    LOG_INFO "generate cert success"
+    generate_single_node_cert "${sm_mode}" "${ca_dir}" "${cert_dir}"
+    LOG_INFO "generate all cert success"
+}
+
+generate_ca_cert()
+{
+    LOG_INFO "generate ca cert"
+    ca_dir="${output_dir}/ca"
+    mkdir -p "$ca_dir"
+    generate_chain_cert "${sm_mode}" "${ca_dir}"
+    LOG_INFO "generate ca cert success"
+}
+
+generate_node_cert()
+{
+    LOG_INFO "generate node cert"
+    cert_dir="${output_dir}/ssl"
+    mkdir -p "$cert_dir"
+    generate_single_node_cert "${sm_mode}" "${ca_cert_path}" "${cert_dir}"
+    LOG_INFO "generate node cert success"
 }
 
 generate_cert_node_private_key()
@@ -533,11 +551,13 @@ main() {
     check_env
     check_and_install_tassl
     cert_conf="${output_dir}/cert.cnf"
-    if [[ "${command}" == "generate_cert" ]]; then
-        generate_cert
-    fi
-    if [[ "${command}" == "generate_private_key" ]]; then
-        
+    if [[ "${command}" == "generate_all_cert" ]]; then
+        generate_all_cert
+    elif [[ "${command}" == "generate_ca_cert" ]]; then
+        generate_ca_cert
+    elif [[ "${command}" == "generate_node_cert" ]]; then
+        generate_node_cert
+    elif [[ "${command}" == "generate_private_key" ]]; then
         generate_cert_node_private_key
     fi
 }

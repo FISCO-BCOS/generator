@@ -77,10 +77,10 @@ class NodeConfigGenerator:
         ini_config[chain_section]["chain_id"] = self.config.group_config.chain_id
         service_section = "service"
         ini_config[service_section]["node_name"] = node_name
-        ini_config[service_section]["rpc"] = self.config.rpc_config.name + \
-            "." + ServiceInfo.rpc_service
-        ini_config[service_section]["gateway"] = self.config.gateway_config.name + \
-            "." + ServiceInfo.gateway_service
+        ini_config[service_section]["rpc"] = self.config.chain_id + \
+            "." + node_config.rpc_service_name
+        ini_config[service_section]["gateway"] = self.config.chain_id + \
+            "." + node_config.gateway_service_name
         # generate the node name
         if node_config.microservice_node is True:
             node_service_config_item = node_config.node_service_config_info[node_name]
@@ -132,13 +132,6 @@ class NodeConfigGenerator:
     def get_node_pem_path(self, node_config, service_name):
         return os.path.join("nodes", self.config.group_config.chain_id, self.config.group_config.group_id, node_config.deploy_ip, service_name)
 
-    def generate_cert_with_command(self, node_config, command, output_dir):
-        """
-        generate cert for the network
-        """
-        utilities.generate_cert_with_command(
-            self.config.group_config.sm_crypto, command, output_dir)
-
     def generate_node_pem(self, node_config):
         """
         generate private key for the node
@@ -148,8 +141,8 @@ class NodeConfigGenerator:
         node_id_path = os.path.join(outputdir, self.node_id_file)
         nodeid_list = []
         for key in node_config.nodes_service_name_list.keys():
-            self.generate_cert_with_command(
-                node_config, "generate_private_key", outputdir)
+            utilities.generate_private_key(
+                self.config.group_config.sm_crypto, outputdir)
             with open(node_id_path, 'r', encoding='utf-8') as f:
                 nodeid_list.append(f.read())
             single_node_service = (
