@@ -84,8 +84,10 @@ class ServiceConfigGenerator:
             self.service_config.sm_ssl)
         ini_config[self.section]['thread_count'] = str(
             self.service_config.thread_count)
-        ini_config["service"]['gateway'] = self.config.gateway_config.name
-        ini_config["service"]['rpc'] = self.config.rpc_config.name
+        ini_config["service"]['gateway'] = self.config.gateway_config.name + \
+            "." + ServiceInfo.gateway_service
+        ini_config["service"]['rpc'] = self.config.rpc_config.name + \
+            "." + ServiceInfo.rpc_service
         ini_config["chain"]['chain_id'] = self.config.chain_id
         (_, generated_file_path) = self.get_ini_config_info()
         utilities.mkfiledir(generated_file_path)

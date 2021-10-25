@@ -49,7 +49,7 @@ class NodeController:
                 for service_name in service_mapping.keys():
                     services.append(service_name)
                     org_services.append(service_mapping[service_name])
-            return (services, org_services)
+        return (services, org_services)
 
     def start_group(self):
         (service_list, _) = self.get_service_list()
