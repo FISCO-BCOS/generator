@@ -17,7 +17,7 @@ class ServiceInfo:
 
     single_node_service = "NativeNode"
     single_node_obj_name_list = [
-        "LedgerServiceObj", "SchedulerServiceObj", "TxPoolServiceObj", "PBFTServiceObj"]
+        "LedgerServiceObj", "SchedulerServiceObj", "TxPoolServiceObj", "PBFTServiceObj", "FrontServiceObj"]
     micro_node_service = ["TxPoolService",
                           "FrontService", "SchedulerService", "PBFTService", "ExecutorService"]
     micro_node_service_config_keys = {"txpool": "TxPoolService", "front": "FrontService",
