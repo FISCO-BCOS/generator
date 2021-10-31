@@ -19,8 +19,10 @@ class NodeController:
         self.node_config_generator = NodeConfigGenerator(config)
 
     def generate_all_config(self):
+        nodeid_list = self.node_config_generator.generate_all_nodes_pem()
         for node_config in self.config.group_config.node_list:
-            self.node_config_generator.generate_node_all_config(node_config)
+            self.node_config_generator.generate_node_all_config(
+                node_config, nodeid_list)
 
     def generate_and_deploy_group_services(self):
         utilities.log_info("generate config for chain = %s, group = %s" % (
