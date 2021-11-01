@@ -124,8 +124,14 @@ class NodeConfigGenerator:
                 with open(file_path, 'w') as configfile:
                     updated_config.write(configfile)
 
-    def generate_node_all_config(self, node_config):
-        nodeid_list = self.generate_node_pem(node_config)
+    def generate_all_nodes_pem(self):
+        nodeid_list = []
+        for node_config in self.config.group_config.node_list:
+            single_node_list = self.generate_node_pem(node_config)
+            nodeid_list = nodeid_list + single_node_list
+        return nodeid_list
+
+    def generate_node_all_config(self, node_config, nodeid_list):
         self.generate_node_genesis_config(node_config, nodeid_list)
         self.generate_node_ini_config(node_config)
 
