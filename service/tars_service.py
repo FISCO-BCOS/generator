@@ -227,7 +227,7 @@ class TarsService:
                                 (package_path, result))
             return (False, 0)
         # Note: 11 is the tars services occupied id num
-        id = result_data['id'] + 11
+        id = result_data['id']
         return (True, id)
 
     def get_server_info(self, tree_node_id):
