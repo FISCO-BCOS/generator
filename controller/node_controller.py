@@ -144,7 +144,7 @@ class NodeController:
         (config_file_list, config_path_list) = self.node_config_generator.get_all_service_info(
             node_config, service_name)
         ret = tars_service_obj.add_config_list(
-            config_file_list, service_name, config_path_list)
+            config_file_list, service_name, "", config_path_list)
         if ret is False:
             return False
         # patch tars

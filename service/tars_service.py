@@ -124,10 +124,10 @@ class TarsService:
             level = 1
         return level
 
-    def add_config_file(self, config_file_name, server_name, config_file_path):
+    def add_config_file(self, config_file_name, server_name, node_name, config_file_path):
         "add the config file"
-        utilities.log_info("add config file for application %s, config file path: %s" %
-                           (self.app_name, config_file_path))
+        utilities.log_info("add config file for application %s, config file path: %s, service_name: %s, node_name: %s" %
+                           (self.app_name, config_file_path, server_name, node_name))
         try:
             fp = open(config_file_path)
             content = fp.read()
@@ -136,8 +136,8 @@ class TarsService:
                 "load the configuration failed, error: %s" % str(reason))
             return False
 
-        request_data = {"level": TarsService.get_level(server_name), "application": self.app_name,
-                        "server_name": server_name, "filename": config_file_name, "config": content}
+        request_data = {"level": 3, "application": self.app_name,
+                        "server_name": server_name, "node_name": node_name, "filename": config_file_name, "config": content}
         response = requests.post(
             self.add_config_url, params=self.token_param, json=request_data)
         if TarsService.parse_response("add application config file", response) is True:
@@ -190,11 +190,11 @@ class TarsService:
         utilities.log_error("the config file %s not found" % config_file_name)
         return (False, 0)
 
-    def add_config_list(self, config_list, service_name, config_file_list):
+    def add_config_list(self, config_list, service_name, node_name, config_file_list):
         i = 0
         for config_file_path in config_file_list:
             config = config_list[i]
-            if self.add_config_file(config, service_name, config_file_path) is False:
+            if self.add_config_file(config, service_name, node_name, config_file_path) is False:
                 utilities.log_error("add_config_list failed, config files info: %s" %
                                     config_list)
             i = i+1

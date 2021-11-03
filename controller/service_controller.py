@@ -93,7 +93,7 @@ class ServiceController:
             return False
         # add configuration files
         ret = tars_service.add_config_list(
-            config_generator.config_file_list, service_config.name, config_generator.config_path_list)
+            config_generator.config_file_list, service_config.name, deploy_ip, config_generator.config_path_list)
         if ret is False:
             return False
         return self.upgrade_service_by_config_info(tars_service, service_config, org_service_name, config_generator)
