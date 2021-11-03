@@ -94,7 +94,17 @@ class NodeController:
         i = 0
         for service in service_list:
             org_service = org_service_list[i]
-            self.upload_package(tars_service_obj, service, org_service)
+            (ret, patch_id) = self.upload_package(
+                tars_service_obj, service, org_service)
+            if ret is False:
+                return False
+            # patch tars
+            (ret, server_id) = tars_service_obj.get_server_id(service)
+            if ret is False:
+                return False
+            ret = tars_service_obj.patch_tars(server_id, patch_id)
+            if ret is False:
+                return False
             i = i + 1
 
     def deploy_node_services(self, node_config):
@@ -121,7 +131,8 @@ class NodeController:
             obj_list.append(obj_name)
         else:
             obj_list = node_config.obj_name_list
-        ret = tars_service_obj.deploy_single_service(service_name, obj_list)
+        ret = tars_service_obj.deploy_single_service(
+            service_name, obj_list, False)
         if ret is False:
             return False
         # upload_package

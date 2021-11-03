@@ -59,15 +59,27 @@ class ServiceController:
                     "gen configuaration for service %s failed" % service.name)
 
     def gen_service_config(self, service_config):
-        config_generator = ServiceConfigGenerator(
-            self.config, self.service_type, service_config)
-        return config_generator.generate_all_config()
+        for ip in service_config.deploy_ip:
+            utilities.log_info("gen_service_config for %s" % ip)
+            config_generator = ServiceConfigGenerator(
+                self.config, self.service_type, service_config, ip)
+            config_generator.generate_all_config()
 
     def deploy_service(self, service_config):
+        for ip in service_config.deploy_ip:
+            utilities.log_info("deploy_service to %s" % ip)
+            self.deploy_service_to_given_ip(service_config, ip)
+
+    def upgrade_service(self, service_config):
+        for ip in service_config.deploy_ip:
+            utilities.log_info("upgrade_service to %s" % ip)
+            self.upgrade_service_to_given_ip(service_config, ip)
+
+    def deploy_service_to_given_ip(self, service_config, deploy_ip):
         config_generator = ServiceConfigGenerator(
-            self.config, self.service_type, service_config)
+            self.config, self.service_type, service_config, deploy_ip)
         tars_service = TarsService(self.config.tars_config.tars_url,
-                                   self.config.tars_config.tars_token, self.config.chain_id, service_config.deploy_ip)
+                                   self.config.tars_config.tars_token, self.config.chain_id, deploy_ip)
         # create application
         tars_service.create_application()
         # create the service
@@ -75,7 +87,13 @@ class ServiceController:
         obj_name = org_service_name + "Obj"
         obj_list = [obj_name]
         # deploy service
-        ret = tars_service.deploy_single_service(service_config.name, obj_list)
+        ret = tars_service.deploy_single_service(
+            service_config.name, obj_list, True)
+        if ret is False:
+            return False
+        # add configuration files
+        ret = tars_service.add_config_list(
+            config_generator.config_file_list, service_config.name, config_generator.config_path_list)
         if ret is False:
             return False
         return self.upgrade_service_by_config_info(tars_service, service_config, org_service_name, config_generator)
@@ -86,22 +104,17 @@ class ServiceController:
             org_service_name = ServiceInfo.rpc_service
         return org_service_name
 
-    def upgrade_service(self, service_config):
+    def upgrade_service_to_given_ip(self, service_config, deploy_ip):
         config_generator = ServiceConfigGenerator(
-            self.config, self.service_type, service_config)
+            self.config, self.service_type, service_config, deploy_ip)
         tars_service = TarsService(self.config.tars_config.tars_url,
-                                   self.config.tars_config.tars_token, self.config.chain_id, service_config.deploy_ip)
+                                   self.config.tars_config.tars_token, self.config.chain_id, deploy_ip)
         return self.upgrade_service_by_config_info(tars_service, service_config, self.get_org_service_name(), config_generator)
 
     def upgrade_service_by_config_info(self, tars_service, service_config, org_service_name, config_generator):
         # upload package
         (ret, patch_id) = self.upload_package(
             tars_service, service_config.name, org_service_name)
-        if ret is False:
-            return False
-        # add configuration files
-        ret = tars_service.add_config_list(
-            config_generator.config_file_list, service_config.name, config_generator.config_path_list)
         if ret is False:
             return False
         # patch tars

@@ -4,6 +4,7 @@ from common import utilities
 from common.utilities import ServiceInfo
 from requests_toolbelt import MultipartEncoder
 import requests
+import uuid
 import time
 import os
 
@@ -27,6 +28,7 @@ class TarsService:
         self.add_task_url = self.tars_url + 'api/add_task'
         self.get_server_list_url = self.tars_url + 'api/server_list'
         self.config_file_list_url = self.tars_url + 'api/config_file_list'
+        self.get_server_patch_url = self.tars_url + "api/get_server_patch"
 
         self.app_name = app_name
         self.token_param = {'ticket': self.tars_token}
@@ -79,9 +81,9 @@ class TarsService:
             "get the un-occupied port success, port: %s" % (port))
         return (True, int(port))
 
-    def deploy_single_service(self, service_name, obj_name_list):
+    def deploy_single_service(self, service_name, obj_name_list, allow_duplicated):
         "deploy single service"
-        if self.server_exists(service_name) is True:
+        if self.server_exists(service_name) is True and allow_duplicated is False:
             utilities.log_error("service %s already exists." % service_name)
             return False
         utilities.log_info("deploy service %s" % service_name)
@@ -103,11 +105,11 @@ class TarsService:
             return False
         return True
 
-    def deploy_service_list(self, service_list, obj_list):
+    def deploy_service_list(self, service_list, obj_list, allow_duplicated):
         "deploy service list"
         i = 0
         for service in service_list:
-            if self.deploy_single_service(service, obj_list[i]) is False:
+            if self.deploy_single_service(service, obj_list[i], allow_duplicated) is False:
                 utilities.log_error("deploy service list failed, service list: %s" %
                                     service_list)
                 return False
@@ -198,6 +200,24 @@ class TarsService:
             i = i+1
         return True
 
+    def get_server_patch(self, task_id):
+        utilities.log_info("get server patch, task_id: %s" % task_id)
+        params = {"task_id": task_id, "ticket": self.tars_token}
+        response = requests.get(self.get_server_patch_url, params=params)
+        if TarsService.parse_response("get server patch", response) is False:
+            return (False, "")
+        if response.status_code != 200:
+            return (False, "")
+        # get the id
+        result = response.json()
+        result_data = result['data']
+        if 'id' not in result_data:
+            utilities.log_error(
+                "get_server_patch failed for empty return message")
+            return (False, "")
+        id = result_data['id']
+        return (True, id)
+
     def upload_tars_package(self, service_name, package_path):
         """
         upload the tars package
@@ -209,26 +229,20 @@ class TarsService:
             utilities.log_error("upload tars package for service %s failed for the path %s not exists" % (
                 service_name, package_path))
             return (False, 0)
-        form_data = MultipartEncoder(fields={"application": self.app_name, "module_name": service_name, "comment": "upload package", "suse": (
+        task_id = str(uuid.uuid4())
+        form_data = MultipartEncoder(fields={"application": self.app_name, "task_id": task_id, "module_name": service_name, "comment": "upload package", "suse": (
             package_name, open(package_path, 'rb'), 'text/plain/binary')})
+
         response = requests.post(self.upload_package_url, data=form_data, params=self.token_param, headers={
                                  'Content-Type': form_data.content_type})
         if TarsService.parse_response("upload tars package " + package_path, response) is False:
             return (False, 0)
         # get the id
-        result = response.json()
-        if 'data' not in result:
-            utilities.log_error("upload tar package %s failed for empty return message: %s" %
-                                (package_path, result))
-            return (False, 0)
-        result_data = result['data']
-        if 'id' not in result_data:
-            utilities.log_error("upload tar package %s failed for empty return message: %s" %
-                                (package_path, result))
-            return (False, 0)
-        # Note: 11 is the tars services occupied id num
-        id = result_data['id']
-        return (True, id)
+        (ret, id) = self.get_server_patch(task_id)
+        if ret is True:
+            utilities.log_info(
+                "upload tar package %s success, config id: %s" % (package_path, id))
+        return (ret, id)
 
     def get_server_info(self, tree_node_id):
         params = {'tree_node_id': tree_node_id, "ticket": self.tars_token}
