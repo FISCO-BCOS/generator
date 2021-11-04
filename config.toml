@@ -11,7 +11,7 @@ gateway_sm_ssl=false
 
 [[chain.rpc]]
 name="agencyARpcService"
-deploy_ip="192.168.192.168"
+deploy_ip=["192.168.192.168"]
 listen_ip="0.0.0.0"
 listen_port=20200
 thread_count=4
@@ -19,7 +19,7 @@ gateway_service_name = "agencyAGatewayService"
 
 [[chain.rpc]]
 name="agencyBRpcService"
-deploy_ip="192.168.192.168"
+deploy_ip=["192.168.192.168"]
 listen_ip="0.0.0.0"
 listen_port=20201
 thread_count=4
@@ -27,7 +27,7 @@ gateway_service_name = "agencyBGatewayService"
 
 [[chain.gateway]]
 name="agencyAGatewayService"
-deploy_ip="192.168.192.168"
+deploy_ip=["192.168.192.168"]
 listen_ip="0.0.0.0"
 listen_port=30300
 peers=["127.0.0.1:30300", "127.0.0.1:30301"]
@@ -35,7 +35,7 @@ rpc_service_name = "agencyARpcService"
 
 [[chain.gateway]]
 name="agencyBGatewayService"
-deploy_ip="192.168.192.168"
+deploy_ip=["192.168.192.168"]
 listen_ip="0.0.0.0"
 listen_port=30301
 peers=["127.0.0.1:30300", "127.0.0.1:30301"]

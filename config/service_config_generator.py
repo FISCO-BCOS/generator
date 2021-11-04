@@ -9,7 +9,7 @@ import os
 
 
 class ServiceConfigGenerator:
-    def __init__(self, config, service_type, service_config):
+    def __init__(self, config, service_type, service_config, deploy_ip):
         self.config = config
         self.ini_file = "config.ini"
         self.ini_tmp_file = "config.ini.tmp"
@@ -17,6 +17,7 @@ class ServiceConfigGenerator:
         self.network_tmp_file = "nodes.json.tmp"
         self.service_type = service_type
         self.service_config = service_config
+        self.deploy_ip = deploy_ip
         self.init(service_type)
         if len(self.config.ca_cert_path) == 0:
             self.config.ca_cert_path = self.get_ca_cert_dir()
@@ -64,16 +65,16 @@ class ServiceConfigGenerator:
 
     def get_ini_config_info(self):
         config_path = os.path.join(
-            self.root_dir, self.config.chain_id, self.service_config.deploy_ip, self.service_config.name, self.ini_tmp_file)
+            self.root_dir, self.config.chain_id, self.deploy_ip, self.service_config.name, self.ini_tmp_file)
         return (self.ini_file, config_path)
 
     def get_network_connection_config_info(self):
-        config_path = os.path.join(self.root_dir, self.config.chain_id, self.service_config.deploy_ip,
+        config_path = os.path.join(self.root_dir, self.config.chain_id, self.deploy_ip,
                                    self.service_config.name, self.network_tmp_file)
         return (self.network_file, config_path)
 
     def get_cert_output_dir(self):
-        return os.path.join(self.root_dir, self.config.chain_id, self.service_config.deploy_ip, self.service_config.name)
+        return os.path.join(self.root_dir, self.config.chain_id, self.deploy_ip, self.service_config.name)
 
     def get_ca_cert_dir(self):
         return os.path.join(self.root_dir, self.config.chain_id)
