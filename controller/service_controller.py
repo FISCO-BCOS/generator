@@ -56,7 +56,7 @@ class ServiceController:
             ret = self.gen_service_config(service)
             if ret is False:
                 utilities.log_error(
-                    "gen configuaration for service %s failed" % service.name)
+                    "gen configuration for service %s failed" % service.name)
 
     def gen_service_config(self, service_config):
         for ip in service_config.deploy_ip:

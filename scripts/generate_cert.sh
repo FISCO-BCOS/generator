@@ -271,32 +271,32 @@ gen_chain_cert() {
 gen_rsa_node_cert() {
     local capath="${1}"
     local ndpath="${2}"
-    local node="${3}"
+    local type="${3}"
 
     file_must_exists "$capath/ca.key"
     file_must_exists "$capath/ca.crt"
-    check_name node "$node"
+    # check_name node "$node"
 
-    file_must_not_exists "$ndpath"/ssl.key
-    file_must_not_exists "$ndpath"/ssl.crt
+    file_must_not_exists "$ndpath"/"${type}".key
+    file_must_not_exists "$ndpath"/"${type}".crt
 
     mkdir -p "${ndpath}"
     dir_must_exists "${ndpath}"
 
-    openssl genrsa -out "${ndpath}"/ssl.key "${rsa_key_length}" 2> /dev/null
-    openssl req -new -sha256 -subj "/CN=FISCO-BCOS/O=fisco-bcos/OU=agency" -key "$ndpath"/ssl.key -config "$capath"/cert.cnf -out "$ndpath"/ssl.csr
+    openssl genrsa -out "${ndpath}"/"${type}".key "${rsa_key_length}" 2> /dev/null
+    openssl req -new -sha256 -subj "/CN=FISCO-BCOS/O=fisco-bcos/OU=agency" -key "$ndpath"/"${type}".key -config "$capath"/cert.cnf -out "$ndpath"/"${type}".csr
     openssl x509 -req -days "${days}" -sha256 -CA "${capath}"/ca.crt -CAkey "$capath"/ca.key -CAcreateserial \
-        -in "$ndpath"/ssl.csr -out "$ndpath"/ssl.crt -extensions v4_req -extfile "$capath"/cert.cnf 2>/dev/null
+        -in "$ndpath"/"${type}".csr -out "$ndpath"/"${type}".crt -extensions v4_req -extfile "$capath"/cert.cnf 2>/dev/null
 
-    openssl pkcs8 -topk8 -in "$ndpath"/ssl.key -out "$ndpath"/pkcs8_node.key -nocrypt
+    openssl pkcs8 -topk8 -in "$ndpath"/"$type".key -out "$ndpath"/pkcs8_node.key -nocrypt
     cp "$capath"/ca.crt "$capath"/cert.cnf "$ndpath"/
 
-    rm -f "$ndpath"/ssl.csr
-    rm -f "$ndpath"/ssl.key
+    rm -f "$ndpath"/"${type}".csr
+    rm -f "$ndpath"/"${type}".key
 
-    mv "$ndpath"/pkcs8_node.key "$ndpath"/ssl.key
+    mv "$ndpath"/pkcs8_node.key "$ndpath"/"${type}".key
 
-    LOG_INFO "Build ${node} cert successful!"
+    LOG_INFO "Build node cert successful!"
 }
 
 gen_sm_chain_cert() {
@@ -324,9 +324,8 @@ gen_sm_chain_cert() {
 gen_sm_node_cert_with_ext() {
     local capath="$1"
     local certpath="$2"
-    local name="$3"
-    local type="$4"
-    local extensions="$5"
+    local type="$3"
+    local extensions="$4"
 
     file_must_exists "$capath/sm_ca.key"
     file_must_exists "$capath/sm_ca.crt"
@@ -335,7 +334,7 @@ gen_sm_node_cert_with_ext() {
     file_must_not_exists "$ndpath/sm_${type}.key"
 
     "$OPENSSL_CMD" genpkey -paramfile "$capath/${sm2_params}" -out "$certpath/sm_${type}.key"
-    "$OPENSSL_CMD" req -new -subj "/CN=$name/O=fisco-bcos/OU=${type}" -key "$certpath/sm_${type}.key" -config "$capath/sm_cert.cnf" -out "$certpath/sm_${type}.csr"
+    "$OPENSSL_CMD" req -new -subj "/CN=FISCO-BCOS/O=fisco-bcos/OU=${type}" -key "$certpath/sm_${type}.key" -config "$capath/sm_cert.cnf" -out "$certpath/sm_${type}.csr"
 
     echo "not use $(basename "$capath") to sign $(basename $certpath) ${type}" >>"${logfile}"
     "$OPENSSL_CMD" x509 -sm3 -req -CA "$capath/sm_ca.crt" -CAkey "$capath/sm_ca.key" -days "${days}" -CAcreateserial -in "$certpath/sm_${type}.csr" -out "$certpath/sm_${type}.crt" -extfile "$capath/sm_cert.cnf" -extensions "$extensions"
@@ -346,6 +345,7 @@ gen_sm_node_cert_with_ext() {
 gen_sm_node_cert() {
     local capath="${1}"
     local ndpath="${2}"
+    local type="${3}"
 
     file_must_exists "$capath/sm_ca.key"
     file_must_exists "$capath/sm_ca.crt"
@@ -355,10 +355,10 @@ gen_sm_node_cert() {
     local node=$(basename "$ndpath")
     check_name node "$node"
 
-    gen_sm_node_cert_with_ext "$capath" "$ndpath" "$node" ssl v3_req
-    gen_sm_node_cert_with_ext "$capath" "$ndpath" "$node" enssl v3enc_req
+    gen_sm_node_cert_with_ext "$capath" "$ndpath" ${type} v3_req
+    gen_sm_node_cert_with_ext "$capath" "$ndpath" "en${type}" v3enc_req
     #nodeid is pubkey
-    $OPENSSL_CMD ec -in "$ndpath/sm_ssl.key" -text -noout 2> /dev/null | sed -n '7,11p' | sed 's/://g' | tr "\n" " " | sed 's/ //g' | awk '{print substr($0,3);}' | cat > "$ndpath/sm_ssl.nodeid"
+    $OPENSSL_CMD ec -in "$ndpath/sm_${type}.key" -text -noout 2> /dev/null | sed -n '7,11p' | sed 's/://g' | tr "\n" " " | sed 's/ //g' | awk '{print substr($0,3);}' | cat > "$ndpath/sm_${type}.nodeid"
 
     cp "$capath/sm_ca.crt" "$ndpath"
 }
@@ -389,11 +389,13 @@ generate_single_node_cert() {
     local sm_mode="$1"
     local ca_cert_path="${2}"
     local node_cert_path="${3}"
+    local type="${4}"
+
     mkdir -p ${node_cert_path}
     if [[ "${sm_mode}" == "false" ]]; then
-        gen_rsa_node_cert "${ca_cert_path}" "${node_cert_path}" "node" 2>&1
+        gen_rsa_node_cert "${ca_cert_path}" "${node_cert_path}" "${type}" 2>&1
     else
-        gen_sm_node_cert "${ca_cert_path}" "${node_cert_path}" "node" 2>&1
+        gen_sm_node_cert "${ca_cert_path}" "${node_cert_path}" "${type}" 2>&1
     fi
 }
 
@@ -476,7 +478,7 @@ help() {
     echo $1
     cat <<EOF
 Usage:
-    -c <commands>                       [Required] the operation command, support generate_all_cert/generate_ca_cert/generate_node_cert and generate_private_key now
+    -c <commands>                       [Required] the operation command, support generate_all_cert/generate_ca_cert/generate_node_cert/generate_sdk_cert and generate_private_key now
     -o <output dir>                     [Optional] output directory, default ./nodes
     -s <SM model>                       [Optional] SM SSL connection or not, default no
     -h Help
@@ -509,10 +511,13 @@ generate_all_cert(){
     LOG_INFO "generate all cert"
     ca_dir="${output_dir}/ca"
     cert_dir="${output_dir}/ssl"
+    sdk_dir="${output_dir}/sdk"
     mkdir -p "$ca_dir"
     mkdir -p "$cert_dir"
+    mkdir -p "$sdk_dir"
     generate_chain_cert "${sm_mode}" "${ca_dir}"
-    generate_single_node_cert "${sm_mode}" "${ca_dir}" "${cert_dir}"
+    generate_single_node_cert "${sm_mode}" "${ca_dir}" "${cert_dir}" "ssl"
+    generate_single_node_cert "${sm_mode}" "${ca_dir}" "${sdk_dir}" "sdk"
     LOG_INFO "generate all cert success"
 }
 
@@ -530,7 +535,16 @@ generate_node_cert()
     LOG_INFO "generate node cert"
     cert_dir="${output_dir}/ssl"
     mkdir -p "$cert_dir"
-    generate_single_node_cert "${sm_mode}" "${ca_cert_path}" "${cert_dir}"
+    generate_single_node_cert "${sm_mode}" "${ca_cert_path}" "${cert_dir}" "ssl"
+    LOG_INFO "generate node cert success"
+}
+
+generate_sdk_cert()
+{
+    LOG_INFO "generate sdk cert"
+    sdk_dir="${output_dir}/sdk"
+    mkdir -p "$sdk_dir"
+    generate_single_node_cert "${sm_mode}" "${ca_cert_path}" "${sdk_dir}" "sdk"
     LOG_INFO "generate node cert success"
 }
 
@@ -557,6 +571,8 @@ main() {
         generate_ca_cert
     elif [[ "${command}" == "generate_node_cert" ]]; then
         generate_node_cert
+    elif [[ "${command}" == "generate_sdk_cert" ]]; then
+        generate_sdk_cert
     elif [[ "${command}" == "generate_private_key" ]]; then
         generate_cert_node_private_key
     fi
