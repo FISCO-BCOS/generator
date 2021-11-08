@@ -128,7 +128,9 @@ class ServiceConfigGenerator:
             self.config.ca_cert_path = os.path.join(
                 self.config.ca_cert_path, "ca")
         output_dir = self.get_cert_output_dir()
-        return utilities.generate_node_cert(self.sm_ssl, self.config.ca_cert_path, output_dir)
+        utilities.generate_node_cert(self.sm_ssl, self.config.ca_cert_path, output_dir)
+        utilities.generate_sdk_cert(self.sm_ssl, self.config.ca_cert_path, output_dir)
+        return
 
     def get_cert_config_info(self):
         ssl_config_files = ServiceInfo.ssl_file_list

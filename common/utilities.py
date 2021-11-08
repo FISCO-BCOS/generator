@@ -137,6 +137,10 @@ def generate_node_cert(sm_type, ca_cert_path, outputdir):
     ca_cert_info = "-d %s" % ca_cert_path
     generate_cert_with_command(sm_type, command, outputdir, ca_cert_info)
 
+def generate_sdk_cert(sm_type, ca_cert_path, outputdir):
+    command = "generate_sdk_cert"
+    ca_cert_info = "-d %s" % ca_cert_path
+    generate_cert_with_command(sm_type, command, outputdir, ca_cert_info)
 
 def try_to_rename_tgz_package(tars_pkg_path, service_name, org_service_name):
     org_package_name = org_service_name + ServiceInfo.tars_pkg_postfix
