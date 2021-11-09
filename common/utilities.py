@@ -10,7 +10,7 @@ class ServiceInfo:
     gateway_service_type = "gateway"
 
     ssl_file_list = ["ca.crt", "ssl.key", "ssl.crt"]
-    sm_ssl_file_list = ["sm_ca.crt", "sm_ssl.key", "sm_ssl.crt"]
+    sm_ssl_file_list = ["sm_ca.crt", "sm_ssl.key", "sm_ssl.crt", "sm_enssl.key", "sm_enssl.crt"]
 
     rpc_service = "RpcService"
     gateway_service = "GatewayService"
