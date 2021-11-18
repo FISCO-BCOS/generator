@@ -18,7 +18,7 @@ services:
       tars_net:
         ipv4_address: 172.25.0.2
     environment:
-      MYSQL_ROOT_PASSWORD: "123456"
+      MYSQL_ROOT_PASSWORD: ""
     restart: always
     volumes:
       - ~/app/tars/framework-mysql:/var/lib/mysql
@@ -35,12 +35,14 @@ services:
       - "3001:3001"
     environment:
       MYSQL_HOST: "172.25.0.2"
-      MYSQL_ROOT_PASSWORD: "123456"
+      MYSQL_ROOT_PASSWORD: ""
       MYSQL_PORT: 3306
-      REBUILD: 0
+      REBUILD: "true"
       INET: eth0
-      SLAVE: 0
+      SLAVE: "false"
     restart: always
     volumes: 
       - ~/app/tars/framework:/data/tars
       - /etc/localtime:/etc/localtime
+    depends_on:
+      - tars-mysql

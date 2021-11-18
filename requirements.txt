@@ -3,3 +3,4 @@ requests
 toml
 uuid
 requests-toolbelt
+logging
