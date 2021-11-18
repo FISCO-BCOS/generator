@@ -1,5 +1,8 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
+import ast
+import sys
+
 from common import utilities
 from common.utilities import ServiceInfo
 
@@ -78,7 +81,7 @@ class NodeConfig:
             service_list = utilities.get_item_value(
                 self.config, "service_list", None, False)
             if service_list is not None:
-                self.service_list = eval(service_list)
+                self.service_list = ast.literal_eval(service_list)
                 for service in ServiceInfo.micro_node_service:
                     if service not in self.service_list:
                         self.service_list[service] = self.deploy_ip
@@ -117,7 +120,7 @@ class NodeConfig:
             node_name = self.get_node_name(i)
             for config_key in ServiceInfo.micro_node_service_config_keys.keys():
                 node_service_config_item[config_key] = node_name + \
-                    ServiceInfo.micro_node_service_config_keys[config_key]
+                                                       ServiceInfo.micro_node_service_config_keys[config_key]
             self.node_service_config_info[node_name] = node_service_config_item
         utilities.log_info("generate service config info: %s" %
                            str(self.node_service_config_info))
@@ -188,7 +191,6 @@ class ChainConfig:
             self.config, "chain", section_name, [], False)
         result = {}
         for item in service_list:
-            function = "%s(item, chain_id)" % constructor
-            service_object = eval(function)
+            service_object = getattr(sys.modules[__name__], constructor)(item, chain_id)
             result[service_object.name] = service_object
         return result
