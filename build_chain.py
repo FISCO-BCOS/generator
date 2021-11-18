@@ -1,13 +1,14 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
 import argparse
+import toml
+
 from common import utilities
 from common.utilities import CommandInfo
 from common.utilities import ServiceInfo
 from config.chain_config import ChainConfig
 from command.service_command_impl import ServiceCommandImpl
 from command.node_command_impl import NodeCommandImpl
-import toml
 
 
 def parse_command():
@@ -16,8 +17,9 @@ def parse_command():
         '--command', help="[required]the command, support " + ', '.join(CommandInfo.total_command), required=True)
     parser.add_argument(
         "--config", help="[optional] the config file, default is config.toml", default="config.toml")
-    parser.add_argument("--type", help="the service type, now support " +
-                        ServiceInfo.rpc_service_type + " and " + ServiceInfo.gateway_service_type, required=False)
+    parser.add_argument("--type",
+                        help="the service type, now support " + ServiceInfo.rpc_service_type + " and " +
+                             ServiceInfo.gateway_service_type, required=False)
     args = parser.parse_args()
     return args
 
@@ -33,13 +35,15 @@ def main():
             return
         else:
             command_impl = ServiceCommandImpl(chain_config, args.type)
-            ret = eval("command_impl." + args.command + "()")
+            cmd_func_attr = getattr(command_impl, args.command)
+            ret = cmd_func_attr()
             if ret is True:
                 utilities.log_info(args.command + " success!")
             return
     if args.command in CommandInfo.node_command:
         command_impl = NodeCommandImpl(chain_config)
-        eval("command_impl." + args.command + "()")
+        cmd_func_attr = getattr(command_impl, args.command)
+        cmd_func_attr()
         return
     utilities.log_info("unimplemented command")
 
