@@ -2,7 +2,6 @@
 # -*- coding: UTF-8 -*-
 import argparse
 import toml
-import ast
 import sys
 
 from common import utilities
