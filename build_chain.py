@@ -19,9 +19,9 @@ def parse_command():
         '--command', help="[required]the command, support " + ', '.join(CommandInfo.total_command), required=True)
     parser.add_argument(
         "--config", help="[optional] the config file, default is config.toml", default="config.toml")
-    parser.add_argument("--type", help="the service type, now support " +
-                                       ServiceInfo.rpc_service_type + " and " + ServiceInfo.gateway_service_type,
-                        required=False)
+    parser.add_argument("--type",
+                        help="the service type, now support " + ServiceInfo.rpc_service_type + " and " +
+                             ServiceInfo.gateway_service_type, required=False)
     args = parser.parse_args()
     return args
 
