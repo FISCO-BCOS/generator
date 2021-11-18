@@ -2,7 +2,6 @@
 # -*- coding: UTF-8 -*-
 import argparse
 import toml
-import sys
 
 from common import utilities
 from common.utilities import CommandInfo
