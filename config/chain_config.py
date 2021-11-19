@@ -17,6 +17,9 @@ class TarsConfig:
             self.config, section, "tars_token", None, True)
         self.tars_pkg_dir = utilities.get_value(
             self.config, section, "tars_pkg_dir", "../build", False)
+        if len(self.tars_token) == 0:
+            utilities.log_error("Must config 'tars.tars_token'")
+            sys.exit(-1)
 
 
 class ServiceInfoConfig:
@@ -88,7 +91,6 @@ class NodeConfig:
             if service_list is None:
                 for service in ServiceInfo.micro_node_service:
                     self.service_list[service] = self.deploy_ip
-        utilities.log_info("the service info: %s" % str(self.service_list))
         self.generate_service_name_list()
         self.generate_service_config_info()
 
@@ -110,8 +112,6 @@ class NodeConfig:
             node_service_info = self.get_single_node_service_name(i)
             self.nodes_service_name_list[self.get_node_name(
                 i)] = node_service_info
-        utilities.log_info("generate service name list: %s" %
-                           str(self.nodes_service_name_list))
 
     def generate_service_config_info(self):
         self.node_service_config_info = {}
@@ -120,10 +120,8 @@ class NodeConfig:
             node_name = self.get_node_name(i)
             for config_key in ServiceInfo.micro_node_service_config_keys.keys():
                 node_service_config_item[config_key] = node_name + \
-                                                       ServiceInfo.micro_node_service_config_keys[config_key]
+                    ServiceInfo.micro_node_service_config_keys[config_key]
             self.node_service_config_info[node_name] = node_service_config_item
-        utilities.log_info("generate service config info: %s" %
-                           str(self.node_service_config_info))
 
 
 class GenesisConfig:
@@ -191,6 +189,7 @@ class ChainConfig:
             self.config, "chain", section_name, [], False)
         result = {}
         for item in service_list:
-            service_object = getattr(sys.modules[__name__], constructor)(item, chain_id)
+            service_object = getattr(
+                sys.modules[__name__], constructor)(item, chain_id)
             result[service_object.name] = service_object
         return result

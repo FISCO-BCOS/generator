@@ -2,6 +2,8 @@
 # -*- coding: UTF-8 -*-
 import argparse
 import toml
+import os
+import sys
 
 from common import utilities
 from common.utilities import CommandInfo
@@ -26,6 +28,9 @@ def parse_command():
 
 def main():
     args = parse_command()
+    if os.path.exists(args.config) is False:
+        utilities.log_error("The config file '%s' not found!" % args.config)
+        sys.exit(-1)
     toml_config = toml.load(args.config)
     chain_config = ChainConfig(toml_config)
     if args.command in CommandInfo.service_command:

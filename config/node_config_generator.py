@@ -19,6 +19,7 @@ class NodeConfigGenerator:
         self.ini_config_tmp_file = "config.ini.tmp"
         self.node_pem_file = "node.pem"
         self.node_id_file = "node.nodeid"
+        self.root_dir = "generated/"
 
     def get_all_service_info(self, node_config, service_name):
         config_file_list = [
@@ -38,7 +39,7 @@ class NodeConfigGenerator:
         return self.get_node_config_path(node_config, service_name, self.ini_config_tmp_file)
 
     def get_node_config_path(self, node_config, service_name, file_name):
-        return os.path.join("nodes", self.config.chain_id, self.config.group_config.group_id, node_config.deploy_ip, service_name, file_name)
+        return os.path.join(self.root_dir, self.config.chain_id, self.config.group_config.group_id, node_config.deploy_ip, service_name, file_name)
 
     def generate_genesis_config(self, nodeid_list):
         """
@@ -99,19 +100,25 @@ class NodeConfigGenerator:
 
     def generate_node_ini_config(self, node_config):
         for node_name in node_config.node_service_config_info.keys():
-            utilities.log_info("generate ini config for node %s" % node_name)
             ini_config = self.generate_node_config(node_config, node_name)
             service_list = node_config.nodes_service_name_list[node_name]
             for service in service_list:
                 file_path = self.get_node_config_path(
                     node_config, service, self.ini_config_tmp_file)
+                if os.path.exists(file_path):
+                    utilities.log_error(
+                        "* generate ini config for service %s failed, for the config file %s already exists!" % (service, file_path))
+                    return False
+                utilities.log_info(
+                    "* generate ini config for service %s\n\tconfig path: %s" % (service, file_path))
                 utilities.mkfiledir(file_path)
                 with open(file_path, 'w') as configfile:
                     ini_config.write(configfile)
+        return True
 
     def generate_node_genesis_config(self, node_config, nodeid_list):
         genesis_config = self.generate_genesis_config(nodeid_list)
-        self.write_config(
+        return self.write_config(
             genesis_config, self.genesis_tmp_config_file, node_config)
 
     def write_config(self, updated_config, file_name, node_config):
@@ -120,9 +127,16 @@ class NodeConfigGenerator:
             for service in service_list:
                 file_path = self.get_node_config_path(
                     node_config, service, file_name)
+                if os.path.exists(file_path):
+                    utilities.log_error(
+                        "* generate genesis config for %s failed for the config %s already exists." % (service, file_path))
+                    return False
+                utilities.log_info(
+                    "* generate genesis config for %s\n\t path: %s" % (service, file_path))
                 utilities.mkfiledir(file_path)
                 with open(file_path, 'w') as configfile:
                     updated_config.write(configfile)
+        return True
 
     def generate_all_nodes_pem(self):
         nodeid_list = []
@@ -132,17 +146,18 @@ class NodeConfigGenerator:
         return nodeid_list
 
     def generate_node_all_config(self, node_config, nodeid_list):
-        self.generate_node_genesis_config(node_config, nodeid_list)
-        self.generate_node_ini_config(node_config)
+        if self.generate_node_genesis_config(node_config, nodeid_list) is False:
+            return False
+        return self.generate_node_ini_config(node_config)
 
     def get_node_pem_path(self, node_config, service_name):
-        return os.path.join("nodes", self.config.group_config.chain_id, self.config.group_config.group_id, node_config.deploy_ip, service_name)
+        return os.path.join(self.root_dir, self.config.group_config.chain_id, self.config.group_config.group_id, node_config.deploy_ip, service_name)
 
     def generate_node_pem(self, node_config):
         """
         generate private key for the node
         """
-        outputdir = "./"
+        outputdir = self.root_dir
         pem_path = os.path.join(outputdir, self.node_pem_file)
         node_id_path = os.path.join(outputdir, self.node_id_file)
         nodeid_list = []
@@ -155,6 +170,8 @@ class NodeConfigGenerator:
                 node_config.nodes_service_name_list[key]).keys()
             for service in single_node_service:
                 dst_path = self.get_node_pem_path(node_config, service)
+                utilities.log_info(
+                    "* generate pem file for %s\n\t- pem_path: %s\n\t- node_id_path: %s" % (service, dst_path, node_id_path))
                 # copy the generated file to all services path
                 utilities.mkdir(dst_path)
                 shutil.copy(pem_path, dst_path)

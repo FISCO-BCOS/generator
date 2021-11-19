@@ -26,12 +26,12 @@ class ServiceConfigGenerator:
         self.config_file_list = []
         self.config_path_list = []
         if service_type == ServiceInfo.rpc_service_type:
-            self.root_dir = "rpc"
+            self.root_dir = "generated/rpc"
             self.section = "rpc"
             self.tpl_config_path = ConfigInfo.rpc_config_tpl_path
             self.sm_ssl = self.config.rpc_sm_ssl
         if service_type == ServiceInfo.gateway_service_type:
-            self.root_dir = "gateway"
+            self.root_dir = "generated/gateway"
             self.section = "p2p"
             self.tpl_config_path = ConfigInfo.gateway_config_tpl_path
 
@@ -49,19 +49,29 @@ class ServiceConfigGenerator:
 
     def generate_all_config(self):
         if self.service_type == ServiceInfo.gateway_service_type:
-            self.generate_gateway_config_files()
+            return self.generate_gateway_config_files()
         else:
-            self.generate_rpc_config_files()
-        return True
+            return self.generate_rpc_config_files()
 
     def generate_rpc_config_files(self):
-        self.generate_ini_config()
-        self.generate_cert()
+        utilities.log_info("* generate config for the rpc service")
+        if self.generate_ini_config() is False:
+            return False
+        if self.generate_cert() is False:
+            return False
+        utilities.log_info("* generate config for the rpc service success")
+        return True
 
     def generate_gateway_config_files(self):
-        self.generate_ini_config()
-        self.generate_cert()
-        self.generate_gateway_connection_info()
+        utilities.log_info("* generate config for the gateway service")
+        if self.generate_ini_config() is False:
+            return False
+        if self.generate_cert() is False:
+            return False
+        if self.generate_gateway_connection_info() is False:
+            return False
+        utilities.log_info("* generate config for the gateway service success")
+        return True
 
     def get_ini_config_info(self):
         config_path = os.path.join(
@@ -83,6 +93,11 @@ class ServiceConfigGenerator:
         """
         generate config.ini.tmp
         """
+        (_, generated_file_path) = self.get_ini_config_info()
+        if os.path.exists(generated_file_path) is True:
+            utilities.log_error(
+                "config file %s already exists, please delete after confirming carefully" % generated_file_path)
+            return False
         ini_config = configparser.ConfigParser()
         ini_config.read(self.tpl_config_path)
         ini_config[self.section]['listen_ip'] = self.service_config.listen_ip
@@ -97,18 +112,26 @@ class ServiceConfigGenerator:
         ini_config["service"]['rpc'] = self.config.chain_id + \
             "." + self.service_config.rpc_service_name
         ini_config["chain"]['chain_id'] = self.config.chain_id
-        (_, generated_file_path) = self.get_ini_config_info()
         utilities.mkfiledir(generated_file_path)
         with open(generated_file_path, 'w') as configfile:
             ini_config.write(configfile)
+        utilities.log_info("* generate %s" % generated_file_path)
+        return True
 
     def generate_gateway_connection_info(self):
+        (_, generated_file_path) = self.get_network_connection_config_info()
+        if os.path.exists(generated_file_path):
+            utilities.log_error(
+                "config file %s already exists, please delete after confirming carefully" % generated_file_path)
+            return False
         peers = {}
         peers["nodes"] = self.service_config.peers
-        (_, generated_file_path) = self.get_network_connection_config_info()
         utilities.mkfiledir(generated_file_path)
         with open(generated_file_path, 'w') as configfile:
             json.dump(peers, configfile)
+        utilities.log_info(
+            "* generate gateway connection file: %s" % generated_file_path)
+        return True
 
     def ca_generated(self):
         if self.sm_ssl is False:
@@ -120,17 +143,20 @@ class ServiceConfigGenerator:
         return False
 
     def generate_cert(self):
-        utilities.log_info("generate cert for %s, ca cert path: %s" % (
-            self.service_config.name, self.config.ca_cert_path))
+        output_dir = self.get_cert_output_dir()
         if self.ca_generated() is False:
             # generate the ca cert
             utilities.generate_ca_cert(self.sm_ssl, self.config.ca_cert_path)
             self.config.ca_cert_path = os.path.join(
                 self.config.ca_cert_path, "ca")
-        output_dir = self.get_cert_output_dir()
-        utilities.generate_node_cert(self.sm_ssl, self.config.ca_cert_path, output_dir)
-        utilities.generate_sdk_cert(self.sm_ssl, self.config.ca_cert_path, output_dir)
-        return
+        utilities.log_info("* generate cert, output path: %s" % (output_dir))
+        utilities.generate_node_cert(
+            self.sm_ssl, self.config.ca_cert_path, output_dir)
+        utilities.log_info(
+            "* generate sdk cert, output path: %s" % (output_dir))
+        utilities.generate_sdk_cert(
+            self.sm_ssl, self.config.ca_cert_path, output_dir)
+        return True
 
     def get_cert_config_info(self):
         ssl_config_files = ServiceInfo.ssl_file_list

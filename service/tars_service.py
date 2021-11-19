@@ -38,10 +38,10 @@ class TarsService:
     def create_application(self):
         "create application"
         if self.app_exists() is True:
-            utilities.log_error(
-                "application %s already exists" % self.app_name)
+            # utilities.log_error(
+            #    "application %s already exists" % self.app_name)
             return False
-        utilities.log_info("create application: %s" % self.app_name)
+        utilities.log_debug("create application: %s" % self.app_name)
         request_data = {'f_name': self.app_name}
         response = requests.post(
             self.add_application_url, params=self.token_param, data=request_data)
@@ -65,7 +65,7 @@ class TarsService:
 
     def get_node_auto_port(self, node_name):
         # get the auto_port
-        utilities.log_info("get the un-occuppied port")
+        utilities.log_debug("get the un-occuppied port")
         params = {"node_name": node_name, "ticket": self.tars_token}
         response = requests.get(self.get_port_url, params=params)
         if TarsService.parse_response("get the un-occupied port", response) is False:
@@ -82,7 +82,7 @@ class TarsService:
             utilities.log_error("get empty un-occupied port")
             return (False, 0)
         port = node_info[0]['port']
-        utilities.log_info(
+        utilities.log_debug(
             "get the un-occupied port success, port: %s" % (port))
         return (True, int(port))
 
@@ -131,6 +131,10 @@ class TarsService:
 
     def add_server_config_file(self, config_file_name, server_name, config_file_path, empty_server_config):
         content = "\n"
+        if os.path.exists(config_file_path) is False:
+            utilities.log_error("add service config error:\n the config file %s doesn't exist, service: %s" % (
+                config_file_path, server_name))
+            return False
         if empty_server_config is False:
             try:
                 fp = open(config_file_path)
@@ -151,7 +155,7 @@ class TarsService:
 
     def add_non_empty_server_config_file(self, config_file_name, server_name, config_file_path):
         "add server the config file"
-        utilities.log_info("add config file for application %s, config file path: %s, service_name: %s" % (
+        utilities.log_debug("add config file for application %s, config file path: %s, service_name: %s" % (
             self.app_name, config_file_path, server_name))
         ret = self.add_server_config_file(
             config_file_name, server_name, config_file_path, False)
@@ -176,15 +180,19 @@ class TarsService:
         (ret, id) = self.get_server_config_file_id(
             config_file_name, server_name)
         if ret is False:
-            utilities.log_info("add config file for application %s, config file path: %s, service_name: %s" %
-                               (self.app_name, config_file_path, server_name))
+            utilities.log_debug("add config file for application %s, config file path: %s, service_name: %s" %
+                                (self.app_name, config_file_path, server_name))
             self.add_server_config_file(
                 config_file_name, server_name, config_file_path, empty_server_config)
         return self.update_service_config(config_file_name, server_name, node_name, config_file_path)
 
     def update_service_config(self, config_file_name, server_name, node_name, config_file_path):
-        utilities.log_info("update config file for application %s, config file path: %s, node: %s" %
-                           (self.app_name, config_file_path, node_name))
+        utilities.log_debug("update config file for application %s, config file path: %s, node: %s" %
+                            (self.app_name, config_file_path, node_name))
+        if os.path.exists(config_file_path) is False:
+            utilities.log_error("update service config error:\n the config file %s doesn't exist, service: %s" % (
+                config_file_path, server_name))
+            return False
         ret = True
         config_id = 0
         if len(node_name) == 0:
@@ -221,7 +229,7 @@ class TarsService:
             return (False, 0)
         result = response.json()
         if "data" not in result or len(result["data"]) == 0:
-            utilities.log_error("the config %s doesn't exist" %
+            utilities.log_debug("the config %s doesn't exist" %
                                 (config_file_name))
             return (False, 0)
         # try to find the config file info
@@ -233,9 +241,8 @@ class TarsService:
         return (False, 0)
 
     def get_server_config_file_id(self, config_file_name, server_name):
-        utilities.log_info("query the config file id for %s" %
-                           config_file_name)
-
+        utilities.log_debug("query the config file id for %s" %
+                            config_file_name)
         params = {"ticket": self.tars_token, "level": TarsService.get_level(server_name), "application": self.app_name,
                   "server_name": server_name, "set_name": "", "set_area": "", "set_group": ""}
         response = requests.get(
@@ -244,22 +251,26 @@ class TarsService:
             return (False, 0)
         result = response.json()
         if "data" not in result or len(result["data"]) == 0:
-            utilities.log_info(
+            utilities.log_debug(
                 "the config file id not found for %s because of empty return data, response: %s" % (config_file_name, response.content))
             return (False, 0)
         # try to find the config file info
         for item in result["data"]:
             if "filename" in item and item["filename"] == config_file_name:
-                utilities.log_info("get_server_config_file_id, server: %s, config_id: %s" % (
+                utilities.log_debug("get_server_config_file_id, server: %s, config_id: %s" % (
                     server_name, item["id"]))
                 return (True, item["id"])
-        utilities.log_info("the config file %s not found" % config_file_name)
+        utilities.log_debug("the config file %s not found" % config_file_name)
         return (False, 0)
 
     def add_config_list(self, config_list, service_name, node_name, config_file_list, empty_server_config):
         i = 0
         for config_file_path in config_file_list:
             config = config_list[i]
+            utilities.log_info(
+                "* add config for service %s, node: %s, config: %s" % (service_name, node_name, config))
+            utilities.log_debug("add config for service %s, node: %s, config: %s, path: %s" % (
+                service_name, node_name, config, config_file_path))
             if self.add_config_file(config, service_name, node_name, config_file_path, empty_server_config) is False:
                 utilities.log_error("add_config_list failed, config files info: %s" %
                                     config_list)
@@ -268,7 +279,7 @@ class TarsService:
         return True
 
     def get_server_patch(self, task_id):
-        utilities.log_info("get server patch, task_id: %s" % task_id)
+        utilities.log_debug("get server patch, task_id: %s" % task_id)
         params = {"task_id": task_id, "ticket": self.tars_token}
         response = requests.get(self.get_server_patch_url, params=params)
         if TarsService.parse_response("get server patch", response) is False:
@@ -290,8 +301,8 @@ class TarsService:
         upload the tars package
         """
         package_name = service_name + ServiceInfo.tars_pkg_postfix
-        utilities.log_info("upload tars package for service %s, package_path: %s, package_name: %s" %
-                           (service_name, package_path, package_name))
+        utilities.log_debug("upload tars package for service %s, package_path: %s, package_name: %s" %
+                            (service_name, package_path, package_name))
         if os.path.exists(package_path) is False:
             utilities.log_error("upload tars package for service %s failed for the path %s not exists" % (
                 service_name, package_path))
@@ -431,7 +442,7 @@ class TarsService:
         return self.expand_server(server_name, node_name, expanded_node_list, obj_list)
 
     def patch_tars(self, server_id, patch_id):
-        utilities.log_info("patch tars for application %s, server_id: %s, patch_id: %s" % (
+        utilities.log_debug("patch tars for application %s, server_id: %s, patch_id: %s" % (
             self.app_name, server_id, patch_id))
         items = [{"server_id": server_id, "command": "patch_tars", "parameters": {
             "patch_id": patch_id, "bak_flag": 'false', "update_text": "", "group_name": ""}}]
@@ -442,18 +453,19 @@ class TarsService:
             utilities.log_error("patch tars failed for error response, server id: %s, msg: %s" % (
                 server_id, response.content))
             return False
-        utilities.log_info("patch tars response %s" % response.content)
+        utilities.log_debug("patch tars response %s" % response.content)
         return True
 
     def add_task(self, service_name, command):
         """
         current supported commands are: stop, restart, undeploy_tars, patch_tars
         """
-        utilities.log_info("add_task for service %s, command is %s" %
-                           (service_name, command))
+        utilities.log_debug("add_task for service %s, command is %s" %
+                            (service_name, command))
         (ret, server_id) = self.get_server_id(service_name, self.deploy_ip)
         if ret is False:
-            utilities.log_error("%s failed for get_server_id failed" % command)
+            utilities.log_error("%s failed for get server id failed, please check the existence of %s" % (
+                command, service_name))
             return False
         items = [{"server_id": server_id, "command": command, "parameters": {}}]
         request_data = {"serial": 'true', "items": items}

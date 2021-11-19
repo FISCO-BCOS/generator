@@ -1,7 +1,7 @@
 [tars]
 tars_url = "http://127.0.0.1:3000"
 tars_token = ""
-tars_pkg_dir = "/Users/chenyujie/open-source/cyjseagull/FB3.0/bcos-tars-services/build"
+tars_pkg_dir = "binary/"
 
 [chain]
 chain_id="chain0"
@@ -11,7 +11,7 @@ gateway_sm_ssl=false
 
 [[chain.rpc]]
 name="agencyARpcService"
-deploy_ip=["192.168.192.168"]
+deploy_ip=["172.25.0.3"]
 listen_ip="0.0.0.0"
 listen_port=20200
 thread_count=4
@@ -19,7 +19,7 @@ gateway_service_name = "agencyAGatewayService"
 
 [[chain.rpc]]
 name="agencyBRpcService"
-deploy_ip=["192.168.192.168"]
+deploy_ip=["172.25.0.3"]
 listen_ip="0.0.0.0"
 listen_port=20201
 thread_count=4
@@ -27,18 +27,18 @@ gateway_service_name = "agencyBGatewayService"
 
 [[chain.gateway]]
 name="agencyAGatewayService"
-deploy_ip=["192.168.192.168"]
+deploy_ip=["172.25.0.3"]
 listen_ip="0.0.0.0"
 listen_port=30300
-peers=["127.0.0.1:30300", "127.0.0.1:30301"]
+peers=["172.25.0.3:30300", "172.25.0.3:30301"]
 rpc_service_name = "agencyARpcService"
 
 [[chain.gateway]]
 name="agencyBGatewayService"
-deploy_ip=["192.168.192.168"]
+deploy_ip=["172.25.0.3"]
 listen_ip="0.0.0.0"
 listen_port=30301
-peers=["127.0.0.1:30300", "127.0.0.1:30301"]
+peers=["172.25.0.3:30300", "172.25.0.3:30301"]
 rpc_service_name = "agencyBRpcService"
 
 
@@ -57,8 +57,7 @@ gas_limit = "300000000"
 [[group.deploy_info]]
 # node_name = node0
 microservice_node=false
-deploy_ip = "192.168.192.168"
-service_list='{"TxPoolService": "192.168.192.168", "FrontService": "192.168.192.168", "SchedulerService": "192.168.192.168", "PBFTService": "192.168.192.168"}'
+deploy_ip = "172.25.0.3"
 node_count=1
 rpc_service_name = "agencyARpcService"
 gateway_service_name = "agencyAGatewayService"
@@ -66,8 +65,7 @@ gateway_service_name = "agencyAGatewayService"
 [[group.deploy_info]]
 # node_name = node0
 microservice_node=false
-deploy_ip = "192.168.192.168"
-service_list='{"TxPoolService": "192.168.192.168", "FrontService": "192.168.192.168", "SchedulerService": "192.168.192.168", "PBFTService": "192.168.192.168"}'
+deploy_ip = "172.25.0.3"
 node_count=1
 rpc_service_name = "agencyBRpcService"
 gateway_service_name = "agencyBGatewayService"
