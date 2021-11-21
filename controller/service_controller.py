@@ -126,8 +126,7 @@ class ServiceController:
         # create application
         tars_service.create_application()
         # create the service
-        org_service_name = self.get_org_service_name()
-        obj_name = org_service_name + "Obj"
+        obj_name = self.get_service_obj()
         obj_list = [obj_name]
         # deploy service
         ret = tars_service.deploy_single_service(
@@ -139,6 +138,7 @@ class ServiceController:
             config_generator.config_file_list, service_config.name, deploy_ip, config_generator.config_path_list, True)
         if ret is False:
             return False
+        org_service_name = self.get_org_service_name()
         return self.upgrade_service_by_config_info(tars_service, service_config, org_service_name, config_generator)
 
     def expand_service_to_given_ip(self, service_config, node_name, expand_node_ip):
@@ -147,8 +147,7 @@ class ServiceController:
         tars_service = TarsService(self.config.tars_config.tars_url,
                                    self.config.tars_config.tars_token, self.config.chain_id, expand_node_ip)
         # expand the service
-        org_service_name = self.get_org_service_name()
-        obj_name = org_service_name + "Obj"
+        obj_name = self.get_service_obj()
         obj_list = [obj_name]
         expand_node_list = [expand_node_ip]
         ret = tars_service.expand_server_with_preview(
@@ -170,6 +169,12 @@ class ServiceController:
         if self.service_type == ServiceInfo.rpc_service_type:
             org_service_name = ServiceInfo.rpc_service
         return org_service_name
+
+    def get_service_obj(self):
+        org_service_obj = ServiceInfo.gateway_service_obj
+        if self.service_type == ServiceInfo.rpc_service_type:
+            org_service_obj = ServiceInfo.rpc_service_obj
+        return org_service_obj
 
     def upgrade_service_to_given_ip(self, service_config, deploy_ip):
         config_generator = ServiceConfigGenerator(
