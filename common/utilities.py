@@ -17,16 +17,18 @@ class ServiceInfo:
     sm_ssl_file_list = ["sm_ca.crt", "sm_ssl.key",
                         "sm_ssl.crt", "sm_enssl.key", "sm_enssl.crt"]
 
-    rpc_service = "RpcService"
-    gateway_service = "GatewayService"
+    rpc_service = "BcosRpcService"
+    rpc_service_obj = "RpcServiceObj"
+    gateway_service = "BcosGatewayService"
+    gateway_service_obj = "GatewayServiceObj"
 
-    single_node_service = "NativeNode"
+    single_node_service = "BcosNodeService"
     single_node_obj_name_list = [
         "LedgerServiceObj", "SchedulerServiceObj", "TxPoolServiceObj", "PBFTServiceObj", "FrontServiceObj"]
-    micro_node_service = ["TxPoolService",
-                          "FrontService", "SchedulerService", "PBFTService", "ExecutorService"]
-    micro_node_service_config_keys = {"txpool": "TxPoolService", "front": "FrontService",
-                                      "scheduler": "SchedulerService", "consensus": "PBFTService", "executor": "ExecutorService"}
+    micro_node_service = ["BcosTxPoolService",
+                          "BcosFrontService", "BcosSchedulerService", "BcosPBFTService", "BcosExecutorService"]
+    micro_node_service_config_keys = {"txpool": "BcosTxPoolService", "front": "BcosFrontService",
+                                      "scheduler": "BcosSchedulerService", "consensus": "BcosPBFTService", "executor": "BcosExecutorService"}
 
     supported_vm_types = ["evm", "wasm"]
     supported_consensus_list = ["pbft"]
