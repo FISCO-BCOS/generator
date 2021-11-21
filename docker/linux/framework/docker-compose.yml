@@ -1,13 +1,8 @@
 version: "3"
 networks:
   tars_net:
-    name: tars-network
-    driver: bridge
-    ipam:
-      driver: default
-      config:
-        - subnet: 172.25.0.0/16
-          gateway: 172.25.0.1
+    external:
+      name: tars-network
 
 services:     
   tars-mysql:
