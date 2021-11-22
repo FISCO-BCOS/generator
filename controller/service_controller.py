@@ -162,6 +162,7 @@ class ServiceController:
         if ret is False:
             return False
         # patch the service
+        org_service_name = self.get_org_service_name()
         return self.upgrade_service_by_config_info(tars_service, service_config, org_service_name, config_generator)
 
     def get_org_service_name(self):
