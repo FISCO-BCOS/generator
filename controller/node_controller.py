@@ -20,28 +20,25 @@ class NodeController:
 
     def generate_all_config(self):
         nodeid_list = self.node_config_generator.generate_all_nodes_pem()
-        ret = True
         for node_config in self.config.group_config.node_list:
-            ret = self.node_config_generator.generate_node_all_config(
-                node_config, nodeid_list)
-            if ret is False:
-                return ret
-        return ret
+            if self.node_config_generator.generate_node_all_config(
+                    node_config, nodeid_list) is False:
+                return False
+        return True
 
     def generate_and_deploy_group_services(self):
         utilities.log_info("generate config for chain = %s, group = %s" % (
             self.config.group_config.chain_id, self.config.group_config.group_id))
-        ret = self.generate_all_config()
-        if ret is False:
-            return ret
-        ret = self.deploy_group_services()
-        return ret
+        if self.generate_all_config() is False:
+            return False
+        if self.deploy_group_services() is False:
+            return False
+        return True
 
     def deploy_group_services(self):
         utilities.log_info("deploy services for all the group nodes")
         for node_config in self.config.group_config.node_list:
-            ret = self.deploy_node_services(node_config)
-            if ret is False:
+            if self.deploy_node_services(node_config) is False:
                 return False
         return True
 
@@ -70,34 +67,34 @@ class NodeController:
         return self.undeploy_all(service_list)
 
     def start_all(self, service_list):
-        ret = True
         tars_service_obj = TarsService(self.config.tars_config.tars_url,
                                        self.config.tars_config.tars_token, self.config.chain_id, "")
         for service in service_list:
-            ret = tars_service_obj.restart_server(service)
-            if ret is False:
-                return ret
-        return ret
+            if tars_service_obj.restart_server(service) is False:
+                utilities.log_error("start node %s failed" % service)
+                return False
+            else:
+                utilities.log_info("start node %s success" % service)
+        return True
 
     def stop_all(self, service_list):
         ret = True
         tars_service_obj = TarsService(self.config.tars_config.tars_url,
                                        self.config.tars_config.tars_token, self.config.chain_id, "")
         for service in service_list:
-            ret = tars_service_obj.stop_server(service)
-            if ret is False:
-                return ret
+            if tars_service_obj.stop_server(service) is False:
+                utilities.log_error("stop node %s failed" % service)
+                ret = False
+            else:
+                utilities.log_info("stop node %s success" % service)
         return ret
 
     def undeploy_all(self, service_list):
         ret = True
         utilities.log_info("undeploy services for all the group nodes")
         for node_config in self.config.group_config.node_list:
-            utilities.log_info("undeploy service for node %s" %
-                               node_config.node_name)
-            ret = self.undeploy_service(node_config)
-            if ret is False:
-                return ret
+            if self.undeploy_service(node_config) is False:
+                ret = False
         return ret
 
     def undeploy_service(self, node_config):
@@ -132,18 +129,16 @@ class NodeController:
         return True
 
     def upgrade_node_service(self, node_config):
-        ret = True
         service_list = node_config.nodes_service_name_list
         for key in service_list.keys():
             service_mapping = service_list[key]
             for service_name in service_mapping.keys():
                 utilities.log_info("upgrade service %s" % service_name)
                 org_service_name = service_mapping[service_name]
-                ret = self.upgrade_service(
-                    node_config, service_name, org_service_name)
-                if ret is False:
-                    return ret
-        return ret
+                if self.upgrade_service(
+                        node_config, service_name, org_service_name) is False:
+                    return False
+        return True
 
     def upgrade_service(self, node_config, service_name, org_service_name):
         deploy_ip = node_config.service_list[org_service_name]
@@ -157,27 +152,24 @@ class NodeController:
         (ret, server_id) = tars_service_obj.get_server_id(service_name, deploy_ip)
         if ret is False:
             return False
-        ret = tars_service_obj.patch_tars(server_id, patch_id)
-        if ret is False:
+        if tars_service_obj.patch_tars(server_id, patch_id) is False:
             return False
         return True
 
     def deploy_node_services(self, node_config):
-        ret = True
         service_list = node_config.nodes_service_name_list
         for key in service_list.keys():
             service_mapping = service_list[key]
             for service_name in service_mapping.keys():
                 utilities.log_info("deploy service %s" % service_name)
                 org_service_name = service_mapping[service_name]
-                ret = self.deploy_service(
-                    node_config, service_name, org_service_name)
-                if ret is False:
+                if self.deploy_service(
+                        node_config, service_name, org_service_name) is False:
                     utilities.log_error(
                         "deploy service %s failed" % service_name)
-                    return ret
+                    return False
                 time.sleep(5)
-        return ret
+        return True
 
     def deploy_service(self, node_config, service_name, org_service_name):
         deploy_ip = node_config.service_list[org_service_name]

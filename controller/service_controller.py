@@ -21,60 +21,62 @@ class ServiceController:
             self.service_dict = self.config.gateway_config
 
     def deploy_all(self):
-        ret = True
         for service in self.service_dict.values():
-            ret = self.deploy_service(service)
-            if ret is False:
+            if self.deploy_service(service) is False:
                 utilities.log_error("deploy service %s failed" % service.name)
-                return ret
-        return ret
+                return False
+        return True
 
     def stop_all(self):
         ret = True
         for service in self.service_dict.values():
-            ret = self.stop_service(service)
-            if ret is False:
+            if self.stop_service(service) is False:
+                ret = False
                 utilities.log_error("stop service %s failed" % service.name)
-                return ret
+            else:
+                utilities.log_info("stop service %s success" % service.name)
         return ret
 
     def start_all(self):
-        ret = True
         for service in self.service_dict.values():
-            ret = self.start_service(service)
-            if ret is False:
+            if self.start_service(service) is False:
                 utilities.log_error("start service %s failed" % service.name)
-                return ret
-        return ret
+                return False
+            else:
+                utilities.log_info("start service %s success" % service.name)
+        return True
 
     def undeploy_all(self):
         ret = True
         for service in self.service_dict.values():
-            ret = self.undeploy_service(service)
-            if ret is False:
+            if self.undeploy_service(service) is False:
+                ret = False
                 utilities.log_error(
                     "undeploy service %s failed" % service.name)
-                return ret
+            else:
+                utilities.log_info(
+                    "undeploy service %s success" % service.name)
         return ret
 
     def upgrade_all(self):
-        ret = True
         for service in self.service_dict.values():
-            ret = self.upgrade_service(service)
-            if ret is False:
+            if self.upgrade_service(service) is False:
                 utilities.log_error("upgrade service %s failed" % service.name)
-                return ret
-        return ret
+                return False
+            else:
+                utilities.log_info("upgrade service %s success" % service.name)
+        return True
 
     def gen_all_service_config(self):
-        ret = True
         for service in self.service_dict.values():
-            ret = self.gen_service_config(service)
-            if ret is False:
+            if self.gen_service_config(service) is False:
                 utilities.log_error(
                     "gen configuration for service %s failed" % service.name)
-                return ret
-        return ret
+                return False
+            else:
+                utilities.log_info(
+                    "gen configuration for service %s success" % service.name)
+        return True
 
     def gen_service_config(self, service_config):
         for ip in service_config.deploy_ip:
@@ -112,7 +114,8 @@ class ServiceController:
 
     def upgrade_service(self, service_config):
         for ip in service_config.deploy_ip:
-            utilities.log_info("upgrade_service to %s" % ip)
+            utilities.log_info("upgrade_service %s to %s" %
+                               (service_config.name, ip))
             ret = self.upgrade_service_to_given_ip(service_config, ip)
             if ret is False:
                 return False

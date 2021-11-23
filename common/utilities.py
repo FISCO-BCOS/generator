@@ -10,6 +10,7 @@ logging.basicConfig(format='%(message)s',
 
 
 class ServiceInfo:
+    node_service_type = "node"
     rpc_service_type = "rpc"
     gateway_service_type = "gateway"
 
@@ -35,6 +36,8 @@ class ServiceInfo:
     tars_pkg_postfix = ".tgz"
     default_listen_ip = "0.0.0.0"
     cert_generationscript_path = "scripts/generate_cert.sh"
+    supported_service_type = [node_service_type,
+                              rpc_service_type, gateway_service_type]
 
 
 class ConfigInfo:
@@ -51,11 +54,18 @@ class ConfigInfo:
 
 
 class CommandInfo:
-    node_command = ["gen_node_config", "start_all",
-                    "stop_all", "deploy_nodes", "upgrade_nodes", "upload_nodes", "undeploy_nodes"]
-    service_command = ["gen_service_config", "start_service", "stop_service",
-                       "upload_service", "deploy_service", "delete_service", "upgrade_service"]
-    total_command = node_command + service_command
+    gen_config = "gen_config"
+    upload = "upload"
+    deploy = "deploy"
+    upgrade = "upgrade"
+    undeploy = "undeploy"
+    start = "start"
+    stop = "stop"
+    command_list = [gen_config, upload, deploy, upgrade, undeploy, start, stop]
+    node_command_to_impl = {gen_config: "gen_node_config", upload: "upload_nodes", deploy: "deploy_nodes",
+                            upgrade: "upgrade_nodes", undeploy: "undeploy_nodes", start: "start_all", stop: "stop_all"}
+    service_command_impl = {gen_config: "gen_service_config", upload: "upload_service", deploy: "deploy_service",
+                            upgrade: "upgrade_service", undeploy: "delete_service", start: "start_service", stop: "stop_service"}
 
 
 def log_error(error_msg):
