@@ -17,7 +17,7 @@ services:
     restart: always
 
   tars-framework:
-    image: tarscloud/framework:latest
+    image: tarscloud/framework:v3.0.1
     networks:
       tars_net:
         ipv4_address: 172.25.0.3
