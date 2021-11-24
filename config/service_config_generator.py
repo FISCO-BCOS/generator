@@ -152,10 +152,11 @@ class ServiceConfigGenerator:
         utilities.log_info("* generate cert, output path: %s" % (output_dir))
         utilities.generate_node_cert(
             self.sm_ssl, self.config.ca_cert_path, output_dir)
-        utilities.log_info(
-            "* generate sdk cert, output path: %s" % (output_dir))
-        utilities.generate_sdk_cert(
-            self.sm_ssl, self.config.ca_cert_path, output_dir)
+        if self.service_type == ServiceInfo.rpc_service_type:
+            utilities.log_info(
+                "* generate sdk cert, output path: %s" % (output_dir))
+            utilities.generate_sdk_cert(
+                self.sm_ssl, self.config.ca_cert_path, output_dir)
         return True
 
     def get_cert_config_info(self):

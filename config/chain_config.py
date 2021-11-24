@@ -132,8 +132,6 @@ class GenesisConfig:
             self.config, section, "leader_period", 1, False)
         self.block_tx_count_limit = utilities.get_value(
             self.config, section, "block_tx_count_limit", 1000, False)
-        self.consensus_timeout = utilities.get_value(
-            self.config, section, "consensus_timeout", 3000, False)
         self.consensus_type = utilities.get_value(
             self.config, section, "consensus_type", "pbft", False)
         self.gas_limit = utilities.get_value(

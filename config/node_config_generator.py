@@ -51,8 +51,6 @@ class NodeConfigGenerator:
         config_content[consensus_section]["consensus_type"] = self.config.group_config.genesis_config.consensus_type
         config_content[consensus_section]["block_tx_count_limit"] = str(
             self.config.group_config.genesis_config.block_tx_count_limit)
-        config_content[consensus_section]["consensus_timeout"] = str(
-            self.config.group_config.genesis_config.consensus_timeout)
         config_content[consensus_section]["leader_period"] = str(
             self.config.group_config.genesis_config.leader_period)
         i = 0
