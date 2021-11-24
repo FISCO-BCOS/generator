@@ -363,28 +363,6 @@ gen_sm_node_cert() {
     cp "$capath/sm_ca.crt" "$ndpath"
 }
 
-help() {
-    echo $1
-    cat <<EOF
-Usage:
-    -l <IP list>                        [Required] "ip1:nodeNum1,ip2:nodeNum2" e.g:"192.168.0.1:2,192.168.0.2:3"
-    -o <output dir>                     [Optional] output directory, default ./nodes
-    -p <start Port>                     [Optional] Default 30300,20200 means p2p port start from 30300, rpc port start from 20200
-    -s <SM model>                       [Optional] SM SSL connection or not, default no
-    -r <leader_period>                  [Optional] leader_period, default 1
-    -b <block_tx_count_limit>           [Optional] block_tx_count_limit, default 1000
-    -c <consensus_timeout>              [Optional] consensus_timeout, default 3000
-    -g <gas_limit>                      [Optional] gas_limit default 300000000
-    -n <consensus_type>                 [Optional] consensus_type default pbft
-    -h Help
-e.g
-    bash $0 -p 30300,20200 -l 127.0.0.1:4 -o nodes -e ./mini-consensus
-    bash $0 -p 30300,20200 -l 127.0.0.1:4 -o nodes -e ./mini-consensus -s
-EOF
-
-    exit 0
-}
-
 generate_single_node_cert() {
     local sm_mode="$1"
     local ca_cert_path="${2}"

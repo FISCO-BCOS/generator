@@ -43,28 +43,25 @@ rpc_service_name = "agencyBBcosRpcService"
 
 
 [group]
-group_id="group0"
+group_id="group"
 vm_type="evm"
 sm_crypto=false
 
 # the genesis config
 leader_period = 5
 block_tx_count_limit = 1000
-consensus_timeout = 3000
 consensus_type = "pbft"
 gas_limit = "300000000"
 
 [[group.deploy_info]]
 # node_name = node0
-microservice_node=false
 deploy_ip = "172.25.0.3"
 node_count=1
 rpc_service_name = "agencyABcosRpcService"
 gateway_service_name = "agencyABcosGatewayService"
 
 [[group.deploy_info]]
-# node_name = node0
-microservice_node=false
+# node_name = node1
 deploy_ip = "172.25.0.3"
 node_count=1
 rpc_service_name = "agencyBBcosRpcService"
