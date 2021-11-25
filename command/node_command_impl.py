@@ -9,84 +9,57 @@ class NodeCommandImpl:
         self.node_controller = NodeController(config)
 
     def gen_node_config(self):
-        utilities.print_split_info()
-        utilities.print_badage("generate config for all nodes")
-        ret = self.node_controller.generate_all_config()
-        if ret is True:
-            utilities.print_badage("generate config for all nodes success")
-        else:
-            utilities.log_error("generate config for all nodes failed")
-        utilities.print_split_info()
-        return ret
+        function = "generate_all_config"
+        notice_info = "generate config for all nodes"
+        return self.execute_command(function, notice_info)
 
     def start_all(self):
-        utilities.print_split_info()
-        utilities.print_badage("start all nodes of the given group")
-        ret = self.node_controller.start_group()
-        if ret is True:
-            utilities.print_badage(
-                "start all nodes of the given group success")
-        else:
-            utilities.log_error("start all nodes of the given group failed")
-        utilities.print_split_info()
-        return ret
+        function = "start_group"
+        notice_info = "start all nodes of the given group"
+        return self.execute_command(function, notice_info)
 
     def stop_all(self):
-        utilities.print_split_info()
-        utilities.print_badage("stop all nodes of the given group")
-        ret = self.node_controller.stop_group()
-        if ret is True:
-            utilities.print_badage("stop all nodes of the given group success")
-        else:
-            utilities.log_error("stop all nodes of the given group failed")
-        utilities.print_split_info()
-        return ret
+        function = "stop_group"
+        notice_info = "stop all nodes of the given group"
+        return self.execute_command(function, notice_info)
 
     def upgrade_nodes(self):
-        utilities.print_split_info()
-        utilities.print_badage("upgrade all nodes of the given group")
-        ret = self.node_controller.upgrade_group()
-        if ret is True:
-            utilities.print_badage(
-                "upgrade all nodes of the given group success")
-        else:
-            utilities.log_error("upgrade all nodes of the given group failed")
-        utilities.print_split_info()
-        return ret
+        function = "upgrade_group"
+        notice_info = "upgrade all nodes of the given group"
+        return self.execute_command(function, notice_info)
 
     def deploy_nodes(self):
-        utilities.print_split_info()
-        utilities.print_badage("deploy all nodes of the given group")
-        ret = self.node_controller.generate_and_deploy_group_services()
-        if ret is True:
-            utilities.print_badage(
-                "deploy all nodes of the given group success")
-        else:
-            utilities.log_error("deploy all nodes of the given group failed")
-        utilities.print_split_info()
-        return ret
+        function = "generate_and_deploy_group_services"
+        notice_info = "deploy all nodes of the given group"
+        return self.execute_command(function, notice_info)
 
     def upload_nodes(self):
-        utilities.print_split_info()
-        utilities.print_badage("upload all nodes config of the given group")
-        ret = self.node_controller.deploy_group_services()
-        if ret is True:
-            utilities.print_badage(
-                "upload all nodes config of the given group success")
-        else:
-            utilities.log_error(
-                "upload all nodes config of the given group failed")
-        utilities.print_split_info()
-        return ret
+        function = "deploy_group_services"
+        notice_info = "upload all nodes config of the given group"
+        return self.execute_command(function, notice_info)
 
     def undeploy_nodes(self):
+        function = "undeploy_group"
+        notice_info = "undeploy all nodes of the given group"
+        return self.execute_command(function, notice_info)
+
+    def generate_expand_config(self):
+        function = "generate_all_expand_config"
+        notice_info = "generate expand config for the given group"
+        return self.execute_command(function, notice_info)
+
+    def expand_nodes(self):
+        function = "expand_and_deploy_all_nodes"
+        notice_info = "expand nodes for the given group"
+        return self.execute_command(function, notice_info)
+
+    def execute_command(self, function, notice_info):
         utilities.print_split_info()
-        utilities.print_badage("undeploy all nodes of the given group")
-        ret = self.node_controller.undeploy_group()
+        utilities.print_badage(notice_info)
+        ret = getattr(self.node_controller, function)()
         if ret is True:
-            utilities.print_badage(
-                "undeploy all nodes of the given group success")
+            utilities.print_badage("%s success" % notice_info)
         else:
-            utilities.log_error("undeploy all nodes of the given group failed")
+            utilities.log_error("%s failed" % notice_info)
         utilities.print_split_info()
         return ret

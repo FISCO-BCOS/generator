@@ -104,11 +104,23 @@ class ServiceController:
                 return False
         return True
 
-    def expand_service_list(self, service_config, deploy_ip):
+    def expand_all(self):
+        for service in self.service_dict.values():
+            if service.expanded_ip is None or len(service.expanded_ip) == 0:
+                utilities.log_error("Must set expanded_ip when expand service, service name: %s, deploy ip: %s, type: %s" % (
+                    service, service.deploy_ip, self.service_type))
+                return False
+            if self.expand_service_list(service) is False:
+                utilities.log_error("expand service %s to %s failed, type: %s!" % (
+                    service, service.deploy_ip, self.service_type))
+                return False
+        return True
+
+    def expand_service_list(self, service_config):
         for ip in service_config.deploy_ip:
             utilities.log_info("expand to %s, app: %s, name: %s" % (
                 ip, self.config.chain_id, service_config.name))
-            if self.expand_service_to_given_ip(service_config, deploy_ip, ip) is False:
+            if self.expand_service_to_given_ip(service_config, service_config.expanded_ip, ip) is False:
                 return False
         return True
 

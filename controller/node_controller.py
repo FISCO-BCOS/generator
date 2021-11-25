@@ -21,6 +21,14 @@ class NodeController:
     def generate_all_config(self):
         nodeid_list = self.node_config_generator.generate_all_nodes_pem()
         for node_config in self.config.group_config.node_list:
+            if node_config.rpc_service_name is None or len(node_config.rpc_service_name) == 0:
+                utilities.log_error(
+                    "Must set rpc_service_name when generate or deploy node")
+                return False
+            if node_config.gateway_service_name is None or len(node_config.gateway_service_name) == 0:
+                utilities.log_error(
+                    "Must set gateway_service_name when generate or deploy node")
+                return False
             if self.node_config_generator.generate_node_all_config(
                     node_config, nodeid_list) is False:
                 return False
@@ -215,3 +223,29 @@ class NodeController:
                 "upload package for service %s failed" % service_name)
             return (False, -1)
         return tars_service.upload_tars_package(service_name, package_path)
+
+    def generate_all_expand_config(self):
+        # generate pem files
+        ret = self.node_config_generator.generate_all_nodes_pem()
+        if len(ret) == 0:
+            utilities.log_error("generate the expand config failed")
+            return False
+        for node_config in self.config.group_config.node_list:
+            if self.generate_expand_node_config(node_config) is False:
+                return False
+        return True
+
+    def generate_expand_node_config(self, node_config):
+        if node_config.expanded_service is None or len(node_config.expanded_service) == 0:
+            utilities.log_error(
+                "must set the expanded_service when expand nodes, e.g. groupnode00BcosNodeService")
+            return False
+        return self.node_config_generator.generate_expand_node_config(node_config)
+
+    def expand_and_deploy_all_nodes(self):
+        if self.generate_all_expand_config() is False:
+            return False
+        for node_config in self.config.group_config.node_list:
+            if self.deploy_node_services(node_config) is False:
+                return False
+        return True

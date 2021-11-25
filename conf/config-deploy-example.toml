@@ -4,10 +4,11 @@ tars_token = ""
 tars_pkg_dir = "binary/"
 
 [chain]
-chain_id="chain0"
-#ca_cert_path = ""
+chain_id="chain"
 rpc_sm_ssl=false
 gateway_sm_ssl=false
+#rpc_ca_cert_path=""
+#gateway_ca_cert_path="
 
 [[chain.rpc]]
 name="agencyABcosRpcService"

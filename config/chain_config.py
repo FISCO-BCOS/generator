@@ -35,6 +35,8 @@ class ServiceInfoConfig:
             self.config, "listen_port", 20200, False)
         self.thread_count = utilities.get_item_value(
             self.config, "thread_count", 4, False)
+        self.expanded_ip = utilities.get_item_value(
+            self.config, "expanded_ip", "", False)
 
 
 class RpcServiceInfo(ServiceInfoConfig):
@@ -68,14 +70,16 @@ class NodeConfig:
         self.deploy_ip = utilities.get_item_value(
             self.config, "deploy_ip", None, True)
         self.rpc_service_name = utilities.get_item_value(
-            self.config, "rpc_service_name", None, True)
+            self.config, "rpc_service_name", None, False)
         self.gateway_service_name = utilities.get_item_value(
-            self.config, "gateway_service_name", None, True)
+            self.config, "gateway_service_name", None, False)
         self.microservice_node = utilities.get_item_value(
             self.config, "microservice_node", False, False)
         self.obj_name_list = []
         self.node_name = utilities.get_item_value(
             self.config, "node_name", "node" + str(index), False)
+        self.expanded_service = utilities.get_item_value(
+            self.config, "expanded_service", "", False)
         self.service_list = {}
         if self.microservice_node is False:
             self.service_list[ServiceInfo.single_node_service] = self.deploy_ip
@@ -168,8 +172,10 @@ class ChainConfig:
         self.config = config
         self.chain_id = utilities.get_value(
             self.config, "chain", "chain_id", "chain0", False)
-        self.ca_cert_path = utilities.get_value(
-            self.config, "chain", "ca_cert_path", "", False)
+        self.rpc_ca_cert_path = utilities.get_value(
+            self.config, "chain", "rpc_ca_cert_path", "", False)
+        self.gateway_ca_cert_path = utilities.get_value(
+            self.config, "chain", "gateway_ca_cert_path", "", False)
         self.tars_config = TarsConfig(config)
         self.rpc_config = self.parse_service_config(
             "rpc", self.chain_id, "RpcServiceInfo")

@@ -105,3 +105,24 @@ class ServiceCommandImpl:
                 "stop service failed, type: %s" % self.service_type)
         utilities.print_split_info()
         return ret
+
+    def expand_service(self):
+        utilities.print_split_info()
+        utilities.print_badage("expand service, type: %s" % self.service_type)
+        # generate config
+        ret = self.gen_service_config()
+        if ret is False:
+            utilities.log_error(
+                "expand service failed for generate config failed, type: %s" % self.service_type)
+            return False
+        # expand service
+        utilities.print_badage("begin expand service")
+        ret = self.service_controller.expand_all()
+        if ret is True:
+            utilities.print_badage(
+                "expand service success, type: %s" % self.service_type)
+        else:
+            utilities.log_error(
+                "expand service failed, type: %s" % self.service_type)
+        utilities.print_split_info()
+        return ret

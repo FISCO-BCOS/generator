@@ -6,7 +6,6 @@ output_dir="cert"
 cdn_link_header="https://osp-1257653870.cos.ap-guangzhou.myqcloud.com/FISCO-BCOS"
 
 # for cert generation
-ca_cert_dir="${dirpath}"
 sm_cert_conf='sm_cert.cnf'
 days=36500
 rsa_key_length=2048
@@ -17,6 +16,7 @@ sm2_params="sm_sm2.param"
 OPENSSL_CMD="${HOME}/.fisco/tassl"
 file_dir="./"
 command=""
+ca_cert_path=""
 
 LOG_WARN() {
     local content=${1}
@@ -472,7 +472,6 @@ parse_params() {
             ca_cert_path="$OPTARG"
             dir_must_exists "${ca_cert_path}"
             ;;
-        
         o)
             output_dir="$OPTARG"
             mkdir -p "$output_dir"
@@ -487,24 +486,22 @@ parse_params() {
 
 generate_all_cert(){
     LOG_INFO "generate all cert"
-    ca_dir="${output_dir}/ca"
     cert_dir="${output_dir}/ssl"
     sdk_dir="${output_dir}/sdk"
-    mkdir -p "$ca_dir"
+    mkdir -p "$ca_cert_path"
     mkdir -p "$cert_dir"
     mkdir -p "$sdk_dir"
-    generate_chain_cert "${sm_mode}" "${ca_dir}"
-    generate_single_node_cert "${sm_mode}" "${ca_dir}" "${cert_dir}" "ssl"
-    generate_single_node_cert "${sm_mode}" "${ca_dir}" "${sdk_dir}" "sdk"
+    generate_chain_cert "${sm_mode}" "${ca_cert_path}"
+    generate_single_node_cert "${sm_mode}" "${ca_cert_path}" "${cert_dir}" "ssl"
+    generate_single_node_cert "${sm_mode}" "${ca_cert_path}" "${sdk_dir}" "sdk"
     LOG_INFO "generate all cert success"
 }
 
 generate_ca_cert()
 {
     LOG_INFO "generate ca cert"
-    ca_dir="${output_dir}/ca"
-    mkdir -p "$ca_dir"
-    generate_chain_cert "${sm_mode}" "${ca_dir}"
+    mkdir -p "$ca_cert_path"
+    generate_chain_cert "${sm_mode}" "${ca_cert_path}"
     LOG_INFO "generate ca cert success"
 }
 
@@ -543,6 +540,9 @@ main() {
     check_env
     check_and_install_tassl
     cert_conf="${output_dir}/cert.cnf"
+    if [ -z "${ca_cert_path}" ];then
+        ca_cert_path="${output_dir}/ca"
+    fi
     if [[ "${command}" == "generate_all_cert" ]]; then
         generate_all_cert
     elif [[ "${command}" == "generate_ca_cert" ]]; then

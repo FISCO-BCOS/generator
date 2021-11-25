@@ -32,6 +32,7 @@ class TarsService:
         self.get_server_patch_url = self.tars_url + "api/get_server_patch"
         self.expand_server_preview_url = self.tars_url + "api/expand_server_preview"
         self.expand_server_url = self.tars_url + "api/expand_server"
+        self.fetch_config_url = self.tars_url + "api/config_file"
         self.app_name = app_name
         self.token_param = {'ticket': self.tars_token}
 
@@ -109,6 +110,26 @@ class TarsService:
         if TarsService.parse_response("deploy service " + service_name, response) is False:
             return False
         return True
+
+    def fetch_server_config_file(self, config_file_name, server_name):
+        (ret, config_id) = self.get_server_config_file_id(
+            config_file_name, server_name)
+        if ret is False:
+            utilities.log_error("fetch server config file failed, please check the existence of specified service, service: %s, config: %s" %
+                                server_name, config_file_name)
+            return (False, "")
+        param = {"ticket": self.tars_token, "id": config_id}
+        response = requests.get(self.fetch_config_url, params=param)
+        if TarsService.parse_response("fetch service config " + server_name, response) is False:
+            return (False, "")
+        utilities.log_debug(
+            "fetch service config file success, response: %s" % response.content)
+        result = response.json()
+        if "data" not in result or "config" not in result["data"]:
+            utilities.log_error(
+                "fetch service config file failed, response %s" % response.content)
+            return (False, "")
+        return (True, result["data"]["config"])
 
     def deploy_service_list(self, service_list, obj_list, allow_duplicated):
         "deploy service list"

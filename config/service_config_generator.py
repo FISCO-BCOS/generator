@@ -19,8 +19,6 @@ class ServiceConfigGenerator:
         self.service_config = service_config
         self.deploy_ip = deploy_ip
         self.init(service_type)
-        if len(self.config.ca_cert_path) == 0:
-            self.config.ca_cert_path = self.get_ca_cert_dir()
 
     def init(self, service_type):
         self.config_file_list = []
@@ -30,15 +28,20 @@ class ServiceConfigGenerator:
             self.section = "rpc"
             self.tpl_config_path = ConfigInfo.rpc_config_tpl_path
             self.sm_ssl = self.config.rpc_sm_ssl
+            if len(self.config.rpc_ca_cert_path) == 0:
+                self.config.rpc_ca_cert_path = self.get_ca_cert_dir()
+            self.ca_cert_path = self.config.rpc_ca_cert_path
         if service_type == ServiceInfo.gateway_service_type:
             self.root_dir = "generated/gateway"
             self.section = "p2p"
             self.tpl_config_path = ConfigInfo.gateway_config_tpl_path
-
             (connect_file, connect_file_path) = self.get_network_connection_config_info()
             self.sm_ssl = self.config.gateway_sm_ssl
             self.config_file_list.append(connect_file)
             self.config_path_list.append(connect_file_path)
+            if len(self.config.gateway_ca_cert_path) == 0:
+                self.config.gateway_ca_cert_path = self.get_ca_cert_dir()
+            self.ca_cert_path = self.config.gateway_ca_cert_path
         (file_list, path_list) = self.get_cert_config_info()
         self.config_file_list.extend(file_list)
         self.config_path_list.extend(path_list)
@@ -87,7 +90,7 @@ class ServiceConfigGenerator:
         return os.path.join(self.root_dir, self.config.chain_id, self.deploy_ip, self.service_config.name)
 
     def get_ca_cert_dir(self):
-        return os.path.join(self.root_dir, self.config.chain_id)
+        return os.path.join(self.root_dir, self.config.chain_id, "ca")
 
     def generate_ini_config(self):
         """
@@ -135,10 +138,10 @@ class ServiceConfigGenerator:
 
     def ca_generated(self):
         if self.sm_ssl is False:
-            if os.path.exists(os.path.join(self.config.ca_cert_path, "ca.crt")) and os.path.exists(os.path.join(self.config.ca_cert_path, "ca.key")):
+            if os.path.exists(os.path.join(self.ca_cert_path, "ca.crt")) and os.path.exists(os.path.join(self.ca_cert_path, "ca.key")):
                 return True
         else:
-            if os.path.exists(os.path.join(self.config.ca_cert_path, "sm_ca.crt")) and os.path.exists(os.path.join(self.config.ca_cert_path, "sm_ca.key")):
+            if os.path.exists(os.path.join(self.ca_cert_path, "sm_ca.crt")) and os.path.exists(os.path.join(self.ca_cert_path, "sm_ca.key")):
                 return True
         return False
 
@@ -146,17 +149,15 @@ class ServiceConfigGenerator:
         output_dir = self.get_cert_output_dir()
         if self.ca_generated() is False:
             # generate the ca cert
-            utilities.generate_ca_cert(self.sm_ssl, self.config.ca_cert_path)
-            self.config.ca_cert_path = os.path.join(
-                self.config.ca_cert_path, "ca")
+            utilities.generate_ca_cert(self.sm_ssl, self.ca_cert_path)
         utilities.log_info("* generate cert, output path: %s" % (output_dir))
         utilities.generate_node_cert(
-            self.sm_ssl, self.config.ca_cert_path, output_dir)
+            self.sm_ssl, self.ca_cert_path, output_dir)
         if self.service_type == ServiceInfo.rpc_service_type:
             utilities.log_info(
                 "* generate sdk cert, output path: %s" % (output_dir))
             utilities.generate_sdk_cert(
-                self.sm_ssl, self.config.ca_cert_path, output_dir)
+                self.sm_ssl, self.ca_cert_path, output_dir)
         return True
 
     def get_cert_config_info(self):
