@@ -1,9 +1,8 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
-import argparse
-import toml
-import os
 import sys
+# Note: here can't be refactored by autopep
+sys.path.append("src/")
 
 from common import utilities
 from common.utilities import CommandInfo
@@ -11,6 +10,9 @@ from common.utilities import ServiceInfo
 from config.chain_config import ChainConfig
 from command.service_command_impl import ServiceCommandImpl
 from command.node_command_impl import NodeCommandImpl
+import argparse
+import toml
+import os
 
 
 def parse_command():
