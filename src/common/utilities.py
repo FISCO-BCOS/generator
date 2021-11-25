@@ -35,13 +35,13 @@ class ServiceInfo:
     supported_consensus_list = ["pbft"]
     tars_pkg_postfix = ".tgz"
     default_listen_ip = "0.0.0.0"
-    cert_generationscript_path = "scripts/generate_cert.sh"
+    cert_generationscript_path = "src/scripts/generate_cert.sh"
     supported_service_type = [node_service_type,
                               rpc_service_type, gateway_service_type]
 
 
 class ConfigInfo:
-    tpl_abs_path = "tpl/"
+    tpl_abs_path = "src/tpl/"
     pwd_path = os.getcwd()
     rpc_config_tpl_path = os.path.join(
         pwd_path, tpl_abs_path, "config.ini.rpc")
