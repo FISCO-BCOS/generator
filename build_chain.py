@@ -16,11 +16,11 @@ from command.node_command_impl import NodeCommandImpl
 def parse_command():
     parser = argparse.ArgumentParser(description='build_chain')
     parser.add_argument(
-        "-o", '--op', help="[required] the command, support " + ', '.join(CommandInfo.command_list), required=True)
+        "-o", '--op', help="[required] the command, support \'" + ', '.join(CommandInfo.command_list) + "\'", required=True)
     parser.add_argument(
         "-c", "--config", help="[optional] the config file, default is config.toml", default="config.toml")
     parser.add_argument("-t", "--type",
-                        help="[required] the service type, now support " + ', '.join(ServiceInfo.supported_service_type), required=True)
+                        help="[required] the service type, now support \'" + ', '.join(ServiceInfo.supported_service_type) + "\'", required=True)
     args = parser.parse_args()
     return args
 

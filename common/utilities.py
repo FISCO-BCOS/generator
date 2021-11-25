@@ -61,11 +61,12 @@ class CommandInfo:
     undeploy = "undeploy"
     start = "start"
     stop = "stop"
+    expand = "expand"
     command_list = [gen_config, upload, deploy, upgrade, undeploy, start, stop]
     node_command_to_impl = {gen_config: "gen_node_config", upload: "upload_nodes", deploy: "deploy_nodes",
-                            upgrade: "upgrade_nodes", undeploy: "undeploy_nodes", start: "start_all", stop: "stop_all"}
+                            upgrade: "upgrade_nodes", undeploy: "undeploy_nodes", start: "start_all", stop: "stop_all", expand: "expand_nodes"}
     service_command_impl = {gen_config: "gen_service_config", upload: "upload_service", deploy: "deploy_service",
-                            upgrade: "upgrade_service", undeploy: "delete_service", start: "start_service", stop: "stop_service"}
+                            upgrade: "upgrade_service", undeploy: "delete_service", start: "start_service", stop: "stop_service", expand: "expand_service"}
 
 
 def log_error(error_msg):
@@ -148,9 +149,10 @@ def generate_cert(sm_type, outputdir):
     return generate_cert_with_command(sm_type, "generate_all_cert", outputdir, "")
 
 
-def generate_ca_cert(sm_type, outputdir):
+def generate_ca_cert(sm_type, cacert_dir):
     command = "generate_ca_cert"
-    return generate_cert_with_command(sm_type, command, outputdir, "")
+    ca_cert_info = "-d %s" % cacert_dir
+    return generate_cert_with_command(sm_type, command, cacert_dir, ca_cert_info)
 
 
 def generate_node_cert(sm_type, ca_cert_path, outputdir):

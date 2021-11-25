@@ -6,6 +6,7 @@ from common.utilities import ServiceInfo
 from common.utilities import ConfigInfo
 import shutil
 import os
+from service.tars_service import TarsService
 
 
 class NodeConfigGenerator:
@@ -40,6 +41,9 @@ class NodeConfigGenerator:
 
     def get_node_config_path(self, node_config, service_name, file_name):
         return os.path.join(self.root_dir, self.config.chain_id, self.config.group_config.group_id, node_config.deploy_ip, service_name, file_name)
+
+    def get_node_config_dir(self, node_config, service_name):
+        return os.path.join(self.root_dir, self.config.chain_id, self.config.group_config.group_id, node_config.deploy_ip, service_name)
 
     def generate_genesis_config(self, nodeid_list):
         """
@@ -112,6 +116,47 @@ class NodeConfigGenerator:
                 utilities.mkfiledir(file_path)
                 with open(file_path, 'w') as configfile:
                     ini_config.write(configfile)
+        return True
+
+    def write_config_to_path(self, config_content, config_file_path):
+        if os.path.exists(config_file_path):
+            utilities.log_error(
+                "write config to %s failed for already exists" % config_file_path)
+            return False
+        utilities.mkfiledir(config_file_path)
+        with open(config_file_path, 'w') as config_file_path:
+            config_file_path.write(config_content)
+        return True
+
+    def generate_expand_node_config(self, node_config):
+        tars_service = TarsService(self.config.tars_config.tars_url,
+                                   self.config.tars_config.tars_token, self.config.chain_id, "")
+        # fetch the ini config
+        (ret, ini_config_content) = tars_service.fetch_server_config_file(
+            self.ini_config_file, node_config.expanded_service)
+        # fetch the genesis config
+        (ret, genesis_config_content) = tars_service.fetch_server_config_file(
+            self.genesis_config_file, node_config.expanded_service)
+        for node_name in node_config.node_service_config_info.keys():
+            service_list = node_config.nodes_service_name_list[node_name]
+            for service in service_list:
+                ini_config_path = self.get_node_config_path(
+                    node_config, service, self.ini_config_tmp_file)
+                utilities.log_info(
+                    "* generate ini config, service: %s, path: %s" % (service, ini_config_path))
+                if self.write_config_to_path(ini_config_content, ini_config_path) is False:
+                    return False
+                utilities.log_info(
+                    "* generate ini config for service: %s success" % service)
+                # generate genesis config
+                genesis_config_path = self.get_node_config_path(
+                    node_config, service, self.genesis_tmp_config_file)
+                utilities.log_info(
+                    "* generate genesis config, service: %s, path: %s" % (service, genesis_config_path))
+                if self.write_config_to_path(genesis_config_content, genesis_config_path) is False:
+                    return False
+                utilities.log_info(
+                    "* generate genesis config for service: %s success" % service)
         return True
 
     def generate_node_genesis_config(self, node_config, nodeid_list):
