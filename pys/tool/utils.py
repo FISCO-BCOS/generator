@@ -136,6 +136,7 @@ def set_gm():
 
     Status.gm_option = True
 
+
 def set_gmssl():
     """[set gm]
     """
@@ -148,6 +149,7 @@ def off_gm():
     """
 
     Status.gm_option = False
+
 
 def off_gmssl():
     """[off gm]
@@ -582,7 +584,12 @@ def download_console(_dir):
     # file_must_exists('{}/agency.key'.format(meta))
     download_console_command = "bash {}/tpl/{}".format(
         path.get_path(), Status.download_console_shell_script)
-
+    cdn_option = ""
+    if Status.use_cdn:
+        CONSOLER.info("download_console: use cdn")
+        cdn_option = "-n"
+    download_console_command = "{} {}".format(
+        download_console_command, cdn_option)
     if(Status.download_console_version_specified is True):
         download_console_command = "{} -c {}".format(
             download_console_command, Status.download_console_version)
