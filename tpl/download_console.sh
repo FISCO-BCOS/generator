@@ -4,6 +4,7 @@ default_version="2.8.0"
 download_version="${default_version}"
 specify_console=0
 solc_suffix=""
+use_cdn="false"
 supported_solc_versions=(0.4 0.5 0.6)
 
 LOG_WARN()
@@ -32,7 +33,7 @@ exit 0
 }
 
 parse_params(){
-while getopts "v:c:h" option;do
+while getopts "v:c:hn" option;do
     case $option in
     v) solc_suffix="${OPTARG//[vV]/}"
         if ! echo "${supported_solc_versions[*]}" | grep -i "${solc_suffix}" &>/dev/null; then
@@ -46,6 +47,8 @@ while getopts "v:c:h" option;do
         download_version="${OPTARG//[vV]/}"
         ;;
     h) help;;
+    n) use_cdn="true"
+    ;;
     *) help;;
     esac
 done
@@ -80,17 +83,22 @@ check_params()
 
 download_console(){
     check_params
-    download_link=https://github.com/FISCO-BCOS/console/releases/download/v${download_version}/${package_name}
-    cos_download_link=https://osp-1257653870.cos.ap-guangzhou.myqcloud.com/FISCO-BCOS/console/releases/v${version}/${package_name}
-    LOG_INFO "Downloading console ${download_version} from ${download_link}"
-
-    if [ $(curl -IL -o /dev/null -s -w %{http_code} "${cos_download_link}") == 200 ];then
-        curl -LO ${download_link} --speed-time 30 --speed-limit 102400 -m 150 || {
-            LOG_WARN "Download speed is too low, try ${cos_download_link}"
-            curl -#LO "${cos_download_link}"
-        }
-    else
+    if [[ "${use_cdn}" == "true" ]]; then
+        download_link=https://osp-1257653870.cos.ap-guangzhou.myqcloud.com/FISCO-BCOS/console/releases/v${download_version}/${package_name}
         curl -#LO ${download_link}
+    else
+        download_link=https://github.com/FISCO-BCOS/console/releases/download/v${download_version}/${package_name}
+        cos_download_link=https://osp-1257653870.cos.ap-guangzhou.myqcloud.com/FISCO-BCOS/console/releases/v${download_version}/${package_name}
+        LOG_INFO "Downloading console ${download_version} from ${download_link}"
+
+        if [ $(curl -IL -o /dev/null -s -w %{http_code} "${cos_download_link}") == 200 ];then
+            curl -LO ${download_link} --speed-time 30 --speed-limit 102400 -m 150 || {
+                LOG_WARN "Download speed is too low, try ${cos_download_link}"
+                curl -#LO "${cos_download_link}"
+            }
+        else
+            curl -#LO ${download_link}
+        fi
     fi
     if [ $? -eq 0 ];then
         LOG_INFO "Download console successfully"
