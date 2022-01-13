@@ -56,7 +56,7 @@ execute_cmd() {
     fi
 }
 
-# get platform: now support debain/ubuntu, fedora/centos, oracle
+# get platform: now support debain/ubuntu, fedora/centos/tencentos, oracle
 get_platform() {
     uname -v >/dev/null 2>&1 || {
         echo >&2 "ERROR - Require 'uname' to identify the platform."
@@ -84,8 +84,8 @@ get_platform() {
                 LOG_INFO "Debian*|Ubuntu Platform"
                 return ${Ubuntu_Platform}
                 ;; #ubuntu type
-            Fedora | CentOS*)
-                LOG_INFO "Fedora|CentOS* Platform"
+            Fedora | CentOS* | TencentOS*)
+                LOG_INFO "Fedora|CentOS*|TencentOS* Platform"
                 return ${Centos_Platform}
                 ;; #centos type
             Oracle*)
