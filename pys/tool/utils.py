@@ -29,6 +29,8 @@ class Status(object):
 
     gm_option = False
     gm_ssl = False
+
+    rsa_ssl = True 
     unit_time = False
     allow_unsecure_cfg = False
     use_cdn = False
@@ -43,7 +45,8 @@ class Status(object):
         """[init]
         """
 
-        self. gm_option = False
+        self.gm_option = False
+        self.rsa_ssl = True
 
     def get_gm_status(self):
         """[get gm_option]
@@ -136,6 +139,17 @@ def set_gm():
 
     Status.gm_option = True
 
+def set_rsa_ssl():
+    """[set rsa ssl]
+    """
+
+    Status.rsa_ssl = True
+
+def disable_rsa_ssl():
+    """[disable rsa ssl]
+    """
+
+    Status.rsa_ssl = False
 
 def set_gmssl():
     """[set gm]

@@ -169,6 +169,11 @@ def usage():
         agency_dir = args.generate_sdk_certificate[1]
         ca.generator_sdk_ca(sdk_dir, agency_dir)
         CONSOLER.info(' SDK cert end.')
+    elif args.generate_all_certificates:
+        cert_dir = args.generate_all_certificates[0]
+        CONSOLER.info(' Generate cert to %s by node_deployment.ini.', cert_dir)
+        opr_cert.gen_build_cert(cert_dir)
+        CONSOLER.info(' Generate cert by node_deployment.ini end.')
     elif args.generate_rsa_ca_certificate:
         cert_dir = args.generate_rsa_ca_certificate[0]
         CONSOLER.info(' rsa ca cert begin, dir: %s', cert_dir)
