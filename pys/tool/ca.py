@@ -8,6 +8,7 @@ Raises:
 """
 
 import os
+from platform import node
 import shutil
 from pys.tool import utils
 from pys import path
@@ -199,3 +200,66 @@ def generator_sdk_ca(_dir, agent):
                 '{}/sdk/sdk.crt'.format(sdk_dir))
         shutil.copyfile('{}/sdk/node.key'.format(sdk_dir),
                 '{}/sdk/sdk.key'.format(sdk_dir))
+
+def generator_rsa_ca(_dir):
+    """[generate rsa cert]
+
+    Arguments:
+        _dir {[path]} -- [rsa cert path]
+    """
+    try:
+        ca_dir = os.path.abspath(_dir)
+        os.chdir('{}/scripts'.format(path.get_path()))
+        (status, result) = utils.getstatusoutput('./rsa.sh gen_chain_cert {}'
+                                                    .format(ca_dir))
+        os.chdir('{}'.format(path.get_path()))
+        if bool(status):
+            LOGGER.error(
+                ' rsa.sh failed! status is %d, output is %s, dir is %s.', status, result, ca_dir)
+            raise MCError('rsa.sh failed! status is %d, output is %s, dir is %s.' % (
+                status, result, ca_dir))
+        LOGGER.info(
+            ' rsa.sh success! status is %d, output is %s, dir is %s.', status, result, ca_dir)
+        LOGGER.info(' Generate rsa ca cert success, dir is %s', ca_dir)
+        CONSOLER.info(' Generate rsa cert success, dir is %s', ca_dir)
+    except MCError as cert_exp:
+        console_error('  %s ' % cert_exp)
+    except Exception as gen_cert_exp:
+        console_error(
+            '  Generate rsa ca cert failed! exception is %s.' % gen_cert_exp)
+        LOGGER.error('  Generate rsa ca cert failed! Result is %s', gen_cert_exp)
+        raise MCError(
+            'Generate rsa ca cert failed! Result is %s' % gen_cert_exp)
+
+def generator_rsa_node_ca(_ca_dir, _node_dir):
+    """[generate rsa node cert]
+
+    Arguments:
+        _ca_dir {[path]} -- [rsa ca cert path]
+        _node_dir {[path]} -- [rsa node cert path]
+    """
+    try:
+        ca_dir = os.path.abspath(_ca_dir)
+        node_dir = os.path.abspath(_node_dir)
+
+        os.chdir('{}/scripts'.format(path.get_path()))
+        (status, result) = utils.getstatusoutput('./rsa.sh gen_node_cert {} {} {}' 
+                                                    .format(ca_dir, node_dir, 'sdk'))
+        os.chdir('{}'.format(path.get_path()))
+        if bool(status):
+            LOGGER.error(
+                ' rsa.sh failed! status is %d, output is %s, dir is %s.', status, result, ca_dir)
+            raise MCError('rsa.sh failed! status is %d, output is %s, dir is %s.' % (
+                status, result, ca_dir))
+        LOGGER.info(
+            ' rsa.sh success! status is %d, output is %s, dir is %s.', status, result, ca_dir)
+        LOGGER.info(' Generate rsa node cert success, dir is %s', ca_dir)
+        CONSOLER.info(' Generate rsa node cert success, dir is %s', ca_dir)
+    except MCError as cert_exp:
+        console_error('  %s ' % cert_exp)
+    except Exception as gen_cert_exp:
+        console_error(
+            '  Generate rsa node cert failed! exception is %s.' % gen_cert_exp)
+        LOGGER.error('  Generate node ca cert failed! Result is %s', gen_cert_exp)
+        raise MCError(
+            'Generate rsa node cert failed! Result is %s' % gen_cert_exp)

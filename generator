@@ -6,6 +6,7 @@ Returns:
     [cmd] -- [cmd description]
 """
 import os
+from platform import node
 import sys
 from pys import path
 # init path
@@ -75,10 +76,17 @@ def usage():
     tools_group.add_argument('--generate_sdk_certificate', nargs=2, metavar=('sdk_dir',
                                                                              'agency_dir'),
                              help='generate sdk cert')
+    tools_group.add_argument('--generate_rsa_ca_certificate', nargs=1, metavar=('ca_dir'),
+                             help='generate rsa ca root cert')
+    tools_group.add_argument('--generate_rsa_node_certificate', nargs=2, metavar=('node_dir',
+                                                                              'ca_dir'),
+                             help='generate rsa node cert')
     tools_group.add_argument('-g', '--use_guomi', action='store_true',
                              help='follow gm operation.')
     tools_group.add_argument('-G', '--gmssl', action='store_true',
                              help='follow gm ssl operation.')
+    tools_group.add_argument('-R', '--disable_rsa_channel_ssl', action='store_true',
+                             help='disable use rsa cert for channel ssl.')                       
     tools_group.add_argument('--cdn', action='store_true',
                              help='use cdn to download binary.')
     tools_group.add_argument('--generate_all_certificates', nargs=1, metavar=('cert_dir'),
@@ -109,6 +117,9 @@ def usage():
     if args.gmssl:
         CONSOLER.info('======= GM_SSL ============= ON =======')
         utils.set_gmssl()
+    if args.disable_rsa_channel_ssl:
+        CONSOLER.info('======= RSA CHANNEL SSL ============= OFF =======')
+        utils.disable_rsa_ssl()
     if args.cdn:
         CONSOLER.info('======= USE_CDN ============= ON =======')
         utils.set_cdn()
@@ -158,11 +169,17 @@ def usage():
         agency_dir = args.generate_sdk_certificate[1]
         ca.generator_sdk_ca(sdk_dir, agency_dir)
         CONSOLER.info(' SDK cert end.')
-    elif args.generate_all_certificates:
-        cert_dir = args.generate_all_certificates[0]
-        CONSOLER.info(' Generate cert to %s by node_deployment.ini.', cert_dir)
-        opr_cert.gen_build_cert(cert_dir)
-        CONSOLER.info(' Generate cert by node_deployment.ini end.')
+    elif args.generate_rsa_ca_certificate:
+        cert_dir = args.generate_rsa_ca_certificate[0]
+        CONSOLER.info(' rsa ca cert begin, dir: %s', cert_dir)
+        ca.generator_rsa_ca(cert_dir)
+        CONSOLER.info(' rsa cert end.')
+    elif args.generate_rsa_node_certificate:
+        node_dir = args.generate_rsa_node_certificate[0]
+        cert_dir = args.generate_rsa_node_certificate[1]
+        CONSOLER.info(' rsa node cert begin, dir: %s', node_dir)
+        ca.generator_rsa_node_ca(cert_dir, node_dir)
+        CONSOLER.info(' rsa node cert end.')
     elif args.deploy_private_key:
         get_path = args.deploy_private_key[0]
         send_path = args.deploy_private_key[1]
