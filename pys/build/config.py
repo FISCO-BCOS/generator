@@ -78,6 +78,12 @@ def build_package_only(_data_dir):
         utils.replace('{}/.config.ini'.format(conf_dir),
                   'sm_crypto_channel=false',
                   'sm_crypto_channel=true')
+
+    if not utils.Status.rsa_ssl:
+        utils.replace('{}/.config.ini'.format(conf_dir),
+                  'rsa_crypto_channel=true',
+                  'rsa_crypto_channel=false')
+
     fin_p2p_ip = []
     if not peers:
         LOGGER.warning('section peers not existed!')
@@ -237,6 +243,12 @@ def build_config_ini(_data_dir):
         utils.replace('{}/.config.ini'.format(conf_dir),
                   'sm_crypto_channel=false',
                   'sm_crypto_channel=true')
+    
+    if not utils.Status.rsa_ssl:
+        utils.replace('{}/.config.ini'.format(conf_dir),
+                  'rsa_crypto_channel=true',
+                  'rsa_crypto_channel=false')
+
     fin_p2p_ip = []
     if not peers:
         LOGGER.warning('section peers not existed!')
@@ -509,7 +521,7 @@ def get_nodeid_str(get_path):
         LOGGER.error(
             ' create nodeid failed! status is %d, output is %s, dir is %s.',
             status, result, get_path)
-        raise MCError(' create nodeid failed! excepion is %s.' % node_id_exp)
+        raise MCError(' create nodeid failed! exception is %s.' % node_id_exp)
     LOGGER.info("get_nodeid success! get path is %s", get_path)
     return result
 
@@ -547,7 +559,7 @@ def get_nodeid_str_from_nodeid(get_path):
         LOGGER.error(
             ' create nodeid failed! status is %d, output is %s, dir is %s.',
             status, result, get_path)
-        raise MCError(' create nodeid failed! excepion is %s.' % node_id_exp)
+        raise MCError(' create nodeid failed! exception is %s.' % node_id_exp)
     LOGGER.info("get_nodeid success! get path is %s", get_path)
     return result
 
