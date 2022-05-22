@@ -33,7 +33,7 @@ class Status(object):
     allow_unsecure_cfg = False
     use_cdn = False
     download_console_shell_script = "download_console.sh"
-    default_console_version = "2.8.0"
+    default_console_version = "2.9.0"
     download_console_version = default_console_version
     download_console_version_specified = False
     solidity_version = ""
@@ -512,7 +512,7 @@ def download_fisco(_dir):
     #     LOGGER.error(
     #         ' get fisco-bcos verion failed, result is %s.', version)
     #     raise MCError(' get fisco-bcos verion failed, result is %s.' % version)
-    version = "2.8.0"
+    version = "2.9.0"
     download_link = 'https://github.com/FISCO-BCOS/FISCO-BCOS/releases/download/v{}/{}'.format(
         version.strip('\n'), package_name.strip('\n'))
     cnd_link = 'https://osp-1257653870.cos.ap-guangzhou.myqcloud.com/FISCO-BCOS/FISCO-BCOS/releases/v{}/{}'.format(
