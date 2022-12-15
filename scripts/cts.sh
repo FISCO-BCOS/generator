@@ -238,6 +238,9 @@ sign_agency_cert)
 gen_node_cert)
     gen_node_cert "$2" "$3" "$4" "$5" "$6" "$7" "$8" "$9"
     ;;
+gen_agency_key_csr)
+  gen_agency_key_csr "$2"
+  ;;
 help)
     usage
     ;;
