@@ -113,15 +113,15 @@ def generator_node_ca(_dir, agent, node):
             os.chdir('{}/scripts/gm/'.format(path.get_path()))
             (status, result) = utils.getstatusoutput('./cts.sh'
                                                      ' gen_node_cert {} {}/{}'
-                                                     .format(
-                                                         agent, node_dir, node))
+            .format(
+                agent, node_dir, node))
             os.chdir('{}'.format(path.get_path()))
         else:
             os.chdir('{}/scripts/'.format(path.get_path()))
             (status, result) = utils.getstatusoutput('./cts.sh'
                                                      ' gen_node_cert {} {}/{}'
-                                                     .format(
-                                                         agent, node_dir, node))
+            .format(
+                agent, node_dir, node))
             os.chdir('{}'.format(path.get_path()))
         if not bool(status):
             LOGGER.info(' Generate %s cert successful! dir is %s/%s.',
@@ -130,13 +130,13 @@ def generator_node_ca(_dir, agent, node):
             if utils.Status.gm_option:
                 (status, result) = utils.getstatusoutput('cat {}/{}/gmagency.crt '
                                                          '>> {}/{}/gmnode.crt'.format(
-                                                             _dir, node, _dir, node))
+                    _dir, node, _dir, node))
                 os.remove('{}/{}/gmagency.crt'.format(_dir, node))
                 os.remove('{}/{}/gmnode.serial'.format(_dir, node))
             else:
                 (status, result) = utils.getstatusoutput('cat {}/{}/agency.crt '
                                                          '>> {}/{}/node.crt'.format(
-                                                             _dir, node, _dir, node))
+                    _dir, node, _dir, node))
                 os.remove('{}/{}/agency.crt'.format(_dir, node))
                 os.remove('{}/{}/node.ca'.format(_dir, node))
                 os.remove('{}/{}/node.json'.format(_dir, node))
@@ -178,27 +178,28 @@ def generator_sdk_ca(_dir, agent):
             generator_node_ca(sdk_dir, agency_dir, 'sdk')
             os.remove('{}/sdk/node.nodeid'.format(sdk_dir))
             shutil.copyfile('{}/sdk/node.crt'.format(sdk_dir),
-                    '{}/sdk/sdk.crt'.format(sdk_dir))
+                            '{}/sdk/sdk.crt'.format(sdk_dir))
             shutil.copyfile('{}/sdk/node.key'.format(sdk_dir),
-                    '{}/sdk/sdk.key'.format(sdk_dir))
+                            '{}/sdk/sdk.key'.format(sdk_dir))
             utils.set_gm()
         generator_node_ca('{}/sdk'.format(sdk_dir), agency_dir, 'gm')
         os.remove('{}/sdk/gm/gmnode.nodeid'.format(sdk_dir))
         shutil.copyfile('{}/sdk/gm/gmnode.crt'.format(sdk_dir),
-                '{}/sdk/gm/gmsdk.crt'.format(sdk_dir))
+                        '{}/sdk/gm/gmsdk.crt'.format(sdk_dir))
         shutil.copyfile('{}/sdk/gm/gmnode.key'.format(sdk_dir),
-                '{}/sdk/gm/gmsdk.key'.format(sdk_dir))
+                        '{}/sdk/gm/gmsdk.key'.format(sdk_dir))
         shutil.copyfile('{}/sdk/gm/gmennode.crt'.format(sdk_dir),
-                '{}/sdk/gm/gmensdk.crt'.format(sdk_dir))
+                        '{}/sdk/gm/gmensdk.crt'.format(sdk_dir))
         shutil.copyfile('{}/sdk/gm/gmennode.key'.format(sdk_dir),
-                '{}/sdk/gm/gmensdk.key'.format(sdk_dir))
+                        '{}/sdk/gm/gmensdk.key'.format(sdk_dir))
     else:
         generator_node_ca(sdk_dir, agency_dir, 'sdk')
         os.remove('{}/sdk/node.nodeid'.format(sdk_dir))
         shutil.copyfile('{}/sdk/node.crt'.format(sdk_dir),
-                '{}/sdk/sdk.crt'.format(sdk_dir))
+                        '{}/sdk/sdk.crt'.format(sdk_dir))
         shutil.copyfile('{}/sdk/node.key'.format(sdk_dir),
-                '{}/sdk/sdk.key'.format(sdk_dir))
+                        '{}/sdk/sdk.key'.format(sdk_dir))
+
 
 def generator_agent_key_csr(_dir, agent):
     """[generate agency cert]
