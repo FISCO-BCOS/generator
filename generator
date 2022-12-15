@@ -205,6 +205,7 @@ def usage():
         CONSOLER.info(' Agency cert key&csr begin.')
         agency_dir = args.generate_agency_certificate[0]
         agency_name = args.generate_agency_certificate[1]
+        CONSOLER.info(agency_dir + agency_name)
         ca.generator_agent_key_csr(agency_dir, agency_name)
         CONSOLER.info(' Agency cert key&csr end.')
     else:
