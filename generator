@@ -203,9 +203,8 @@ def usage():
         build.get_sdk(args.get_sdk_file[0])
     elif args.generate_agency_certificate_key_csr:
         CONSOLER.info(' Agency cert key&csr begin.')
-        agency_dir = args.generate_agency_certificate[0]
-        agency_name = args.generate_agency_certificate[1]
-        CONSOLER.info(args.generate_agency_certificate_key_csr)
+        agency_dir = args.generate_agency_certificate_key_csr[0]
+        agency_name = args.generate_agency_certificate_key_csr[1]
         ca.generator_agent_key_csr(agency_dir, agency_name)
         CONSOLER.info(' Agency cert key&csr end.')
     else:
