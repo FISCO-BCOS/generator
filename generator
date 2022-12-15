@@ -99,6 +99,10 @@ def usage():
                              help='get sdk file')
     tools_group.add_argument('--console_version', nargs=1,
                              help='specify the downloaded console version')
+    tools_group.add_argument('--generate_agency_certificate_key_csr', nargs=2, metavar=('agency_dir',
+                                                                                        'agency_name'),
+                             help='generate agency certificate key and csr file')
+
     args = parser.parse_args()
     if args.use_guomi:
         CONSOLER.info('======= BUILD_GM ============= ON =======')
