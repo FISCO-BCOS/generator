@@ -121,6 +121,41 @@ gen_chain_cert() {
     echo "build chain ca succussful!"
 }
 
+# 生成机构证书key,csr文件
+gen_agency_key_csr() {
+    agencypath="$1"
+    name=$(getname "$agencypath")
+
+    check_name agency "$name"
+    agencydir=$agencypath
+    dir_must_not_exists "$agencydir"
+    mkdir -p $agencydir
+
+    $TASSL_CMD genpkey -paramfile ${SHELL_FOLDER}/gmsm2.param -out $agencydir/gmagency.key
+    $TASSL_CMD req -new -subj "/CN=$name/O=fisco-bcos/OU=agency" -key $agencydir/gmagency.key -config ${SHELL_FOLDER}/gmcert.cnf -out $agencydir/gmagency.csr
+
+    echo "build $name agency cert key&csr successful!"
+}
+
+# 签发agency证书
+sign_agency_cert() {
+    chain="$2"
+    agencypath="$3"
+    name=$(getname "$agencypath")
+
+    dir_must_exists "$chain"
+    file_must_exists "$chain/gmca.key"
+    check_name agency "$name"
+    agencydir=$agencypath
+    dir_must_exists "$agencydir"
+
+    $TASSL_CMD x509 -req -CA $chain/gmca.crt -CAkey $chain/gmca.key -days 3650 -CAcreateserial -in $agencydir/gmagency.csr -out $agencydir/gmagency.crt -extfile ${SHELL_FOLDER}/gmcert.cnf -extensions v3_agency_root
+    cp $chain/gmca.crt $agencydir/
+    rm -f $agencydir/gmagency.csr
+
+    echo "sign $name agency cert successful!"
+}
+
 gen_agency_cert() {
     chain="$2"
     agencypath="$3"

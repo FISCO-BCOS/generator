@@ -199,3 +199,43 @@ def generator_sdk_ca(_dir, agent):
                 '{}/sdk/sdk.crt'.format(sdk_dir))
         shutil.copyfile('{}/sdk/node.key'.format(sdk_dir),
                 '{}/sdk/sdk.key'.format(sdk_dir))
+
+def generator_agent_key_csr(_dir, agent):
+    """[generate agency cert]
+    Arguments:
+        dir {[path]} -- [agency cert path]
+        agent {[string]} -- [agency name]
+    """
+    try:
+        agency_dir = os.path.abspath(_dir)
+        if utils.Status.gm_option:
+            os.chdir('{}/scripts/gm/'.format(path.get_path()))
+            (status, result) = utils.getstatusoutput('./cts.sh'
+                                                     ' gen_agency_key_csr {}/{}'
+                                                     .format(agency_dir, agent))
+            os.chdir('{}'.format(path.get_path()))
+        else:
+            os.chdir('{}/scripts'.format(path.get_path()))
+            (status, result) = utils.getstatusoutput('./cts.sh'
+                                                     ' gen_agency_key_csr {}/{}'
+                                                     .format(agency_dir, agent))
+            os.chdir('{}'.format(path.get_path()))
+        if not bool(status):
+            LOGGER.info(' Generate %s cert successful! dir is %s/%s.',
+                        agent, agency_dir, agent)
+        else:
+            # console_error(
+            #     '  Generate cert failed! Please check your network,'
+            #     ' and try to check your opennssl version.')
+            LOGGER.error('  Generate %s cert failed! Result is %s',
+                         agent, result)
+            raise MCError(' Generate %s cert failed! Result is %s' %
+                          (agent, result))
+    except MCError as cert_exp:
+        console_error('  %s ' % cert_exp)
+    except Exception as gen_cert_exp:
+        console_error(
+            '  Generate agency cert failed! excepion is %s.' % gen_cert_exp)
+        LOGGER.error('  Generate agency cert failed! Result is %s', result)
+        raise MCError(
+            'Generate agency agency failed! Result is %s' % gen_cert_exp)

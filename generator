@@ -197,6 +197,12 @@ def usage():
         build.build_console(args.download_console[0])
     elif args.get_sdk_file:
         build.get_sdk(args.get_sdk_file[0])
+    elif args.generate_agency_certificate_key_csr:
+        CONSOLER.info(' Agency cert key&csr begin.')
+        agency_dir = args.generate_agency_certificate[0]
+        agency_name = args.generate_agency_certificate[1]
+        ca.generator_agent_key_csr(agency_dir, agency_name)
+        CONSOLER.info(' Agency cert key&csr end.')
     else:
         console_error(
             ' Invalid operation,  \"generator -h\" can be used to show detailed usage. ')
