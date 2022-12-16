@@ -98,6 +98,8 @@ gen_agency_key_csr() {
     openssl genpkey -paramfile "$agencydir/secp256k1.param" -out "$agencydir/agency.key" 2> /dev/null
     openssl req -new -sha256 -subj "/CN=$name/O=fisco-bcos/OU=agency" -key "$agencydir/agency.key" -config "${SHELL_FOLDER}/cert.cnf" -out "$agencydir/agency.csr" 2> /dev/null
 
+    rm -f "$agencydir/secp256k1.param"
+
     echo "build $name agency cert key&csr successful!"
 }
 
