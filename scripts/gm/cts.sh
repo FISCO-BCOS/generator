@@ -139,8 +139,8 @@ gen_agency_key_csr() {
 
 # 签发agency证书
 sign_agency_cert() {
-    chain="$2"
-    agencypath="$3"
+    chain="$1"
+    agencypath="$2"
     name=$(getname "$agencypath")
 
     dir_must_exists "$chain"
@@ -256,6 +256,9 @@ gen_node_cert)
     ;;
 gen_agency_key_csr)
   gen_agency_key_csr "$2"
+  ;;
+sign_agency_cert)
+  sign_agency_cert "$2" "$3"
   ;;
 download_tassl)
     check_and_install_tassl
