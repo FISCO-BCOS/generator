@@ -222,21 +222,60 @@ def generator_agent_key_csr(_dir, agent):
                                                      .format(agency_dir, agent))
             os.chdir('{}'.format(path.get_path()))
         if not bool(status):
-            LOGGER.info(' Generate %s cert successful! dir is %s/%s.',
+            LOGGER.info(' Generate %s key&csr successful! dir is %s/%s.',
                         agent, agency_dir, agent)
         else:
             # console_error(
             #     '  Generate cert failed! Please check your network,'
             #     ' and try to check your opennssl version.')
-            LOGGER.error('  Generate %s cert failed! Result is %s',
+            LOGGER.error('  Generate %s key&csr failed! Result is %s',
                          agent, result)
-            raise MCError(' Generate %s cert failed! Result is %s' %
+            raise MCError(' Generate %s key&csr failed! Result is %s' %
                           (agent, result))
     except MCError as cert_exp:
         console_error('  %s ' % cert_exp)
     except Exception as gen_cert_exp:
         console_error(
-            '  Generate agency cert failed! excepion is %s.' % gen_cert_exp)
-        LOGGER.error('  Generate agency cert failed! Result is %s', result)
+            '  Generate agency key&csr failed! excepion is %s.' % gen_cert_exp)
+        LOGGER.error('  Generate agency key&csr failed! Result is %s', result)
         raise MCError(
-            'Generate agency agency failed! Result is %s' % gen_cert_exp)
+            'Generate agency key&csr failed! Result is %s' % gen_cert_exp)
+
+
+def sign_agent_cert(_dir, agent_path):
+    """[generate agency cert]
+    Arguments:
+        dir {[path]} -- [ca cert path]
+        agent_path {[string]} -- [agency cert output path]
+    """
+    try:
+        ca_dir = os.path.abspath(_dir)
+        if utils.Status.gm_option:
+            os.chdir('{}/scripts/gm/'.format(path.get_path()))
+            (status, result) = utils.getstatusoutput('./cts.sh'
+                                                     ' sign_agency_cert {} {}'
+                                                     .format(ca_dir, agent_path))
+            os.chdir('{}'.format(path.get_path()))
+        else:
+            os.chdir('{}/scripts'.format(path.get_path()))
+            (status, result) = utils.getstatusoutput('./cts.sh'
+                                                     ' sign_agency_cert {} {}'
+                                                     .format(ca_dir, agent_path))
+            os.chdir('{}'.format(path.get_path()))
+        if bool(status):
+            LOGGER.error(
+                ' cts.sh failed! status is %d, output is %s, dir is %s.', status, result, ca_dir)
+            raise MCError('cts.sh failed! status is %d, output is %s, dir is %s.' % (
+                status, result, ca_dir))
+        LOGGER.info(
+            ' cts.sh success! status is %d, output is %s, dir is %s.', status, result, ca_dir)
+        LOGGER.info(' Sign agency cert success, dir is %s', ca_dir)
+        CONSOLER.info(' Sign agency cert success, dir is %s', ca_dir)
+    except MCError as cert_exp:
+        console_error('  %s ' % cert_exp)
+    except Exception as gen_cert_exp:
+        console_error(
+            '  Sign agency cert failed! excepion is %s.' % gen_cert_exp)
+        LOGGER.error('  Sign agency cert failed! Result is %s', result)
+        raise MCError(
+            'Sign agency cert failed! Result is %s' % gen_cert_exp)
