@@ -8,6 +8,8 @@
 ---
 
 **FISCO BCOS generator** 是针对多机构组网，适用于多机构部署，维护多群组联盟链的企业区块链部署工具。**此版本只支持**[FISCO BCOS 2.0](https://fisco-bcos-documentation.readthedocs.io/zh_CN/latest/)。
+搭建3.0版本的链可参考[部署工具BcosBuilder构建pro版本](https://fisco-bcos-doc.readthedocs.io/zh_CN/latest/docs/tutorial/pro/pro_builder.html), [部署工具BcosBuilder构建max版本](https://fisco-bcos-doc.readthedocs.io/zh_CN/latest/docs/tutorial/max/max_builder.html)。
+
 
 -   本工具降低了机构间生成与维护区块链的复杂度，提供了多种常用的部署方式。
 -   本工具考虑了机构间节点安全性需求，所有机构间仅需要共享节点的证书，同时对应节点的私钥由各机构自己维护，不需要向机构外节点透露。
