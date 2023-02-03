@@ -99,6 +99,13 @@ def usage():
                              help='get sdk file')
     tools_group.add_argument('--console_version', nargs=1,
                              help='specify the downloaded console version')
+    tools_group.add_argument('--generate_agency_certificate_key_csr', nargs=2, metavar=('agency_dir',
+                                                                                        'agency_name'),
+                             help='generate agency certificate key and csr file')
+    tools_group.add_argument('--sign_agency_certificate', nargs=2, metavar=('chain_dir',
+                                                                            'agency_path'),
+                             help='sign agency certificate')
+
     args = parser.parse_args()
     if args.use_guomi:
         CONSOLER.info('======= BUILD_GM ============= ON =======')
@@ -197,6 +204,18 @@ def usage():
         build.build_console(args.download_console[0])
     elif args.get_sdk_file:
         build.get_sdk(args.get_sdk_file[0])
+    elif args.generate_agency_certificate_key_csr:
+        CONSOLER.info(' Agency cert key&csr begin.')
+        agency_dir = args.generate_agency_certificate_key_csr[0]
+        agency_name = args.generate_agency_certificate_key_csr[1]
+        ca.generator_agent_key_csr(agency_dir, agency_name)
+        CONSOLER.info(' Agency cert key&csr end.')
+    elif args.sign_agency_certificate:
+        CONSOLER.info(' Sign agency cert begin.')
+        chain_dir = args.sign_agency_certificate[0]
+        agency_path = args.sign_agency_certificate[1]
+        ca.sign_agent_cert(chain_dir, agency_path)
+        CONSOLER.info(' Sign agency cert end.')
     else:
         console_error(
             ' Invalid operation,  \"generator -h\" can be used to show detailed usage. ')

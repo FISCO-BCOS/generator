@@ -84,6 +84,45 @@ gen_chain_cert() {
     fi
 }
 
+# 生成机构证书key,csr文件
+gen_agency_key_csr() {
+    agencypath="$1"
+    name=$(getname "$agencypath")
+
+    check_name agency "$name"
+    agencydir=$agencypath
+    dir_must_not_exists "$agencydir"
+    mkdir -p $agencydir
+
+    openssl ecparam -out "$agencydir/secp256k1.param" -name secp256k1 2> /dev/null
+    openssl genpkey -paramfile "$agencydir/secp256k1.param" -out "$agencydir/agency.key" 2> /dev/null
+    openssl req -new -sha256 -subj "/CN=$name/O=fisco-bcos/OU=agency" -key "$agencydir/agency.key" -config "${SHELL_FOLDER}/cert.cnf" -out "$agencydir/agency.csr" 2> /dev/null
+
+    rm -f "$agencydir/secp256k1.param"
+
+    echo "build $name agency cert key&csr successful!"
+}
+
+# 签发agency证书
+sign_agency_cert() {
+    chain="$1"
+    agencypath="$2"
+    name=$(getname "$agencypath")
+
+    dir_must_exists "$chain"
+    file_must_exists "$chain/ca.key"
+    check_name agency "$name"
+    agencydir=$agencypath
+    dir_must_exists "$agencydir"
+
+    openssl x509 -req -days 3650 -sha256 -CA "$chain/ca.crt" -CAkey "$chain/ca.key" -CAcreateserial\
+            -in "$agencydir/agency.csr" -out "$agencydir/agency.crt"  -extensions v4_req -extfile "${SHELL_FOLDER}/cert.cnf" 2> /dev/null
+    cp $chain/ca.crt $agencydir/
+    rm -f "$agencydir/agency.csr"
+
+    echo "sign $name agency cert successful!"
+}
+
 gen_agency_cert() {
     chain="$1"
     agencypath="$2"
@@ -195,11 +234,14 @@ gen_chain_cert)
 gen_agency_cert)
     gen_agency_cert "$2" "$3" "$4" "$5" "$6" "$7" "$8" "$9"
     ;;
-sign_agency_cert)
-    sign_agency_cert "$2" "$3" "$4" "$5" "$6" "$7" "$8" "$9"
-    ;;
 gen_node_cert)
     gen_node_cert "$2" "$3" "$4" "$5" "$6" "$7" "$8" "$9"
+    ;;
+gen_agency_key_csr)
+  gen_agency_key_csr "$2"
+  ;;
+sign_agency_cert)
+    sign_agency_cert "$2" "$3"
     ;;
 help)
     usage
