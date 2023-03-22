@@ -1,0 +1,45 @@
+FROM ubuntu:18.04
+MAINTAINER haibin.l@linkingcloud.cn
+ENV DEBIAN_FRONTEND=noninteractive \
+  PIP_DEFAULT_TIMEOUT=600 \
+  PIP_FIND_LINKS="https://pypi.doubanio.com https://pypi.tuna.tsinghua.edu.cn"
+ARG FISCO_BCOS_VERSION=v2.9.1
+ARG FISCO_BCOS_PKG=fisco-bcos-aarch64.tar.gz
+
+RUN apt-get update -q \
+  && apt-get install -qy sudo git python-pip curl wget \
+  && pip install -i https://mirrors.cloud.tencent.com/pypi/simple -U pip \
+  && pip config set global.index-url https://mirrors.cloud.tencent.com/pypi/simple
+
+RUN git clone --depth=1 https://gitee.com/FISCO-BCOS/generator.git /opt/generator \
+  && cd /opt/generator \
+  && bash ./scripts/install.sh
+
+RUN cd /opt/generator/meta \
+  && wget -t 0 https://github.com/FISCO-BCOS/FISCO-BCOS/releases/download/$FISCO_BCOS_VERSION/$FISCO_BCOS_PKG \
+  && tar zxvf $FISCO_BCOS_PKG \
+  && ./fisco-bcos -v \
+  && rm $FISCO_BCOS_PKG
+
+RUN apt-get install -qy zlib1g-dev \
+  && cd /usr/local/src \
+  && wget https://osp-1257653870.cos.ap-guangzhou.myqcloud.com/FISCO-BCOS/FISCO-BCOS/deps/tassl_1.0.2-5d2100.tar.gz \
+  && tar zxvf tassl_1.0.2-5d2100.tar.gz \
+  && cd TASSL-5d2100b378063bc9ffce0bb703784ab6053848ce \
+  && chmod +x ./config \
+  && chmod +x ./util/* \
+  && ./config --prefix=/usr/local/ssl --openssldir=/usr/local/ssl shared zlib \
+  && make -j \
+  && make install \
+  && mkdir ~/.fisco \
+  && cp /usr/local/ssl/bin/openssl ~/.fisco/tassl \
+  && ~/.fisco/tassl version \
+  && rm /usr/local/src/* -rf
+
+RUN apt-get autoremove -y \
+  && apt-get autoclean \
+  && rm /var/lib/apt/lists/* -rf
+
+WORKDIR /opt/generator
+
+ENTRYPOINT ["tail", "-f", "/dev/null"]
