@@ -8,3 +8,7 @@ services:
     working_dir: /opt/fisco-bcos-deploy
     volumes:
       - "/opt/fisco-bcos-deploy:/opt/fisco-bcos-deploy"
+    entrypoint:
+      - tail
+      - -f
+      - /dev/null

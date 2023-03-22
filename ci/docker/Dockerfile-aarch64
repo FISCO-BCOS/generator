@@ -41,5 +41,3 @@ RUN apt-get autoremove -y \
   && rm /var/lib/apt/lists/* -rf
 
 WORKDIR /opt/generator
-
-ENTRYPOINT ["tail", "-f", "/dev/null"]
