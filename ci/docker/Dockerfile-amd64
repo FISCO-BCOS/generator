@@ -1,0 +1,30 @@
+FROM ubuntu:18.04
+MAINTAINER haibin.l@linkingcloud.cn
+ENV DEBIAN_FRONTEND=noninteractive \
+  PIP_DEFAULT_TIMEOUT=600 \
+  PIP_FIND_LINKS="https://pypi.doubanio.com https://pypi.tuna.tsinghua.edu.cn"
+ARG FISCO_BCOS_VERSION=v2.9.1
+ARG FISCO_BCOS_PKG=fisco-bcos.tar.gz
+
+RUN sed -i 's/archive.ubuntu.com/mirrors.ustc.edu.cn/g' /etc/apt/sources.list \
+  && sed -i 's/security.ubuntu.com/mirrors.ustc.edu.cn/g' /etc/apt/sources.list \
+  && apt-get update -q \
+  && apt-get install -qy sudo git python-pip curl wget \
+  && pip install -i https://mirrors.cloud.tencent.com/pypi/simple -U pip \
+  && pip config set global.index-url https://mirrors.cloud.tencent.com/pypi/simple
+
+RUN git clone --depth=1 https://github.com/FISCO-BCOS/generator.git /opt/generator \
+  && cd /opt/generator \
+  && bash ./scripts/install.sh
+
+RUN cd /opt/generator/meta \
+  && wget -t 0 https://github.com/FISCO-BCOS/FISCO-BCOS/releases/download/$FISCO_BCOS_VERSION/$FISCO_BCOS_PKG \
+  && tar zxvf $FISCO_BCOS_PKG \
+  && rm $FISCO_BCOS_PKG -f \
+  /opt/generator/meta/fisco-bcos -v
+
+RUN apt-get autoremove -y \
+  && apt-get autoclean \
+  && rm /var/lib/apt/lists/* -rf
+
+WORKDIR /opt/generator

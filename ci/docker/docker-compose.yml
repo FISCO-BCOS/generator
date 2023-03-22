@@ -1,0 +1,14 @@
+version: "2"
+
+services:
+  generator:
+    image: fisco-bcos-generator
+    container_name: fisco-bcos-generator
+    restart: always
+    working_dir: /opt/fisco-bcos-deploy
+    volumes:
+      - "/opt/fisco-bcos-deploy:/opt/fisco-bcos-deploy"
+    entrypoint:
+      - tail
+      - -f
+      - /dev/null
